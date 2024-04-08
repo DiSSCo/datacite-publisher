@@ -1,0 +1,1 @@
+Asynchronous publisher to DataCite. Connects to Handle Manager API.
