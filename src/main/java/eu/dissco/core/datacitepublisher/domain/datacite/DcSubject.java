@@ -9,12 +9,6 @@ import lombok.NoArgsConstructor;
 public class DcSubject {
   private String subject;
   private String subjectScheme;
-  @JsonProperty("schemeUri")
-  private final String SCHEME_URI = null;
-  @JsonProperty("valueUri")
-  private final String VALUE_URI = null;
-  @JsonProperty("classificationCode")
-  private final String CLASSIFICATION_CODE = null;
 
   public DcSubject withSubject(String s){
     this.subject = s;
