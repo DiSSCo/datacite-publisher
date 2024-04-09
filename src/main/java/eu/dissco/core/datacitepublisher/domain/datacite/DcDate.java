@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DcDate {
   private String date;
-  @JsonProperty("dateType")
-  private static final String DATE_TYPE = "Issued";
+  private final String dateType = "Issued";
 
   public DcDate withDate(String s){
     this.date = s;

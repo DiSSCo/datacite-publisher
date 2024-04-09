@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DcDescription {
   private String description;
-  @JsonProperty("descriptionType")
-  private static final String DESCRIPTION_TYPE = "TechnicalInfo";
+  private final String descriptionType = "TechnicalInfo";
 
   public DcDescription withDescription(String s){
     this.description = s;

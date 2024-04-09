@@ -7,10 +7,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-class DcContributor {
+public class DcContributor {
 
   private String name;
   private List<DcNameIdentifiers> nameIdentifiers;
+
+  private final String nameType = "Organizational";
+  private final String contributorType = "HostingInstitution";
+
 
   public DcContributor withName(String s){
     this.name = s;
@@ -21,11 +25,5 @@ class DcContributor {
     this.nameIdentifiers = l;
     return this;
   }
-
-  @JsonProperty("nameType")
-  private static final String NAME_TYPE = "Organizational";
-
-  @JsonProperty("contributorType")
-  private static final String CONTRIBUTOR_TYPE = "HostingInstitution";
 
 }

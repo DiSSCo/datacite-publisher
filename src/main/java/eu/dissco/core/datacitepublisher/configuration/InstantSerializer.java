@@ -1,6 +1,6 @@
 package eu.dissco.core.datacitepublisher.configuration;
 
-import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.FORMATTER;
+import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.FDO_FORMATTER;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -16,7 +16,7 @@ public class InstantSerializer extends JsonSerializer<Instant> {
   public void serialize(Instant value, JsonGenerator jsonGenerator,
       SerializerProvider serializerProvider) {
     try {
-      jsonGenerator.writeString(FORMATTER.format(value));
+      jsonGenerator.writeString(FDO_FORMATTER.format(value));
     } catch (IOException e) {
       log.error("An error has occurred serializing a date. More information: {}", e.getMessage());
     }

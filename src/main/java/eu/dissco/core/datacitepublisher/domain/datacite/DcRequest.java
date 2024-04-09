@@ -1,7 +1,5 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
-import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

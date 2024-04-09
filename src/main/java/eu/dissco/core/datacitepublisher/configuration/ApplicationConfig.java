@@ -14,8 +14,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ApplicationConfig {
 
-  public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(
+  public static final DateTimeFormatter FDO_FORMATTER = DateTimeFormatter.ofPattern(
       "yyyy-MM-dd'T'HH:mm:ss.SSSXXX").withZone(ZoneOffset.UTC);
+  public static final DateTimeFormatter DATACITE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 
   @Bean
   public ObjectMapper objectMapper() {

@@ -5,11 +5,10 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Getter
-class DcCreator {
-  @JsonProperty("nameType")
-  private static final String NAME_TYPE= "Organizational";
+@NoArgsConstructor
+public class DcCreator {
+  private final String nameType= "Organizational";
   private String name;
   private List<DcNameIdentifiers> nameIdentifiers;
 

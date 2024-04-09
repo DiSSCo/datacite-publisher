@@ -16,11 +16,10 @@ import reactor.util.retry.Retry;
 @Component
 @Slf4j
 public class DataCiteClient {
-
   private final WebClient webClient;
 
-  public JsonNode sendDoiRequest(JsonNode requestBody) throws DataCiteApiException {
-    var response = webClient.method(HttpMethod.POST)
+  public void sendDoiRequest(JsonNode requestBody, HttpMethod method) throws DataCiteApiException {
+    var response = webClient.method(method)
         .body(BodyInserters.fromValue(requestBody))
         .retrieve()
         .bodyToMono(JsonNode.class)
@@ -30,15 +29,14 @@ public class DataCiteClient {
                 .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new DataCiteApiException(
                     "External Service failed to process after max retries")));
     try {
-      return response.toFuture().get();
+      response.toFuture().get();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new DataCiteApiException(
-          "An Interrupted Exception has occurred in communicating with the DataCite API.");
+      log.error("An Interrupted Exception has occurred in communicating with the DataCite API.", e);
+      throw new DataCiteApiException(e.getMessage());
     } catch (ExecutionException e) {
       log.error("An execution Exception with the DataCite API has occurred", e);
-      throw new DataCiteApiException(e.getCause().getMessage());
+      throw new DataCiteApiException(e.getMessage());
     }
   }
-
 }

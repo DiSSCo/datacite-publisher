@@ -1,6 +1,6 @@
 package eu.dissco.core.datacitepublisher.configuration;
 
-import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.FORMATTER;
+import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.FDO_FORMATTER;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -15,7 +15,7 @@ public class InstantDeserializer  extends JsonDeserializer<Instant> {
   @Override
   public Instant deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
     try {
-      return Instant.from(FORMATTER.parse(jsonParser.getText()));
+      return Instant.from(FDO_FORMATTER.parse(jsonParser.getText()));
     } catch (IOException e) {
       log.error("An error has occurred deserializing a date. More information: {}", e.getMessage());
       return null;
