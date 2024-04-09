@@ -8,7 +8,6 @@ import eu.dissco.core.datacitepublisher.exceptions.FdoProfileException;
 import java.util.List;
 import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +22,7 @@ public class XmlLocReader {
       return locations.getLocation().stream().map(LocationXml::getHref).toList();
     } catch (JsonProcessingException e){
       log.error("Unable to parse 10320/loc field");
-      throw new FdoProfileException("10320/loc", xmlDoc, doi);
+      throw new FdoProfileException("10320/loc");
     }
   }
 

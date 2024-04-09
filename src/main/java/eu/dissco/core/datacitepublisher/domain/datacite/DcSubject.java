@@ -1,18 +1,29 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-record DcSubject(
-    String subject,
-    String subjectScheme
-) {
+@Getter
+@NoArgsConstructor
+public class DcSubject {
+  private String subject;
+  private String subjectScheme;
   @JsonProperty("schemeUri")
-  private static final String SCHEME_URI = null;
-
+  private final String SCHEME_URI = null;
   @JsonProperty("valueUri")
-  private static final String VALUE_URI = null;
-
+  private final String VALUE_URI = null;
   @JsonProperty("classificationCode")
-  private static final String CLASSIFICATION_CODE = null;
+  private final String CLASSIFICATION_CODE = null;
+
+  public DcSubject withSubject(String s){
+    this.subject = s;
+    return this;
+  }
+
+  public DcSubject withSubjectScheme(String s){
+    this.subjectScheme = s;
+    return this;
+  }
 
 }

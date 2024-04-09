@@ -7,6 +7,6 @@ import lombok.Value;
 
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class DigitalSpecimenEvent extends DoiEvent {
+public class DigitalSpecimenEvent {
   List<DigitalSpecimen> fdoProfiles;
 }

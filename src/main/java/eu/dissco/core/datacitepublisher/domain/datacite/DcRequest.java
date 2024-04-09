@@ -3,18 +3,17 @@ package eu.dissco.core.datacitepublisher.domain.datacite;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class DcRequest {
 
-  private final DcData data;
+  private DcData data;
 
-  public DcRequest(DigitalSpecimen fdoProfile) {
-    this.data = new DcData(fdoProfile);
-  }
-
-  public DcRequest(MediaObject fdoProfile) {
-    this.data = new DcData(fdoProfile);
+  public DcRequest withDcData(DcData d){
+    this.data = d;
+    return this;
   }
 
 }

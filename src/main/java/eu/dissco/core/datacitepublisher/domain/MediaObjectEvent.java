@@ -1,12 +1,11 @@
 package eu.dissco.core.datacitepublisher.domain;
 
+import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
-@EqualsAndHashCode(callSuper = true)
 @Value
-public class MediaObjectEvent extends DoiEvent {
-  List<MediaObjectEvent> fdoProfiles;
-
+public class MediaObjectEvent {
+  List<MediaObject> fdoProfiles;
 }

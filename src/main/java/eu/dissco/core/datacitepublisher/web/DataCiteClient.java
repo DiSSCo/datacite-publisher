@@ -1,7 +1,7 @@
 package eu.dissco.core.datacitepublisher.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import eu.dissco.core.datacitepublisher.exceptions.DataCiteException;
+import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class DataCiteClient {
 
   private final WebClient webClient;
 
-  public JsonNode sendDoiRequest(JsonNode requestBody) throws DataCiteException {
+  public JsonNode sendDoiRequest(JsonNode requestBody) throws DataCiteApiException {
     var response = webClient.method(HttpMethod.POST)
         .body(BodyInserters.fromValue(requestBody))
         .retrieve()
@@ -27,17 +27,17 @@ public class DataCiteClient {
         .retryWhen(
             Retry.fixedDelay(3, Duration.ofSeconds(2))
                 .filter(WebClientUtils::is5xxServerError)
-                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new DataCiteException(
+                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new DataCiteApiException(
                     "External Service failed to process after max retries")));
     try {
       return response.toFuture().get();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new DataCiteException(
+      throw new DataCiteApiException(
           "An Interrupted Exception has occurred in communicating with the DataCite API.");
     } catch (ExecutionException e) {
       log.error("An execution Exception with the DataCite API has occurred", e);
-      throw new DataCiteException(e.getCause().getMessage());
+      throw new DataCiteApiException(e.getCause().getMessage());
     }
   }
 

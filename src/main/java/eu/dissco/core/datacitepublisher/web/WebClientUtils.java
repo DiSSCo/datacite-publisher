@@ -1,7 +1,7 @@
 package eu.dissco.core.datacitepublisher.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import eu.dissco.core.datacitepublisher.exceptions.DataCiteException;
+import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import java.util.ArrayList;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -22,11 +22,11 @@ public class WebClientUtils {
     var status = response.statusCode();
     if (HttpStatus.UNPROCESSABLE_ENTITY.equals(status)) {
       return response.bodyToMono(JsonNode.class)
-          .flatMap(body -> Mono.error(new DataCiteException(getErrorTitles(body))));
+          .flatMap(body -> Mono.error(new DataCiteApiException(getErrorTitles(body))));
     }
     if (HttpStatus.NOT_FOUND.equals(status)){
       return response.bodyToMono(JsonNode.class)
-          .flatMap(body -> Mono.error(new DataCiteException(getErrorTitles(body) + " DataCite credentials may be incorrect")));
+          .flatMap(body -> Mono.error(new DataCiteApiException(getErrorTitles(body) + " DataCite credentials may be incorrect")));
     }
     return Mono.just(response);
   }

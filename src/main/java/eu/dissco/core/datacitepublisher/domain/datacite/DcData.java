@@ -1,21 +1,22 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-class DcData {
-  private final String type = "dois";
+@NoArgsConstructor
+public class DcData {
 
-  private final DcAttributes attributes;
+  @JsonProperty("type")
+  private final String TYPE = "dois";
+  private DcAttributes attributes;
 
-  protected DcData(DigitalSpecimen fdoProfile) {
-    this.attributes = new DcAttributes(fdoProfile);
-  }
-
-  protected DcData(MediaObject fdoProfile) {
-    this.attributes = new DcAttributes(fdoProfile);
+  public DcData withDcAttributes(DcAttributes a){
+    this.attributes = a;
+    return this;
   }
 
 }
