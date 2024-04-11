@@ -23,7 +23,9 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
 import eu.dissco.core.datacitepublisher.domain.datacite.UriScheme;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType;
+import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicCategory;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDiscipline;
+import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDomain;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject.LinkedDigitalObjectType;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject.MediaFormat;
@@ -47,6 +49,8 @@ public class TestUtils {
       "https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW",
       "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW");
   public static final TopicDiscipline TOPIC_DISCIPLINE = TopicDiscipline.BOTANY;
+  public static final TopicCategory TOPIC_CATEGORY = TopicCategory.ALGAE;
+  public static final TopicDomain TOPIC_DOMAIN = TopicDomain.LIFE;
   public static final MaterialSampleType MATERIAL_SAMPLE_TYPE = ORGANISM_PART;
   public static final String LOCAL_ID = "PLANT-123";
   public static final ObjectMapper MAPPER;
@@ -77,9 +81,6 @@ public class TestUtils {
         .withContributors(List.of(new DcContributor()
             .withName(HOST_NAME)
             .withNameIdentifiers(List.of(givenIdentifier()))))
-        .withSubjects(List.of(new DcSubject()
-            .withSubjectScheme("topicDiscipline")
-            .withSubject(TOPIC_DISCIPLINE.value())))
         .withAlternateIdentifiers(List.of(new DcAlternateIdentifier()
             .withAlternateIdentifierType("primarySpecimenObjectId")
             .withAlternateIdentifier(LOCAL_ID)))
@@ -88,13 +89,31 @@ public class TestUtils {
         .withRelatedIdentifiers(List.of(
             new DcRelatedIdentifiers()
                 .withRelationType("IsVariantFormOf")
-                .withRelatedIdentifier("https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
+                .withRelatedIdentifier(
+                    "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .withRelatedIdentifierType("URL")))
         .withDescription(List.of(new DcDescription()
-            .withDescription("Digital Specimen for the physical specimen hosted at " + HOST_NAME
-                    + " of materialSampleType " + MATERIAL_SAMPLE_TYPE.value())))
+            .withDescription("Digital Specimen for the physical specimen hosted at " + HOST_NAME)))
         .withType(new DcType().withDcType("Digital Specimen"))
         .withUrl("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW");
+  }
+
+  public static DcAttributes givenSpecimenAttributesFull() {
+    return givenSpecimenAttributes()
+        .withSubjects(List.of(
+            new DcSubject()
+                .withSubjectScheme("topicDiscipline")
+                .withSubject(TOPIC_DISCIPLINE.value()),
+            new DcSubject()
+                .withSubjectScheme("topicDomain")
+                .withSubject(TOPIC_DOMAIN.value()),
+            new DcSubject()
+                .withSubject(TOPIC_CATEGORY.value())
+                .withSubjectScheme("topicCategory"))
+        )
+        .withDescription(List.of(new DcDescription().withDescription(
+            "Digital Specimen for the physical specimen hosted at " + HOST_NAME
+                + " of materialSampleType " + MATERIAL_SAMPLE_TYPE.value())));
   }
 
   public static JsonNode givenSpecimenJson() {
@@ -117,9 +136,6 @@ public class TestUtils {
                 .withNameIdentifiers(List.of(givenIdentifier()))))
         .withSubjects(List.of(
             new DcSubject()
-                .withSubjectScheme("mediaFormat")
-                .withSubject(MediaFormat.IMAGE.value()),
-            new DcSubject()
                 .withSubjectScheme("linkedDigitalObjectType")
                 .withSubject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())))
         .withAlternateIdentifiers(List.of(
@@ -128,40 +144,70 @@ public class TestUtils {
                 .withAlternateIdentifier(LOCAL_ID)))
         .withDates(List.of(
             new DcDate()
-              .withDate("2024-03-08")))
+                .withDate("2024-03-08")))
         .withRelatedIdentifiers(List.of(
             new DcRelatedIdentifiers()
                 .withRelationType("IsVariantFormOf")
-                .withRelatedIdentifier("https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
+                .withRelatedIdentifier(
+                    "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .withRelatedIdentifierType("URL")))
         .withDescription(List.of(new DcDescription()
-            .withDescription("Media object hosted at " + HOST_NAME + " for an object of type " + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())))
+            .withDescription("Media object hosted at " + HOST_NAME + " for an object of type "
+                + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())))
         .withType(new DcType().withDcType("Media Object"))
         .withUrl("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW");
   }
 
-
-  public static DigitalSpecimen givenDigitalSpecimen() {
-    return new DigitalSpecimen().with10320Loc(LOCS).withPid(PID).withIssuedForAgent(ROR)
-        .withIssuedForAgentName(HOST_NAME).withPidRecordIssueDate(PID_ISSUE_DATE)
-        .withMaterialSampleType(MATERIAL_SAMPLE_TYPE).withPrimarySpecimenObjectId(LOCAL_ID)
-        .withTopicDiscipline(TopicDiscipline.BOTANY).withSpecimenHost(ROR)
-        .withSpecimenHostName(HOST_NAME).withReferentName(REFERENT_NAME);
+  public static DcAttributes givenMediaAttributesFull(){
+    return givenMediaAttributes()
+        .withSubjects(List.of(
+            new DcSubject()
+                .withSubjectScheme("mediaFormat")
+                .withSubject(MediaFormat.IMAGE.value()),
+            new DcSubject()
+                .withSubjectScheme("linkedDigitalObjectType")
+                .withSubject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value()))
+        );
   }
 
-  public static MediaObject givenMediaObject(){
+  public static DigitalSpecimen givenDigitalSpecimen() {
+    return new DigitalSpecimen()
+        .with10320Loc(LOCS)
+        .withPid(PID)
+        .withIssuedForAgent(ROR)
+        .withIssuedForAgentName(HOST_NAME)
+        .withPidRecordIssueDate(PID_ISSUE_DATE)
+        .withPrimarySpecimenObjectId(LOCAL_ID)
+        .withSpecimenHost(ROR)
+        .withSpecimenHostName(HOST_NAME)
+        .withReferentName(REFERENT_NAME);
+  }
+
+  public static DigitalSpecimen givenDigitalSpecimenFull() {
+    return givenDigitalSpecimen()
+        .withTopicDiscipline(TOPIC_DISCIPLINE)
+        .withTopicCategory(TOPIC_CATEGORY)
+        .withTopicDomain(TOPIC_DOMAIN)
+        .withMaterialSampleType(MATERIAL_SAMPLE_TYPE);
+  }
+
+  public static MediaObject givenMediaObject() {
     return new MediaObject()
         .with10320Loc(LOCS)
         .withPid(PID)
         .withIssuedForAgent(ROR)
         .withIssuedForAgentName(HOST_NAME)
         .withPidRecordIssueDate(PID_ISSUE_DATE)
-        .withMediaFormat(MediaFormat.IMAGE)
         .withPrimaryMediaId(LOCAL_ID)
         .withReferentName(REFERENT_NAME)
         .withMediaHostName(HOST_NAME)
         .withMediaHost(ROR)
         .withLinkedDigitalObjectType(LinkedDigitalObjectType.DIGITAL_SPECIMEN);
+  }
+
+  public static MediaObject givenMediaObjectFull() {
+    return givenMediaObject()
+        .withMediaFormat(MediaFormat.IMAGE);
   }
 
 

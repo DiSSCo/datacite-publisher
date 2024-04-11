@@ -80,7 +80,8 @@ public class DataCitePublisherService {
         publishDlq(request, request.getData().getAttributes().getDoi());
       }
     }
-    log.info("Successfully published {} dois to datacite out of {} PIDs", successCount, requests.size());
+    log.info("Successfully published {} dois to datacite out of {} PIDs", successCount,
+        requests.size());
   }
 
   private DcRequest buildDcRequest(DigitalSpecimen digitalSpecimen) {
@@ -129,6 +130,7 @@ public class DataCitePublisherService {
     try {
       var xmlLocs = xmlLocReader.getLocationsFromXml(xmlLoc);
       var url = XmlLocReader.getLandingPageLocation(xmlLocs, landingPage);
+      var issueDate = getDate(pidRecordIssueDate);
       return new DcRequest()
           .withDcData(
               new DcData()
@@ -137,11 +139,11 @@ public class DataCitePublisherService {
                           getAltIds(altIdType, localId))
                       .withContributors(getContributors(hostName, hostId))
                       .withCreators(getCreator(issuedForAgentName, issuedForAgentId))
-                      .withDates(getDates(pidRecordIssueDate))
+                      .withDates(getDates(issueDate))
                       .withDescription(descriptions)
                       .withDoi(getDoi(pid))
                       .withPublicationYear(
-                          getPublicationYear(pidRecordIssueDate))
+                          getPublicationYear(issueDate))
                       .withRelatedIdentifiers(getRelatedIdentifiers(xmlLocs, url))
                       .withSubjects(subjects)
                       .withSuffix(getSuffix(pid))
@@ -202,26 +204,22 @@ public class DataCitePublisherService {
         .withNameIdentifier(id);
   }
 
-  private List<DcDate> getDates(String pidIssueDate) throws InvalidFdoProfileRecievedException {
+  private ZonedDateTime getDate(String pidIssueDate) throws InvalidFdoProfileRecievedException {
     try {
       pidIssueDate = pidIssueDate.replace("'", "");
-      return List.of(new DcDate().withDate(ZonedDateTime.parse(pidIssueDate).format(DATACITE_FORMATTER)));
-    } catch (DateTimeException e){
+      return ZonedDateTime.parse(pidIssueDate);
+    } catch (DateTimeException e) {
       log.error("Unable to parse date {}", pidIssueDate, e);
       throw new InvalidFdoProfileRecievedException();
     }
-
   }
 
-  private Integer getPublicationYear(String pidIssueDate)
-      throws InvalidFdoProfileRecievedException {
-    try {
-      pidIssueDate = pidIssueDate.replace("'", "");
-      return ZonedDateTime.parse(pidIssueDate).getYear();
-    } catch (DateTimeException e) {
-      log.error("Unable to read PID Issue Date : {}", pidIssueDate, e);
-      throw new InvalidFdoProfileRecievedException();
-    }
+  private List<DcDate> getDates(ZonedDateTime pidIssueDate) {
+    return List.of(new DcDate().withDate(pidIssueDate.format(DATACITE_FORMATTER)));
+  }
+
+  private Integer getPublicationYear(ZonedDateTime pidIssueDate) {
+    return pidIssueDate.getYear();
   }
 
   private List<DcDescription> getDescription(DigitalSpecimen digitalSpecimen) {
@@ -263,7 +261,7 @@ public class DataCitePublisherService {
       subjectList.add(
           new DcSubject()
               .withSubjectScheme("topicCategory")
-              .withSubjectScheme(digitalSpecimen.getTopicCategory().value())
+              .withSubject(digitalSpecimen.getTopicCategory().value())
       );
     }
     return subjectList.isEmpty() ? null : subjectList;
@@ -275,7 +273,7 @@ public class DataCitePublisherService {
       subjectList.add(new DcSubject()
           .withSubjectScheme("mediaFormat")
           .withSubject(mediaObject.getMediaFormat()
-              .value())); //mediaObject.getMediaFormat().value(), "mediaFormat")
+              .value()));
     }
     subjectList.add(
         new DcSubject()
