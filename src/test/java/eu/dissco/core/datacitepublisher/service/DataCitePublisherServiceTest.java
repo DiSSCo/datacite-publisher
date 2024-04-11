@@ -34,7 +34,6 @@ class DataCitePublisherServiceTest {
   private XmlLocReader xmlLocReader;
   @Mock
   private DataCiteClient dataCiteClient;
-
   private DataCitePublisherService service;
 
   @BeforeEach

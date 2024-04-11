@@ -1,6 +1,5 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

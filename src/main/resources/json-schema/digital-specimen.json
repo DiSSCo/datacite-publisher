@@ -141,7 +141,7 @@
       "example": "Registration number",
       "$comment": "idx = 204"
     },
-    "normalisedSpecimenObjectId": {
+    "normalisedPrimarySpecimenObjectId": {
       "type": "string",
       "description": "For internal processing purposes only to make a local identifier globally unique. This is the primarySpecimenObjectId if it is globally unique or a combination of ROR ID string, source system ID string, primarySpecimenObjectId if it is a proprietary identifier.",
       "example": "0566bfb96:20.5000.1025/GEE-W3J-HL2:RMNH.1.2b",

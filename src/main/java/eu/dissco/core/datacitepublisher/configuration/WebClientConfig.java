@@ -15,7 +15,7 @@ public class WebClientConfig {
 
   private final DataCiteConnectionProperties properties;
   @Bean
-  public WebClient dataCiteClient() {
+  public WebClient webClient() {
     ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
         .ofResponseProcessor(WebClientUtils::exchangeFilterResponseProcessor);
     return WebClient.builder()

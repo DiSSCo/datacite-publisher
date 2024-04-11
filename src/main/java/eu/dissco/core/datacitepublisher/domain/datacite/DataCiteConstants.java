@@ -2,7 +2,6 @@ package eu.dissco.core.datacitepublisher.domain.datacite;
 
 public class DataCiteConstants {
   private DataCiteConstants(){}
-  public static final String PREFIX = "10.3535";
   public static final String ALT_ID_TYPE_DS = "primarySpecimenObjectId";
   public static final String ALT_ID_TYPE_MO = "primaryMediaId";
   public static final String LANDING_PAGE_DS = "https://sandbox.dissco.tech/ds/";

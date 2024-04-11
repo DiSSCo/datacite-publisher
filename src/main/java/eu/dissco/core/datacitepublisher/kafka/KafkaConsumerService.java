@@ -5,17 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
 import eu.dissco.core.datacitepublisher.service.DataCitePublisherService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class KafkaConsumerService {
 
+  @Qualifier("object")
   private final ObjectMapper mapper;
   private final DataCitePublisherService service;
   private final KafkaPublisherService kafkaPublisherService;

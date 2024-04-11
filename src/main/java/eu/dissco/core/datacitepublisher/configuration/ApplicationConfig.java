@@ -7,11 +7,13 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
+@RequiredArgsConstructor
 public class ApplicationConfig {
 
   public static final DateTimeFormatter FDO_FORMATTER = DateTimeFormatter.ofPattern(
@@ -20,6 +22,7 @@ public class ApplicationConfig {
 
 
   @Bean
+  @Qualifier("object")
   public ObjectMapper objectMapper() {
     var mapper = new ObjectMapper().findAndRegisterModules();
     SimpleModule dateModule = new SimpleModule();
@@ -31,9 +34,9 @@ public class ApplicationConfig {
   }
 
   @Bean
+  @Qualifier("xml")
   public XmlMapper xmlMapper(){
     return new XmlMapper();
   }
-
 
 }

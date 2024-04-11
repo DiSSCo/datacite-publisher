@@ -18,6 +18,4 @@ public class DataCiteConnectionProperties {
 
   @NotBlank
   private String endpoint;
-
-
 }

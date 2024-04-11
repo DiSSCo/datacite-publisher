@@ -5,7 +5,6 @@ import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.ALT_ID_TYPE_MO;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.LANDING_PAGE_DS;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.LANDING_PAGE_MO;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PREFIX;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_DS;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_MO;
 
@@ -42,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -52,31 +52,35 @@ public class DataCitePublisherService {
 
   private final KafkaPublisherService kafkaPublisherService;
   private final XmlLocReader xmlLocReader;
+  @Qualifier("object")
   private final ObjectMapper mapper;
   private final DataCiteClient dataCiteClient;
 
   public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent) {
     var dcRequests = digitalSpecimenEvent.fdoProfiles().stream().map(this::buildDcRequest)
         .toList();
-    handleMessages(dcRequests, digitalSpecimenEvent.eventType());
-
+    publishToDataCite(dcRequests, digitalSpecimenEvent.eventType());
   }
 
   public void handleMessages(MediaObjectEvent mediaObjectEvent) {
     var dcRequests = mediaObjectEvent.fdoProfiles().stream().map(this::buildDcRequest).toList();
-    handleMessages(dcRequests, mediaObjectEvent.eventType());
+    publishToDataCite(dcRequests, mediaObjectEvent.eventType());
   }
 
-  private void handleMessages(List<DcRequest> requests, EventType eventType) {
+  private void publishToDataCite(List<DcRequest> requests, EventType eventType) {
+    int successCount = 0;
     for (var request : requests) {
       var body = mapper.valueToTree(request);
       try {
         var method = eventType.equals(EventType.CREATE) ? HttpMethod.POST : HttpMethod.PUT;
-        dataCiteClient.sendDoiRequest(body, method);
+        var response = dataCiteClient.sendDoiRequest(body, method);
+        log.debug("received response from datacite: {}", response);
+        successCount = successCount + 1;
       } catch (DataCiteApiException e) {
         dlqFailure(request, request.getData().getAttributes().getDoi());
       }
     }
+    log.info("Successfully published {} dois to datacite out of {} PIDs", successCount, requests.size());
   }
 
   private DcRequest buildDcRequest(DigitalSpecimen digitalSpecimen) {
@@ -236,8 +240,8 @@ public class DataCitePublisherService {
   }
 
   private String getDoi(String pid) {
-    // Captures everything before the last /
-    return PREFIX + "/" + pid.replaceAll("^(.*/).*/", "");
+    // Captures everything before the second last /
+    return pid.replaceAll(".*(?=(?:/[^/]*){2}$)/", "");
   }
 
   private List<DcSubject> getSubjects(DigitalSpecimen digitalSpecimen) {
