@@ -3,6 +3,7 @@ package eu.dissco.core.datacitepublisher;
 import static eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType.ORGANISM_PART;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import eu.dissco.core.datacitepublisher.configuration.InstantDeserializer;
@@ -88,6 +89,10 @@ public class TestUtils {
                     + " of materialSampleType " + MATERIAL_SAMPLE_TYPE.value())))
         .withType(new DcType().withDcType("Digital Specimen"))
         .withUrl("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW");
+  }
+
+  public static JsonNode givenSpecimenJson() {
+    return MAPPER.valueToTree(givenSpecimenAttributes());
   }
 
   public static DcAttributes givenMediaAttributes() {

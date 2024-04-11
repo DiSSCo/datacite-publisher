@@ -2,6 +2,7 @@ package eu.dissco.core.datacitepublisher.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
+import eu.dissco.core.datacitepublisher.utils.WebClientUtils;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;

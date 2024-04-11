@@ -77,7 +77,7 @@ public class DataCitePublisherService {
         log.debug("received response from datacite: {}", response);
         successCount = successCount + 1;
       } catch (DataCiteApiException e) {
-        dlqFailure(request, request.getData().getAttributes().getDoi());
+        publishDlq(request, request.getData().getAttributes().getDoi());
       }
     }
     log.info("Successfully published {} dois to datacite out of {} PIDs", successCount, requests.size());
@@ -150,12 +150,12 @@ public class DataCitePublisherService {
                       .withUrl(url))
           );
     } catch (InvalidFdoProfileRecievedException e) {
-      dlqFailure(fdoProfile, pid);
+      publishDlq(fdoProfile, pid);
       throw new DataCiteMappingException();
     }
   }
 
-  private void dlqFailure(Object message, String pid) {
+  private void publishDlq(Object message, String pid) {
     String parsedMessage;
     try {
       parsedMessage = mapper.writeValueAsString(message);
