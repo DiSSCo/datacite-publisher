@@ -89,7 +89,7 @@ class DataCitePublisherServiceTest {
     var requestBody = MAPPER.valueToTree(
         new DcRequest().withDcData(new DcData().withDcAttributes(givenSpecimenAttributes())));
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
-    doThrow(DataCiteApiException.class).when(dataCiteClient.sendDoiRequest(requestBody, HttpMethod.POST));
+    given(dataCiteClient.sendDoiRequest(requestBody, HttpMethod.POST)).willThrow(DataCiteApiException.class);
 
     // When
     service.handleMessages(event);
