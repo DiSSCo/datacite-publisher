@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import eu.dissco.core.datacitepublisher.configuration.InstantDeserializer;
 import eu.dissco.core.datacitepublisher.configuration.InstantSerializer;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAlternateIdentifier;
@@ -49,6 +50,7 @@ public class TestUtils {
   public static final MaterialSampleType MATERIAL_SAMPLE_TYPE = ORGANISM_PART;
   public static final String LOCAL_ID = "PLANT-123";
   public static final ObjectMapper MAPPER;
+  public static final XmlMapper XML_MAPPER;
 
   static {
     var mapper = new ObjectMapper().findAndRegisterModules();
@@ -58,6 +60,10 @@ public class TestUtils {
     mapper.registerModule(dateModule);
     mapper.setSerializationInclusion(Include.NON_NULL);
     MAPPER = mapper;
+  }
+
+  static {
+    XML_MAPPER = new XmlMapper();
   }
 
   public static DcAttributes givenSpecimenAttributes() {

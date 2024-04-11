@@ -19,7 +19,7 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcData;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
 import eu.dissco.core.datacitepublisher.kafka.KafkaPublisherService;
-import eu.dissco.core.datacitepublisher.utils.XmlLocReader;
+import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.web.DataCiteClient;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

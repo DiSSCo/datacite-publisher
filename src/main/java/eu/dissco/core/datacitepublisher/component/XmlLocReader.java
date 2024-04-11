@@ -1,4 +1,4 @@
-package eu.dissco.core.datacitepublisher.utils;
+package eu.dissco.core.datacitepublisher.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
