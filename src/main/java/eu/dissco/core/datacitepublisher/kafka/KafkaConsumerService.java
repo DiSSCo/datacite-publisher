@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaConsumerService {
 
-  @Qualifier("object")
+  @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final DataCitePublisherService service;
   private final KafkaPublisherService kafkaPublisherService;

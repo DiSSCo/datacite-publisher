@@ -20,7 +20,7 @@ public class ApplicationConfig {
   public static final DateTimeFormatter DATACITE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
-  @Bean(name = "object")
+  @Bean
   public ObjectMapper objectMapper() {
     var mapper = new ObjectMapper().findAndRegisterModules();
     SimpleModule dateModule = new SimpleModule();
@@ -31,7 +31,7 @@ public class ApplicationConfig {
     return mapper;
   }
 
-  @Bean(name = "xml")
+  @Bean
   public XmlMapper xmlMapper(){
     return new XmlMapper();
   }

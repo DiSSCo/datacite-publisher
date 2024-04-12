@@ -52,7 +52,7 @@ public class DataCitePublisherService {
 
   private final KafkaPublisherService kafkaPublisherService;
   private final XmlLocReader xmlLocReader;
-  @Qualifier("object")
+  @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final DataCiteClient dataCiteClient;
 
