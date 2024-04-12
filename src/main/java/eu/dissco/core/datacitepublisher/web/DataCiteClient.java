@@ -2,7 +2,6 @@ package eu.dissco.core.datacitepublisher.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
-import eu.dissco.core.datacitepublisher.utils.WebClientUtils;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,7 @@ public class DataCiteClient {
       throw new DataCiteApiException(e.getMessage());
     } catch (ExecutionException e) {
       log.error("An execution Exception with the DataCite API has occurred", e);
-      throw new DataCiteApiException(e.getMessage());
+      throw new DataCiteApiException(e.getLocalizedMessage());
     }
   }
 }

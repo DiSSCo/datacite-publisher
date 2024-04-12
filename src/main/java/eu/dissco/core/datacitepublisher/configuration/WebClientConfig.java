@@ -1,7 +1,7 @@
 package eu.dissco.core.datacitepublisher.configuration;
 
 import eu.dissco.core.datacitepublisher.properties.DataCiteConnectionProperties;
-import eu.dissco.core.datacitepublisher.utils.WebClientUtils;
+import eu.dissco.core.datacitepublisher.web.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

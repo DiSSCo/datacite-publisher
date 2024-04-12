@@ -1,4 +1,4 @@
-package eu.dissco.core.datacitepublisher.utils;
+package eu.dissco.core.datacitepublisher.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
