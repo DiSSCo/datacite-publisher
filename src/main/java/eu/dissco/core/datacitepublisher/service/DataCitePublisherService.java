@@ -57,13 +57,13 @@ public class DataCitePublisherService {
   private final DataCiteClient dataCiteClient;
 
   public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent) {
-    var dcRequests = digitalSpecimenEvent.fdoProfiles().stream().map(this::buildDcRequest)
+    var dcRequests = digitalSpecimenEvent.pidRecords().stream().map(this::buildDcRequest)
         .toList();
     publishToDataCite(dcRequests, digitalSpecimenEvent.eventType());
   }
 
   public void handleMessages(MediaObjectEvent mediaObjectEvent) {
-    var dcRequests = mediaObjectEvent.fdoProfiles().stream().map(this::buildDcRequest).toList();
+    var dcRequests = mediaObjectEvent.pidProfiles().stream().map(this::buildDcRequest).toList();
     publishToDataCite(dcRequests, mediaObjectEvent.eventType());
   }
 
