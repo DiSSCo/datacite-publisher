@@ -16,6 +16,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static reactor.core.publisher.Mono.when;
 
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
@@ -96,6 +98,25 @@ class DataCitePublisherServiceTest {
 
     // Then
     then(kafkaPublisherService).should().sendDlq(MAPPER.writeValueAsString(requestBody));
+  }
+
+  @Test
+  void testHandleDigitalSpecimenOneApiException() throws Exception {
+    // Given
+    var event = new DigitalSpecimenEvent(List.of(givenDigitalSpecimen(), givenDigitalSpecimen()), EventType.CREATE);
+    var requestBody = MAPPER.valueToTree(
+        new DcRequest().withDcData(new DcData().withDcAttributes(givenSpecimenAttributes())));
+    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+    given(dataCiteClient.sendDoiRequest(requestBody, HttpMethod.POST))
+        .willThrow(DataCiteApiException.class)
+        .willReturn(MAPPER.createObjectNode());
+
+    // When
+    service.handleMessages(event);
+
+    // Then
+    then(dataCiteClient).should(times(2)).sendDoiRequest(requestBody, HttpMethod.POST);
+    then(kafkaPublisherService).should(times(1)).sendDlq(MAPPER.writeValueAsString(requestBody));
   }
 
   @Test
