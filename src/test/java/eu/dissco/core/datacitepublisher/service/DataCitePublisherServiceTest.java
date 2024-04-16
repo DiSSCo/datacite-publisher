@@ -3,6 +3,7 @@ package eu.dissco.core.datacitepublisher.service;
 import static eu.dissco.core.datacitepublisher.TestUtils.LOCS;
 import static eu.dissco.core.datacitepublisher.TestUtils.LOCS_ARR;
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
+import static eu.dissco.core.datacitepublisher.TestUtils.SUFFIX;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributes;
@@ -12,6 +13,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObjectFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenAttributes;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenAttributesFull;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,11 +41,13 @@ class DataCitePublisherServiceTest {
   private XmlLocReader xmlLocReader;
   @Mock
   private DataCiteClient dataCiteClient;
+  @Mock
+  private Environment environment;
   private DataCitePublisherService service;
 
   @BeforeEach
   void setup() {
-    service = new DataCitePublisherService(xmlLocReader, MAPPER, dataCiteClient);
+    service = new DataCitePublisherService(xmlLocReader, MAPPER, dataCiteClient, environment);
   }
 
   @Test
@@ -94,7 +99,8 @@ class DataCitePublisherServiceTest {
                 .build())
             .build());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
-    given(dataCiteClient.sendDoiRequest(requestBody, HttpMethod.POST)).willThrow(DataCiteApiException.class);
+    given(dataCiteClient.sendDoiRequest(requestBody, HttpMethod.POST)).willThrow(
+        DataCiteApiException.class);
 
     // When / Then
     assertThrows(DataCiteApiException.class, () -> service.handleMessages(event));
@@ -166,8 +172,26 @@ class DataCitePublisherServiceTest {
 
     // When
     assertThrows(DataCiteMappingException.class, () -> service.handleMessages(event));
-
   }
 
+  @Test
+  void testHandleDigitalSpecimenMessageTestEnv() throws Exception {
+    // Given
+    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+    given(environment.matchesProfiles(anyString())).willReturn(true);
+    var expected = MAPPER.valueToTree(
+        DcRequest.builder()
+            .data(DcData.builder()
+                .attributes(givenSpecimenAttributes("10.82621/" + SUFFIX))
+                .build())
+            .build());
+    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+
+    // When
+    service.handleMessages(event);
+
+    // Then
+    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.POST);
+  }
 
 }

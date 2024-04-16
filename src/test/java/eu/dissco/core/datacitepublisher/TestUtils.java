@@ -70,10 +70,10 @@ public class TestUtils {
     XML_MAPPER = new XmlMapper();
   }
 
-  public static DcAttributes givenSpecimenAttributes() {
+  public static DcAttributes givenSpecimenAttributes(String doi){
     return DcAttributes.builder()
         .suffix(SUFFIX)
-        .doi(DOI)
+        .doi(doi)
         .creators(List.of(DcCreator.builder()
             .name(HOST_NAME)
             .nameIdentifiers(List.of(givenIdentifier()))
@@ -106,6 +106,10 @@ public class TestUtils {
             .build())
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .build();
+  }
+
+  public static DcAttributes givenSpecimenAttributes() {
+    return givenSpecimenAttributes(DOI);
   }
 
   public static DcAttributes givenSpecimenAttributesFull() {

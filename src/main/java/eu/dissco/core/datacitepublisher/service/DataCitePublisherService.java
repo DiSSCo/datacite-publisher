@@ -9,6 +9,7 @@ import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_MO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
@@ -40,6 +41,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,7 @@ public class DataCitePublisherService {
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final DataCiteClient dataCiteClient;
+  private final Environment environment;
 
   public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent)
       throws DataCiteApiException {
@@ -214,7 +217,13 @@ public class DataCitePublisherService {
 
   private String getDoi(String pid) {
     // Captures everything before the second last /
-    return pid.replaceAll(".*(?=(?:/[^/]*){2}$)/", "");
+    var doi = pid.replaceAll(".*(?=(?:/[^/]*){2}$)/", "");
+    if (environment.matchesProfiles(Profiles.TEST)){
+      // Replaces everything before / -> i.e. the test prefix
+      // We do this so we can post to the test datacite environment
+      doi = doi.replaceAll("^(.*/)", "10.82621/");
+    }
+    return doi;
   }
 
   private List<DcSubject> getSubjects(DigitalSpecimen digitalSpecimen) {

@@ -30,9 +30,9 @@ public class KafkaConsumerService {
 
   @RetryableTopic(
       attempts = "1",
-      kafkaTemplate = "retryableTopicKafkaTemplate",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
-  @KafkaListener(topics = "${kafka.consumer.topic.specimen}")
+  @KafkaListener(topics = "${kafka.consumer.topic.specimen}",
+      groupId = "${spring.kafka.consumer.group-id}" )
   public void getSpecimenMessages(@Payload String message) throws DataCiteApiException {
     DigitalSpecimenEvent event;
     try {
@@ -47,9 +47,8 @@ public class KafkaConsumerService {
 
   @RetryableTopic(
       attempts = "1",
-      kafkaTemplate = "retryableTopicKafkaTemplate",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
-  @KafkaListener(topics = "${kafka.consumer.topic.media}")
+  @KafkaListener(topics = "${kafka.consumer.topic.media}",  groupId = "${spring.kafka.consumer.group-id}")
   public void getMediaMessages(@Payload String message) throws DataCiteApiException {
     MediaObjectEvent event;
     try {
