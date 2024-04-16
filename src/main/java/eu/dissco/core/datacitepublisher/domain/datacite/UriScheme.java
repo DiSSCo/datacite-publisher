@@ -1,10 +1,13 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public enum UriScheme {
   ROR("https://ror.org", "ROR"),
   HANDLE("https://hdl.handle.net", "Handle"),
   DOI("https://doi.org", "DOI"),
-  QID(null, "Q Number");
+  QID("https://www.wikidata.org/", "Q Number");
 
   final String uri;
   final String schemeName;
@@ -24,7 +27,11 @@ public enum UriScheme {
     if (identifier.contains("doi")) {
       return UriScheme.DOI;
     }
-    return UriScheme.QID;
+    if (identifier.contains("wikidata")) {
+      return UriScheme.QID;
+    }
+    log.error("Invalid identifier: {} can not be matched to identifier scheme", identifier);
+    throw new IllegalStateException();
   }
 
   public String getUri() {

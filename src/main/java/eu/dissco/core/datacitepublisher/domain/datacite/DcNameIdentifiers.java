@@ -1,28 +1,18 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Builder
+@AllArgsConstructor
+@Setter(value = AccessLevel.PACKAGE)
 @Getter
-@NoArgsConstructor
 public class DcNameIdentifiers {
 
   private String schemeUri;
   private String nameIdentifier;
   private String nameIdentifierScheme;
-  
-  public DcNameIdentifiers withSchemeUri(String s){
-    this.schemeUri = s;
-    return this;
-  }
-
-  public DcNameIdentifiers withNameIdentifier(String s){
-    this.nameIdentifier = s;
-    return this;
-  }
-
-  public DcNameIdentifiers withNameIdentifierScheme(String s){
-    this.nameIdentifierScheme = s;
-    return this;
-  }
 }

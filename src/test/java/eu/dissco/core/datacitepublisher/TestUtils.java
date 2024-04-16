@@ -36,10 +36,10 @@ public class TestUtils {
 
   private TestUtils() {
   }
-
-  public static final String PID = "https://doi.org/10.3535/QR1-P21-9FW";
   public static final String SUFFIX = "QR1-P21-9FW";
-  public static final String DOI = "10.3535/QR1-P21-9FW";
+  public static final String PREFIX = "10.3535";
+  public static final String PID = "https://doi.org/" + PREFIX + "/" + SUFFIX;
+  public static final String DOI = PREFIX + "/" + SUFFIX;
   public static final String ROR = "https://ror.org/0566bfb96";
   public static final String HOST_NAME = "Naturalis Biodiversity Center";
   public static final String REFERENT_NAME = "New digital object";
@@ -71,49 +71,94 @@ public class TestUtils {
   }
 
   public static DcAttributes givenSpecimenAttributes() {
-    return new DcAttributes()
-        .withSuffix(SUFFIX)
-        .withDoi(DOI)
-        .withCreators(List.of(new DcCreator()
-            .withName(HOST_NAME)
-            .withNameIdentifiers(List.of(givenIdentifier()))))
-        .withTitles(List.of(new DcTitle().withTitle(REFERENT_NAME))).withPublicationYear(2024)
-        .withContributors(List.of(new DcContributor()
-            .withName(HOST_NAME)
-            .withNameIdentifiers(List.of(givenIdentifier()))))
-        .withAlternateIdentifiers(List.of(new DcAlternateIdentifier()
-            .withAlternateIdentifierType("primarySpecimenObjectId")
-            .withAlternateIdentifier(LOCAL_ID)))
-        .withDates(List.of(new DcDate()
-            .withDate("2024-03-08")))
-        .withRelatedIdentifiers(List.of(
-            new DcRelatedIdentifiers()
-                .withRelationType("IsVariantFormOf")
-                .withRelatedIdentifier(
+    return DcAttributes.builder()
+        .suffix(SUFFIX)
+        .doi(DOI)
+        .creators(List.of(DcCreator.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .titles(List.of(DcTitle.builder()
+            .title(REFERENT_NAME).build()))
+        .publicationYear(2024)
+        .contributors(List.of(DcContributor.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .alternateIdentifiers(List.of(DcAlternateIdentifier.builder()
+            .alternateIdentifierType("primarySpecimenObjectId")
+            .alternateIdentifier(LOCAL_ID).build()))
+        .dates(List.of(DcDate.builder()
+            .date("2024-03-08")
+            .build()))
+        .relatedIdentifiers(List.of(
+            DcRelatedIdentifiers.builder()
+                .relationType("IsVariantFormOf")
+                .relatedIdentifier(
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
-                .withRelatedIdentifierType("URL")))
-        .withDescription(List.of(new DcDescription()
-            .withDescription("Digital Specimen for the physical specimen hosted at " + HOST_NAME)))
-        .withType(new DcType().withDcType("Digital Specimen"))
-        .withUrl("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW");
+                .relatedIdentifierType("URL")
+                .build()))
+        .descriptions(List.of(DcDescription.builder()
+            .description("Digital Specimen for the physical specimen hosted at " + HOST_NAME)
+            .build()))
+        .types(DcType.builder()
+            .resourceType("Digital Specimen")
+            .build())
+        .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .build();
   }
 
   public static DcAttributes givenSpecimenAttributesFull() {
-    return givenSpecimenAttributes()
-        .withSubjects(List.of(
-            new DcSubject()
-                .withSubjectScheme("topicDiscipline")
-                .withSubject(TOPIC_DISCIPLINE.value()),
-            new DcSubject()
-                .withSubjectScheme("topicDomain")
-                .withSubject(TOPIC_DOMAIN.value()),
-            new DcSubject()
-                .withSubject(TOPIC_CATEGORY.value())
-                .withSubjectScheme("topicCategory"))
+    return DcAttributes.builder()
+        .suffix(SUFFIX)
+        .doi(DOI)
+        .creators(List.of(DcCreator.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .titles(List.of(DcTitle.builder()
+            .title(REFERENT_NAME).build()))
+        .publicationYear(2024)
+        .contributors(List.of(DcContributor.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .alternateIdentifiers(List.of(DcAlternateIdentifier.builder()
+            .alternateIdentifierType("primarySpecimenObjectId")
+            .alternateIdentifier(LOCAL_ID).build()))
+        .dates(List.of(DcDate.builder()
+            .date("2024-03-08")
+            .build()))
+        .relatedIdentifiers(List.of(
+            DcRelatedIdentifiers.builder()
+                .relationType("IsVariantFormOf")
+                .relatedIdentifier(
+                    "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
+                .relatedIdentifierType("URL")
+                .build()))
+        .types(DcType.builder()
+            .resourceType("Digital Specimen")
+            .build())
+        .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .subjects(List.of(
+            DcSubject.builder()
+                .subjectScheme("topicDiscipline")
+                .subject(TOPIC_DISCIPLINE.value())
+                .build(),
+            DcSubject.builder()
+                .subjectScheme("topicDomain")
+                .subject(TOPIC_DOMAIN.value())
+                .build(),
+            DcSubject.builder()
+                .subject(TOPIC_CATEGORY.value())
+                .subjectScheme("topicCategory")
+                .build())
         )
-        .withDescription(List.of(new DcDescription().withDescription(
+        .descriptions(List.of(DcDescription.builder().description(
             "Digital Specimen for the physical specimen hosted at " + HOST_NAME
-                + " of materialSampleType " + MATERIAL_SAMPLE_TYPE.value())));
+                + " of materialSampleType " + MATERIAL_SAMPLE_TYPE.value())
+            .build()))
+        .build();
   }
 
   public static JsonNode givenSpecimenJson() {
@@ -121,53 +166,98 @@ public class TestUtils {
   }
 
   public static DcAttributes givenMediaAttributes() {
-    return new DcAttributes()
-        .withSuffix(SUFFIX)
-        .withDoi(DOI)
-        .withCreators(List.of(
-            new DcCreator()
-                .withName(HOST_NAME)
-                .withNameIdentifiers(List.of(givenIdentifier()))))
-        .withTitles(List.of(new DcTitle().withTitle(REFERENT_NAME)))
-        .withPublicationYear(2024)
-        .withContributors(List.of(
-            new DcContributor()
-                .withName(HOST_NAME)
-                .withNameIdentifiers(List.of(givenIdentifier()))))
-        .withSubjects(List.of(
-            new DcSubject()
-                .withSubjectScheme("linkedDigitalObjectType")
-                .withSubject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())))
-        .withAlternateIdentifiers(List.of(
-            new DcAlternateIdentifier()
-                .withAlternateIdentifierType("primaryMediaId")
-                .withAlternateIdentifier(LOCAL_ID)))
-        .withDates(List.of(
-            new DcDate()
-                .withDate("2024-03-08")))
-        .withRelatedIdentifiers(List.of(
-            new DcRelatedIdentifiers()
-                .withRelationType("IsVariantFormOf")
-                .withRelatedIdentifier(
+    return DcAttributes.builder()
+        .suffix(SUFFIX)
+        .doi(DOI)
+        .creators(List.of(DcCreator.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .titles(List.of(DcTitle.builder()
+            .title(REFERENT_NAME)
+            .build()))
+        .publicationYear(2024)
+        .contributors(List.of(DcContributor.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .subjects(List.of(
+            DcSubject.builder()
+                .subjectScheme("linkedDigitalObjectType")
+                .subject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
+                .build()))
+        .alternateIdentifiers(List.of(
+            DcAlternateIdentifier.builder()
+                .alternateIdentifierType("primaryMediaId")
+                .alternateIdentifier(LOCAL_ID).build()))
+        .dates(List.of(DcDate.builder()
+            .date("2024-03-08")
+            .build()))
+        .relatedIdentifiers(List.of(
+            DcRelatedIdentifiers.builder()
+                .relationType("IsVariantFormOf")
+                .relatedIdentifier(
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
-                .withRelatedIdentifierType("URL")))
-        .withDescription(List.of(new DcDescription()
-            .withDescription("Media object hosted at " + HOST_NAME + " for an object of type "
-                + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())))
-        .withType(new DcType().withDcType("Media Object"))
-        .withUrl("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW");
+                .relatedIdentifierType("URL").build()))
+        .descriptions(List.of(DcDescription.builder()
+            .description("Media object hosted at " + HOST_NAME + " for an object of type "
+                + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
+            .build()))
+        .types(DcType.builder()
+            .resourceType("Media Object")
+            .build())
+        .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .build();
   }
 
-  public static DcAttributes givenMediaAttributesFull(){
-    return givenMediaAttributes()
-        .withSubjects(List.of(
-            new DcSubject()
-                .withSubjectScheme("mediaFormat")
-                .withSubject(MediaFormat.IMAGE.value()),
-            new DcSubject()
-                .withSubjectScheme("linkedDigitalObjectType")
-                .withSubject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value()))
-        );
+  public static DcAttributes givenMediaAttributesFull() {
+    return DcAttributes.builder()
+        .suffix(SUFFIX)
+        .doi(DOI)
+        .creators(List.of(DcCreator.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .titles(List.of(DcTitle.builder()
+            .title(REFERENT_NAME)
+            .build()))
+        .publicationYear(2024)
+        .contributors(List.of(DcContributor.builder()
+            .name(HOST_NAME)
+            .nameIdentifiers(List.of(givenIdentifier()))
+            .build()))
+        .alternateIdentifiers(List.of(
+            DcAlternateIdentifier.builder()
+                .alternateIdentifierType("primaryMediaId")
+                .alternateIdentifier(LOCAL_ID).build()))
+        .dates(List.of(DcDate.builder()
+            .date("2024-03-08")
+            .build()))
+        .relatedIdentifiers(List.of(
+            DcRelatedIdentifiers.builder()
+                .relationType("IsVariantFormOf")
+                .relatedIdentifier(
+                    "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
+                .relatedIdentifierType("URL").build()))
+        .descriptions(List.of(DcDescription.builder()
+            .description("Media object hosted at " + HOST_NAME + " for an object of type "
+                + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
+            .build()))
+        .types(DcType.builder()
+            .resourceType("Media Object")
+            .build())
+        .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .subjects(List.of(
+            DcSubject.builder()
+                .subjectScheme("mediaFormat")
+                .subject(MediaFormat.IMAGE.value())
+                .build(),
+            DcSubject.builder()
+                .subjectScheme("linkedDigitalObjectType")
+                .subject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
+                .build())
+        )
+        .build();
   }
 
   public static DigitalSpecimen givenDigitalSpecimen() {
@@ -212,8 +302,12 @@ public class TestUtils {
 
 
   public static DcNameIdentifiers givenIdentifier() {
-    return new DcNameIdentifiers().withNameIdentifier(ROR).withSchemeUri(UriScheme.ROR.getUri())
-        .withNameIdentifierScheme(UriScheme.ROR.getSchemeName());
+    return DcNameIdentifiers
+        .builder()
+        .nameIdentifier(ROR)
+        .schemeUri(UriScheme.ROR.getUri())
+        .nameIdentifierScheme(UriScheme.ROR.getSchemeName())
+        .build();
   }
 
 

@@ -1,22 +1,17 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Builder
+@AllArgsConstructor
+@Setter(value = AccessLevel.PACKAGE)
 @Getter
-@NoArgsConstructor
 public class DcSubject {
   private String subject;
   private String subjectScheme;
-
-  public DcSubject withSubject(String s){
-    this.subject = s;
-    return this;
-  }
-
-  public DcSubject withSubjectScheme(String s){
-    this.subjectScheme = s;
-    return this;
-  }
 
 }

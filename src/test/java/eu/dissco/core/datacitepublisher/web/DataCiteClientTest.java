@@ -1,6 +1,5 @@
 package eu.dissco.core.datacitepublisher.web;
 
-import static eu.dissco.core.datacitepublisher.TestUtils.DOI;
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
 import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenJson;
@@ -12,13 +11,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import java.io.IOException;
 import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import okhttp3.mockwebserver.MockWebServer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;

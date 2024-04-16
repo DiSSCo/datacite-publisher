@@ -1,28 +1,17 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Builder
+@AllArgsConstructor
+@Setter(value = AccessLevel.PACKAGE)
 @Getter
-@NoArgsConstructor
 public class DcRelatedIdentifiers {
   private String relationType;
   private String relatedIdentifier;
   private String relatedIdentifierType;
-
-  public DcRelatedIdentifiers withRelationType(String s){
-    this.relationType = s;
-    return this;
-  }
-
-  public DcRelatedIdentifiers withRelatedIdentifier(String s){
-    this.relatedIdentifier = s;
-    return this;
-  }
-
-  public DcRelatedIdentifiers withRelatedIdentifierType(String s){
-    this.relatedIdentifierType = s;
-    return this;
-  }
-
 }

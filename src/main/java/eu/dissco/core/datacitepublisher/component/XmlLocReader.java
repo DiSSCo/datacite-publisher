@@ -6,8 +6,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlCData;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileRecievedException;
 import java.util.List;
-import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +41,15 @@ public class XmlLocReader {
     return locations.getFirst();
   }
 
-  @Data
-  protected static class LocationParentXml {
+  @Getter
+  @NoArgsConstructor
+  static class LocationParentXml {
     @JacksonXmlCData
     @JacksonXmlElementWrapper(useWrapping = false)
     List<LocationXml> location;
   }
   @Setter
-  protected static class LocationXml {
+  static class LocationXml {
     @Getter
     String href;
     String id;
