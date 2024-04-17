@@ -19,9 +19,6 @@ public class KafkaConsumerProperties {
   @NotBlank
   private String group;
 
-  @NotBlank
-  private String topic;
-
   @Positive
   private int batchSize = 5000;
 
