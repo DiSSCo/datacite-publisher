@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.4</version>
+    <version>3.2.5</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>eu.dissco.core</groupId>
@@ -99,6 +99,19 @@
             </exclude>
           </excludes>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <configuration>
+              <classifier>spring-boot</classifier>
+              <mainClass>
+                eu.dissco.core.datacitepublisher.DatacitePublisherApplication
+              </mainClass>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
