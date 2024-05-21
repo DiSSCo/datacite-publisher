@@ -16,7 +16,7 @@ Thanks to the kafka queue, this process is done asynchronously from the rest of 
 process. The PID records are created in the DiSSCo PID API during ingestion, and are upgraded to
 DataCite APIs when the message reaches this Publisher.
 
-[Infrastructure Diagram](.github/docs/publisher.png)
+[Infrastructure Diagram](docs/publisher.png)
 
 ## Error Handling
 
