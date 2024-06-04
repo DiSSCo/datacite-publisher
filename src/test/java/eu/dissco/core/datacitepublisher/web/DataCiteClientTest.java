@@ -1,5 +1,6 @@
 package eu.dissco.core.datacitepublisher.web;
 
+import static eu.dissco.core.datacitepublisher.TestUtils.DOI;
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
 import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenJson;
@@ -67,7 +68,7 @@ class DataCiteClientTest {
         .addHeader("Content-Type", "application/json"));
 
     // When
-    var response = dataCiteClient.sendDoiRequest(request, HttpMethod.POST);
+    var response = dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI);
 
     // Then
     assertThat(response).isEqualTo(expected);
@@ -86,7 +87,7 @@ class DataCiteClientTest {
 
     // When
     assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST));
+        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
     var newRequestCount = mockDataCiteServer.getRequestCount();
 
     // Then
@@ -105,7 +106,7 @@ class DataCiteClientTest {
 
     // When / Then
     assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST));
+        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
   }
 
   @Test
@@ -121,7 +122,7 @@ class DataCiteClientTest {
 
     // When / Then
     assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST));
+        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
   }
 
   @Test
@@ -136,7 +137,7 @@ class DataCiteClientTest {
 
     // When
     var e = assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST));
+        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
 
     assertThat(e.getMessage()).contains(expectedMessage);
   }
@@ -153,7 +154,7 @@ class DataCiteClientTest {
 
     // When
     var e = assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST));
+        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
 
     assertThat(e.getMessage()).contains(expectedMessage);
   }
@@ -170,7 +171,7 @@ class DataCiteClientTest {
 
     // When
     var e = assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST));
+        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
 
     assertThat(e.getMessage()).contains(expectedMessage);
   }

@@ -18,8 +18,12 @@ import reactor.util.retry.Retry;
 public class DataCiteClient {
   private final WebClient webClient;
 
-  public JsonNode sendDoiRequest(JsonNode requestBody, HttpMethod method) throws DataCiteApiException {
+  public JsonNode sendDoiRequest(JsonNode requestBody, HttpMethod method, String doi) throws DataCiteApiException {
+    String uri = method.equals(HttpMethod.PUT) ?
+        "/" + doi :
+        "";
     var response = webClient.method(method)
+        .uri(uri)
         .body(BodyInserters.fromValue(requestBody))
         .retrieve()
         .bodyToMono(JsonNode.class)

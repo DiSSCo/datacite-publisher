@@ -192,7 +192,8 @@
         "Zoology",
         "Ecology",
         "Other Biodiversity",
-        "Other Geodiversity"
+        "Other Geodiversity",
+        "Unclassified"
       ],
       "description": "Overarching classification of the scientific discipline to which the objects within the collection belong or are related.",
       "$comment": "idx = 210"

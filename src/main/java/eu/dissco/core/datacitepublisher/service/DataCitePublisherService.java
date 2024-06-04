@@ -9,7 +9,6 @@ import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_MO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
@@ -31,17 +30,18 @@ import eu.dissco.core.datacitepublisher.domain.datacite.UriScheme;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileRecievedException;
+import eu.dissco.core.datacitepublisher.properties.DoiProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.DataCiteClient;
 import java.time.DateTimeException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +54,7 @@ public class DataCitePublisherService {
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final DataCiteClient dataCiteClient;
-  private final Environment environment;
+  private final DoiProperties properties;
 
   public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent)
       throws DataCiteApiException {
@@ -72,7 +72,7 @@ public class DataCitePublisherService {
     var body = mapper.valueToTree(request);
     var method = eventType.equals(EventType.CREATE) ? HttpMethod.POST : HttpMethod.PUT;
     log.info("Publishing DOI {} to datacite", request.getData().getAttributes().getDoi());
-    var response = dataCiteClient.sendDoiRequest(body, method);
+    var response = dataCiteClient.sendDoiRequest(body, method, request.getData().getAttributes().getDoi());
     log.debug("received response from datacite: {}", response);
     log.info("Successfully published DOI {} to datacite",
         request.getData().getAttributes().getDoi());
@@ -92,8 +92,8 @@ public class DataCitePublisherService {
         digitalSpecimen.getPid(),
         digitalSpecimen.getReferentName(),
         TYPE_DS,
-        getDescription(digitalSpecimen),
-        getSubjects(digitalSpecimen));
+        getDescriptionForSpecimen(digitalSpecimen),
+        getSubjectsForSpecimen(digitalSpecimen));
   }
 
   private DcRequest buildDcRequest(MediaObject mediaObject) {
@@ -110,8 +110,8 @@ public class DataCitePublisherService {
         mediaObject.getPid(),
         mediaObject.getReferentName(),
         TYPE_MO,
-        getDescription(mediaObject),
-        getSubjects(mediaObject));
+        getDescriptionForMedia(mediaObject),
+        getSubjectsForMedia(mediaObject));
   }
 
   private DcRequest buildDcRequest(String xmlLoc, String landingPage, String altIdType,
@@ -121,7 +121,8 @@ public class DataCitePublisherService {
       List<DcDescription> descriptions, List<DcSubject> subjects) {
     try {
       var xmlLocs = xmlLocReader.getLocationsFromXml(xmlLoc);
-      var url = XmlLocReader.getLandingPageLocation(xmlLocs, landingPage);
+      var url =
+          xmlLocs.isEmpty() ? null : XmlLocReader.getLandingPageLocation(xmlLocs, landingPage);
       var issueDate = getDate(pidRecordIssueDate);
       return DcRequest.builder()
           .data(
@@ -139,7 +140,7 @@ public class DataCitePublisherService {
                       .relatedIdentifiers(getRelatedIdentifiers(xmlLocs, url))
                       .subjects(subjects)
                       .suffix(getSuffix(pid))
-                      .titles(setTitles(referentName))
+                      .titles(getTitles(referentName))
                       .types(getDcType(dcType))
                       .url(url)
                       .build())
@@ -152,6 +153,9 @@ public class DataCitePublisherService {
 
 
   private List<DcAlternateIdentifier> getAltIds(String idType, String altId) {
+    if (idType == null || altId == null) {
+      return Collections.emptyList();
+    }
     return List.of(
         DcAlternateIdentifier.builder()
             .alternateIdentifier(altId)
@@ -159,30 +163,41 @@ public class DataCitePublisherService {
   }
 
   private List<DcContributor> getContributors(String hostName, String hostId) {
+    if (hostName == null || hostId == null) {
+      return Collections.emptyList();
+    }
     return List.of(DcContributor.builder()
         .name(hostName)
-        .nameIdentifiers(List.of(
-            getNameIdentifiers(hostId)))
+        .nameIdentifiers(getNameIdentifiers(hostId))
         .build());
   }
 
   private List<DcCreator> getCreator(String issuedForAgentName, String issuedForAgentId) {
+    if (issuedForAgentId == null || issuedForAgentName == null) {
+      return Collections.emptyList();
+    }
     return List.of(DcCreator.builder()
         .name(issuedForAgentName)
-        .nameIdentifiers(List.of(getNameIdentifiers(issuedForAgentId)))
+        .nameIdentifiers(getNameIdentifiers(issuedForAgentId))
         .build());
   }
 
-  private DcNameIdentifiers getNameIdentifiers(String id) {
+  private List<DcNameIdentifiers> getNameIdentifiers(String id) {
+    if (id == null) {
+      return Collections.emptyList();
+    }
     var uriScheme = UriScheme.determineScheme(id);
-    return DcNameIdentifiers.builder()
+    return List.of(DcNameIdentifiers.builder()
         .nameIdentifierScheme(uriScheme.getSchemeName())
         .schemeUri(uriScheme.getUri())
         .nameIdentifier(id)
-        .build();
+        .build());
   }
 
   private ZonedDateTime getDate(String pidIssueDate) throws InvalidFdoProfileRecievedException {
+    if (pidIssueDate == null) {
+      return null;
+    }
     try {
       pidIssueDate = pidIssueDate.replace("'", "");
       return ZonedDateTime.parse(pidIssueDate);
@@ -193,40 +208,56 @@ public class DataCitePublisherService {
   }
 
   private List<DcDate> getDates(ZonedDateTime pidIssueDate) {
+    if (pidIssueDate == null) {
+      return Collections.emptyList();
+    }
     return List.of(DcDate.builder().date(pidIssueDate.format(DATACITE_FORMATTER)).build());
   }
 
   private Integer getPublicationYear(ZonedDateTime pidIssueDate) {
+    if (pidIssueDate == null) {
+      return null;
+    }
     return pidIssueDate.getYear();
   }
 
-  private List<DcDescription> getDescription(DigitalSpecimen digitalSpecimen) {
-    String descriptionString = "Digital Specimen for the physical specimen hosted at "
-        + digitalSpecimen.getSpecimenHostName();
-    descriptionString = digitalSpecimen.getMaterialSampleType() == null ? descriptionString
-        : descriptionString + " of materialSampleType " + digitalSpecimen.getMaterialSampleType();
-    return List.of(DcDescription.builder().description(descriptionString).build());
+  private List<DcDescription> getDescriptionForSpecimen(DigitalSpecimen digitalSpecimen) {
+    var descriptionList = new ArrayList<DcDescription>();
+    if (digitalSpecimen.getSpecimenHostName() != null) {
+      descriptionList.add(DcDescription.builder().description(
+          "Digital Specimen for the physical specimen hosted at "
+              + digitalSpecimen.getSpecimenHostName() + "."
+      ).build());
+    }
+    if (digitalSpecimen.getMaterialSampleType() != null) {
+      descriptionList.add(DcDescription.builder().description(
+          "Material sample type is " + digitalSpecimen.getMaterialSampleType() + "."
+      ).build());
+    }
+    return descriptionList;
   }
 
-  private List<DcDescription> getDescription(MediaObject mediaObject) {
-    var descriptionString =
-        "Media object hosted at " + mediaObject.getMediaHostName() + " for an object of type "
-            + mediaObject.getLinkedDigitalObjectType();
-    return List.of(DcDescription.builder().description(descriptionString).build());
+  private List<DcDescription> getDescriptionForMedia(MediaObject mediaObject) {
+    var descriptionList = new ArrayList<DcDescription>();
+    if (mediaObject.getMediaHostName() != null) {
+      descriptionList.add(DcDescription.builder()
+          .description("Media object hosted at " + mediaObject.getMediaHostName() + ".")
+          .build());
+    }
+    if (mediaObject.getLinkedDigitalObjectType() != null) {
+      descriptionList.add(DcDescription.builder()
+              .description("Is media for an object of type " + mediaObject.getLinkedDigitalObjectType() + ".")
+          .build());
+    }
+    return descriptionList;
   }
 
   private String getDoi(String pid) {
-    // Captures everything before the second last /
-    var doi = pid.replaceAll(".*(?=(?:/[^/]*){2}$)/", "");
-    if (environment.matchesProfiles(Profiles.TEST)){
-      // Replaces everything before / -> i.e. the test prefix
-      // We do this so we can post to the test datacite environment
-      doi = doi.replaceAll("^(.*/)", "10.82621/");
-    }
-    return doi;
+    // Replaces everything before the last slash
+    return properties.getPrefix() + "/" + pid.replaceAll("^(.*[\\\\/])", "");
   }
 
-  private List<DcSubject> getSubjects(DigitalSpecimen digitalSpecimen) {
+  private List<DcSubject> getSubjectsForSpecimen(DigitalSpecimen digitalSpecimen) {
     var subjectList = new ArrayList<DcSubject>();
     if (digitalSpecimen.getTopicDiscipline() != null) {
       subjectList.add(
@@ -251,10 +282,10 @@ public class DataCitePublisherService {
               .build()
       );
     }
-    return subjectList.isEmpty() ? null : subjectList;
+    return subjectList;
   }
 
-  private List<DcSubject> getSubjects(MediaObject mediaObject) {
+  private List<DcSubject> getSubjectsForMedia(MediaObject mediaObject) {
     var subjectList = new ArrayList<DcSubject>();
     if (mediaObject.getMediaFormat() != null) {
       subjectList.add(DcSubject.builder()
@@ -262,11 +293,13 @@ public class DataCitePublisherService {
           .subject(mediaObject.getMediaFormat().value())
           .build());
     }
-    subjectList.add(
-        DcSubject.builder()
-            .subjectScheme("linkedDigitalObjectType")
-            .subject(mediaObject.getLinkedDigitalObjectType().value())
-            .build()); //
+    if (mediaObject.getLinkedDigitalObjectType().value() != null) {
+      subjectList.add(
+          DcSubject.builder()
+              .subjectScheme("linkedDigitalObjectType")
+              .subject(mediaObject.getLinkedDigitalObjectType().value())
+              .build());
+    }
     return subjectList;
   }
 
@@ -274,7 +307,10 @@ public class DataCitePublisherService {
     return pid.replaceAll("^(.*/).*/", "");
   }
 
-  private List<DcTitle> setTitles(String referentName) {
+  private List<DcTitle> getTitles(String referentName) {
+    if (referentName == null) {
+      return Collections.emptyList();
+    }
     return List.of(DcTitle.builder()
         .title(referentName)
         .build());
@@ -282,6 +318,9 @@ public class DataCitePublisherService {
 
   private List<DcRelatedIdentifiers> getRelatedIdentifiers(List<String> xmlLocations,
       String landingPage) {
+    if (xmlLocations == null || xmlLocations.isEmpty()) {
+      return Collections.emptyList();
+    }
     List<DcRelatedIdentifiers> relatedIdentifiersList = new ArrayList<>();
     var locs = new ArrayList<>(xmlLocations);
     locs.remove(landingPage);
@@ -296,6 +335,9 @@ public class DataCitePublisherService {
   }
 
   private DcType getDcType(String type) {
+    if (type == null) {
+      return null;
+    }
     return DcType.builder()
         .resourceType(type)
         .build();

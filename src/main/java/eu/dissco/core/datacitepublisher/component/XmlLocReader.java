@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlCData;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileRecievedException;
+import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,10 @@ public class XmlLocReader {
   private final XmlMapper xmlMapper;
 
   public List<String> getLocationsFromXml(String xmlDoc) throws InvalidFdoProfileRecievedException {
+    if (xmlDoc == null) {
+      log.warn("No url provided");
+      return Collections.emptyList();
+    }
     try {
       var locations = xmlMapper.readValue(xmlDoc, LocationParentXml.class);
       return locations.getLocation().stream().map(LocationXml::getHref).toList();
