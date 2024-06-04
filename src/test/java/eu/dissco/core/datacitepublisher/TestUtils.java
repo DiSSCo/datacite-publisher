@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import eu.dissco.core.datacitepublisher.configuration.InstantDeserializer;
 import eu.dissco.core.datacitepublisher.configuration.InstantSerializer;
+import eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAlternateIdentifier;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcContributor;
@@ -30,12 +31,14 @@ import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject.LinkedDigitalObjectType;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject.MediaFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestUtils {
 
   private TestUtils() {
   }
+
   public static final String SUFFIX = "QR1-P21-9FW";
   public static final String PREFIX = "10.3535";
   public static final String PID = "https://doi.org/" + PREFIX + "/" + SUFFIX;
@@ -70,7 +73,7 @@ public class TestUtils {
     XML_MAPPER = new XmlMapper();
   }
 
-  public static DcAttributes givenSpecimenAttributes(String doi){
+  public static DcAttributes givenSpecimenAttributes(String doi) {
     return DcAttributes.builder()
         .suffix(SUFFIX)
         .doi(doi)
@@ -98,13 +101,15 @@ public class TestUtils {
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL")
                 .build()))
-        .descriptions(List.of(DcDescription.builder()
-            .description("Digital Specimen for the physical specimen hosted at " + HOST_NAME)
-            .build()))
-        .types(DcType.builder()
-            .resourceType("Digital Specimen")
-            .build())
+        .descriptions(givenSpecimenDescription())
+        .types(givenType(DataCiteConstants.TYPE_DS))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .build();
+  }
+
+  public static DcType givenType(String resourceType){
+    return DcType.builder()
+        .resourceType(resourceType)
         .build();
   }
 
@@ -140,9 +145,7 @@ public class TestUtils {
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL")
                 .build()))
-        .types(DcType.builder()
-            .resourceType("Digital Specimen")
-            .build())
+        .types(givenType(DataCiteConstants.TYPE_DS))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .subjects(List.of(
             DcSubject.builder()
@@ -158,10 +161,7 @@ public class TestUtils {
                 .subjectScheme("topicCategory")
                 .build())
         )
-        .descriptions(List.of(DcDescription.builder().description(
-            "Digital Specimen for the physical specimen hosted at " + HOST_NAME
-                + " of materialSampleType " + MATERIAL_SAMPLE_TYPE.value())
-            .build()))
+        .descriptions(givenSpecimenDescriptionFull())
         .build();
   }
 
@@ -203,13 +203,8 @@ public class TestUtils {
                 .relatedIdentifier(
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL").build()))
-        .descriptions(List.of(DcDescription.builder()
-            .description("Media object hosted at " + HOST_NAME + " for an object of type "
-                + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
-            .build()))
-        .types(DcType.builder()
-            .resourceType("Media Object")
-            .build())
+        .descriptions(givenMediaDescriptionFull())
+        .types(givenType(DataCiteConstants.TYPE_MO))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .build();
   }
@@ -243,13 +238,8 @@ public class TestUtils {
                 .relatedIdentifier(
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL").build()))
-        .descriptions(List.of(DcDescription.builder()
-            .description("Media object hosted at " + HOST_NAME + " for an object of type "
-                + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
-            .build()))
-        .types(DcType.builder()
-            .resourceType("Media Object")
-            .build())
+        .descriptions(givenMediaDescriptionFull())
+        .types(givenType(DataCiteConstants.TYPE_MO))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .subjects(List.of(
             DcSubject.builder()
@@ -262,6 +252,34 @@ public class TestUtils {
                 .build())
         )
         .build();
+  }
+
+  private static List<DcDescription> givenSpecimenDescription() {
+    return List.of(
+        DcDescription.builder().description(
+            "Digital Specimen for the physical specimen hosted at " + HOST_NAME + "."
+        ).build()
+    );
+  }
+
+  private static List<DcDescription> givenSpecimenDescriptionFull() {
+    var descriptions = new ArrayList<>(givenSpecimenDescription());
+    descriptions.add(DcDescription.builder().description(
+        "Material sample type is " + MATERIAL_SAMPLE_TYPE + ".").build());
+    return descriptions;
+  }
+
+  private static List<DcDescription> givenMediaDescriptionFull() {
+    return List.of(
+        DcDescription.builder()
+            .description("Media object hosted at " + HOST_NAME + ".")
+            .build(),
+        DcDescription.builder()
+            .description(
+                "Is media for an object of type " + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value()
+                    + ".")
+            .build()
+    );
   }
 
   public static DigitalSpecimen givenDigitalSpecimen() {

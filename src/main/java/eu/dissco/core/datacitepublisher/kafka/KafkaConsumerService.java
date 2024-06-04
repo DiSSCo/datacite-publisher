@@ -26,7 +26,7 @@ public class KafkaConsumerService {
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final DataCitePublisherService service;
-  private static final String ERROR_MSG = "Unable to specimen event from the handle API";
+  private static final String ERROR_MSG = "Unable to parse specimen event from the handle API";
 
   @RetryableTopic(
       attempts = "1",
