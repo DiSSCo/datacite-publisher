@@ -33,6 +33,7 @@ import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
+import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.DataCiteClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -219,6 +220,34 @@ class DataCitePublisherServiceTest {
                     .doi(DOI)
                     .suffix(SUFFIX)
                     .types(givenType(DataCiteConstants.TYPE_DS))
+                    .build()
+            )
+            .build()
+        ).build()
+    );
+
+    // When
+    service.handleMessages(event);
+
+    // Then
+    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.PUT, DOI);
+  }
+
+  @Test
+  void testHandleMediaObjectMessageNulls() throws Exception {
+    // Given
+    var event = new MediaObjectEvent(
+        new MediaObject()
+            .withPid(PID),
+        EventType.UPDATE
+    );
+    var expected = MAPPER.valueToTree(DcRequest.builder()
+        .data(DcData.builder()
+            .attributes(
+                DcAttributes.builder()
+                    .doi(DOI)
+                    .suffix(SUFFIX)
+                    .types(givenType(DataCiteConstants.TYPE_MO))
                     .build()
             )
             .build()

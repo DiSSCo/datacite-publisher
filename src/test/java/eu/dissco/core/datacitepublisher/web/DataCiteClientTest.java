@@ -11,9 +11,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import java.io.IOException;
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +72,22 @@ class DataCiteClientTest {
 
     // When
     var response = dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI);
+
+    // Then
+    assertThat(response).isEqualTo(expected);
+  }
+
+  @Test
+  void testUpdateDoi() throws Exception {
+    // Given
+    var request = givenSpecimenJson();
+    var expected = MAPPER.createObjectNode().put("data", "yep");
+    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(HttpStatus.OK.value())
+        .setBody(MAPPER.writeValueAsString(expected))
+        .addHeader("Content-Type", "application/json"));
+
+    // When
+    var response = dataCiteClient.sendDoiRequest(request, HttpMethod.PUT, DOI);
 
     // Then
     assertThat(response).isEqualTo(expected);

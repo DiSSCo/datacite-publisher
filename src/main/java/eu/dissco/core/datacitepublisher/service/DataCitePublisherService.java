@@ -183,9 +183,6 @@ public class DataCitePublisherService {
   }
 
   private List<DcNameIdentifiers> getNameIdentifiers(String id) {
-    if (id == null) {
-      return Collections.emptyList();
-    }
     var uriScheme = UriScheme.determineScheme(id);
     return List.of(DcNameIdentifiers.builder()
         .nameIdentifierScheme(uriScheme.getSchemeName())
@@ -293,7 +290,7 @@ public class DataCitePublisherService {
           .subject(mediaObject.getMediaFormat().value())
           .build());
     }
-    if (mediaObject.getLinkedDigitalObjectType().value() != null) {
+    if (mediaObject.getLinkedDigitalObjectType() != null) {
       subjectList.add(
           DcSubject.builder()
               .subjectScheme("linkedDigitalObjectType")
