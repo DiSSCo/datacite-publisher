@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import eu.dissco.core.datacitepublisher.configuration.InstantDeserializer;
 import eu.dissco.core.datacitepublisher.configuration.InstantSerializer;
+import eu.dissco.core.datacitepublisher.domain.EventType;
+import eu.dissco.core.datacitepublisher.domain.FdoType;
+import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAlternateIdentifier;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
@@ -43,6 +46,8 @@ public class TestUtils {
   public static final String PREFIX = "10.3535";
   public static final String PID = "https://doi.org/" + PREFIX + "/" + SUFFIX;
   public static final String DOI = PREFIX + "/" + SUFFIX;
+  public static final String DOI_ALT = PREFIX + "/2RL-RRS-4BX";
+  public static final String PID_ALT = "https://doi.org/" + DOI_ALT;
   public static final String ROR = "https://ror.org/0566bfb96";
   public static final String HOST_NAME = "Naturalis Biodiversity Center";
   public static final String REFERENT_NAME = "New digital object";
@@ -73,7 +78,11 @@ public class TestUtils {
     XML_MAPPER = new XmlMapper();
   }
 
-  public static DcAttributes givenSpecimenAttributes(String doi) {
+  public static DcAttributes givenSpecimenDataCiteAttributes(){
+    return givenSpecimenDataCiteAttributes(DOI);
+  }
+
+  public static DcAttributes givenSpecimenDataCiteAttributes(String doi) {
     return DcAttributes.builder()
         .suffix(SUFFIX)
         .doi(doi)
@@ -107,17 +116,13 @@ public class TestUtils {
         .build();
   }
 
-  public static DcType givenType(String resourceType){
+  public static DcType givenType(String resourceType) {
     return DcType.builder()
         .resourceType(resourceType)
         .build();
   }
 
-  public static DcAttributes givenSpecimenAttributes() {
-    return givenSpecimenAttributes(DOI);
-  }
-
-  public static DcAttributes givenSpecimenAttributesFull() {
+  public static DcAttributes givenSpecimenDataCiteAttributesFull() {
     return DcAttributes.builder()
         .suffix(SUFFIX)
         .doi(DOI)
@@ -166,7 +171,11 @@ public class TestUtils {
   }
 
   public static JsonNode givenSpecimenJson() {
-    return MAPPER.valueToTree(givenSpecimenAttributes());
+    return MAPPER.valueToTree(givenSpecimenDataCiteAttributes());
+  }
+
+  public static JsonNode givenSpecimenJson(String doi) {
+    return MAPPER.valueToTree(givenSpecimenDataCiteAttributes(doi));
   }
 
   public static DcAttributes givenMediaAttributes() {
@@ -282,10 +291,14 @@ public class TestUtils {
     );
   }
 
-  public static DigitalSpecimen givenDigitalSpecimen() {
+  public static DigitalSpecimen givenDigitalSpecimen(){
+    return givenDigitalSpecimen(PID);
+  }
+
+  public static DigitalSpecimen givenDigitalSpecimen(String doi) {
     return new DigitalSpecimen()
         .with10320Loc(LOCS)
-        .withPid(PID)
+        .withPid(doi)
         .withIssuedForAgent(ROR)
         .withIssuedForAgentName(HOST_NAME)
         .withPidRecordIssueDate(PID_ISSUE_DATE)
@@ -304,9 +317,13 @@ public class TestUtils {
   }
 
   public static MediaObject givenMediaObject() {
+    return givenMediaObject(PID);
+  }
+
+  public static MediaObject givenMediaObject(String pid) {
     return new MediaObject()
         .with10320Loc(LOCS)
-        .withPid(PID)
+        .withPid(pid)
         .withIssuedForAgent(ROR)
         .withIssuedForAgentName(HOST_NAME)
         .withPidRecordIssueDate(PID_ISSUE_DATE)
@@ -317,9 +334,44 @@ public class TestUtils {
         .withLinkedDigitalObjectType(LinkedDigitalObjectType.DIGITAL_SPECIMEN);
   }
 
+
   public static MediaObject givenMediaObjectFull() {
     return givenMediaObject()
         .withMediaFormat(MediaFormat.IMAGE);
+  }
+
+  public static RecoveryEvent givenRecoveryEvent() {
+    return new RecoveryEvent(List.of(DOI, DOI_ALT), EventType.CREATE);
+  }
+
+  public static JsonNode givenDigitalSpecimenPidRecord() {
+    var specimen1 = MAPPER.createObjectNode()
+        .put("type", FdoType.DIGITAL_SPECIMEN.toString())
+        .set("attributes", MAPPER.valueToTree(givenDigitalSpecimen()));
+    var specimen2 = MAPPER.createObjectNode()
+        .put("type", FdoType.DIGITAL_SPECIMEN.toString())
+        .set("attributes", MAPPER.valueToTree(givenDigitalSpecimen(PID_ALT)));
+
+    return MAPPER.createObjectNode()
+        .put("links", "https://dev.dissco.tech/api/v1/pids/records")
+        .set("data", MAPPER.createArrayNode()
+            .add(specimen1)
+            .add(specimen2));
+  }
+
+  public static JsonNode givenMediaObjectJson() {
+    var media1 = MAPPER.createObjectNode()
+        .put("type", FdoType.MEDIA_OBJECT.toString())
+        .set("attributes", MAPPER.valueToTree(givenMediaObject()));
+    var media2 = MAPPER.createObjectNode()
+        .put("type", FdoType.MEDIA_OBJECT.toString())
+        .set("attributes", MAPPER.valueToTree(givenMediaObject(PID_ALT)));
+
+    return MAPPER.createObjectNode()
+        .put("links", "https://dev.dissco.tech/api/v1/pids/records")
+        .set("data", MAPPER.createArrayNode()
+            .add(media1)
+            .add(media2));
   }
 
 

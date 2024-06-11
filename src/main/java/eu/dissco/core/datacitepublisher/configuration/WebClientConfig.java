@@ -1,6 +1,7 @@
 package eu.dissco.core.datacitepublisher.configuration;
 
 import eu.dissco.core.datacitepublisher.properties.DataCiteConnectionProperties;
+import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
 import eu.dissco.core.datacitepublisher.web.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,17 +14,29 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class WebClientConfig {
 
-  private final DataCiteConnectionProperties properties;
-  @Bean
-  public WebClient webClient() {
+  private final DataCiteConnectionProperties dataciteProperties;
+  private final HandleConnectionProperties handleProperties;
+
+  @Bean("datacite")
+  public WebClient dataciteClient() {
     ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
         .ofResponseProcessor(WebClientUtils::exchangeFilterResponseProcessor);
     return WebClient.builder()
-        .baseUrl(properties.getEndpoint())
+        .baseUrl(dataciteProperties.getEndpoint())
         .filter(errorResponseFilter)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/vnd.api+json")
         .defaultHeaders(
-            header -> header.setBasicAuth(properties.getRepositoryId(), properties.getPassword()))
+            header -> header.setBasicAuth(dataciteProperties.getRepositoryId(), dataciteProperties.getPassword()))
+        .build();
+  }
+
+  @Bean("handle")
+  public WebClient handleClient() {
+    ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
+        .ofResponseProcessor(WebClientUtils::exchangeFilterResponseProcessor);
+    return WebClient.builder()
+        .baseUrl(handleProperties.getEndpoint())
+        .filter(errorResponseFilter)
         .build();
   }
 

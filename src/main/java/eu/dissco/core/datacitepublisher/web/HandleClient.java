@@ -2,31 +2,31 @@ package eu.dissco.core.datacitepublisher.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
+import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
 
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class DataCiteClient {
-  @Qualifier(value = "datacite")
+public class HandleClient {
+
+  @Qualifier(value = "handle")
   private final WebClient webClient;
 
-  public JsonNode sendDoiRequest(JsonNode requestBody, HttpMethod method, String doi) throws DataCiteApiException {
-    String uri = method.equals(HttpMethod.PUT) ?
-        "/" + doi :
-        "";
-    var response = webClient.method(method)
-        .uri(uri)
-        .body(BodyInserters.fromValue(requestBody))
+  public JsonNode resolveHandles(List<String> handles) throws HandleResolutionException {
+    var response = webClient.method(HttpMethod.GET)
+        .uri(uriBuilder -> uriBuilder
+            .queryParam("handles", handles)
+            .build())
         .retrieve()
         .bodyToMono(JsonNode.class)
         .retryWhen(
@@ -38,11 +38,13 @@ public class DataCiteClient {
       return response.toFuture().get();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      log.error("An Interrupted Exception has occurred in communicating with the DataCite API.", e);
-      throw new DataCiteApiException(e.getMessage());
+      log.error("An Interrupted Exception has occurred in communicating with the Handle Manager API.", e);
+      throw new HandleResolutionException();
     } catch (ExecutionException e) {
-      log.error("An execution Exception with the DataCite API has occurred", e);
-      throw new DataCiteApiException(e.getLocalizedMessage());
+      log.error("An execution Exception with the Handle API has occurred", e);
+      throw new HandleResolutionException();
     }
+
   }
+
 }
