@@ -359,6 +359,17 @@ public class TestUtils {
             .add(specimen2));
   }
 
+  public static JsonNode givenDigitalSpecimenPidRecordSingle(String pid) {
+    var specimen1 = MAPPER.createObjectNode()
+        .put("type", FdoType.DIGITAL_SPECIMEN.toString())
+        .set("attributes", MAPPER.valueToTree(givenDigitalSpecimen(pid)));
+
+    return MAPPER.createObjectNode()
+        .put("links", "https://dev.dissco.tech/api/v1/pids/records")
+        .set("data", MAPPER.createArrayNode()
+            .add(specimen1));
+  }
+
   public static JsonNode givenMediaObjectJson() {
     var media1 = MAPPER.createObjectNode()
         .put("type", FdoType.MEDIA_OBJECT.toString())

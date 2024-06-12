@@ -10,9 +10,11 @@ import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
+import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.HandleClient;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,18 +27,38 @@ public class RecoveryService {
   private final HandleClient handleClient;
   private final DataCitePublisherService dataCitePublisherService;
   private final ObjectMapper mapper;
+  private final HandleConnectionProperties handleConnectionProperties;
 
   public void recoverDataciteDois(RecoveryEvent event)
       throws HandleResolutionException, JsonProcessingException, DataCiteApiException {
-    var handleResolutionResponse = handleClient.resolveHandles(event.handles());
+    int handlesProcessed = 0;
+    while (handlesProcessed < event.handles().size()){
+      int upperIndex = getUpperIndex(handlesProcessed, event.handles().size());
+      var handles = event.handles().subList(handlesProcessed, upperIndex);
+      processResolvedHandles(handles, event.eventType());
+      handlesProcessed = upperIndex;
+    }
+  }
+
+  private int getUpperIndex(int handlesProcessed, int totalHandles) {
+    if (handlesProcessed + handleConnectionProperties.getMaxHandles() > totalHandles) {
+      return totalHandles;
+    }
+    return handlesProcessed + handleConnectionProperties.getMaxHandles();
+  }
+
+  private void processResolvedHandles(List<String> handles, EventType eventType)
+      throws HandleResolutionException, DataCiteApiException, JsonProcessingException {
+
+    var handleResolutionResponse = handleClient.resolveHandles(handles);
     if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data").isArray()) {
       var dataNodes = handleResolutionResponse.get("data");
       for (var pidRecordJson : dataNodes) {
         var type = FdoType.fromString(pidRecordJson.get("type").asText());
         if (type.equals(FdoType.DIGITAL_SPECIMEN)) {
-          recoverDigitalSpecimen(pidRecordJson.get("attributes"), event.eventType());
+          recoverDigitalSpecimen(pidRecordJson.get("attributes"), eventType);
         } else {
-          recoverMediaObject(pidRecordJson.get("attributes"), event.eventType());
+          recoverMediaObject(pidRecordJson.get("attributes"), eventType);
         }
       }
     } else {
@@ -44,6 +66,8 @@ public class RecoveryService {
       throw new HandleResolutionException();
     }
   }
+
+
 
   private void recoverDigitalSpecimen(JsonNode pidRecordAttributes, EventType eventType)
       throws JsonProcessingException, DataCiteApiException {
