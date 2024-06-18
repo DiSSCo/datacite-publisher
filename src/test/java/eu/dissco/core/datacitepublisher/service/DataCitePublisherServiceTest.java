@@ -13,14 +13,15 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributes;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributesFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObject;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObjectFull;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenAttributes;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenAttributesFull;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributes;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributesFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenType;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.lenient;
 
+import eu.dissco.core.datacitepublisher.TestUtils;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
@@ -69,7 +70,7 @@ class DataCitePublisherServiceTest {
     var expected = MAPPER.valueToTree(
         DcRequest.builder()
             .data(DcData.builder()
-                .attributes(givenSpecimenAttributes())
+                .attributes(givenSpecimenDataCiteAttributes())
                 .build())
             .build());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
@@ -88,7 +89,7 @@ class DataCitePublisherServiceTest {
     var expected = MAPPER.valueToTree(
         DcRequest.builder()
             .data(DcData.builder()
-                .attributes(givenSpecimenAttributes())
+                .attributes(givenSpecimenDataCiteAttributes())
                 .build())
             .build());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
@@ -107,7 +108,7 @@ class DataCitePublisherServiceTest {
     var requestBody = MAPPER.valueToTree(
         DcRequest.builder()
             .data(DcData.builder()
-                .attributes(givenSpecimenAttributes())
+                .attributes(givenSpecimenDataCiteAttributes())
                 .build())
             .build());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
@@ -125,7 +126,7 @@ class DataCitePublisherServiceTest {
     var expected = MAPPER.valueToTree(
         DcRequest.builder()
             .data(DcData.builder()
-                .attributes(givenSpecimenAttributesFull())
+                .attributes(givenSpecimenDataCiteAttributesFull())
                 .build())
             .build());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
@@ -193,7 +194,7 @@ class DataCitePublisherServiceTest {
     var expected = MAPPER.valueToTree(
         DcRequest.builder()
             .data(DcData.builder()
-                .attributes(givenSpecimenAttributes(PREFIX + "/" + SUFFIX))
+                .attributes(TestUtils.givenSpecimenDataCiteAttributes(PREFIX + "/" + SUFFIX))
                 .build())
             .build());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
