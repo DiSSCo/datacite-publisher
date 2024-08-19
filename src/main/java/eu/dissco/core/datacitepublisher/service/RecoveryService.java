@@ -17,6 +17,7 @@ import eu.dissco.core.datacitepublisher.web.HandleClient;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,6 +27,7 @@ public class RecoveryService {
 
   private final HandleClient handleClient;
   private final DataCitePublisherService dataCitePublisherService;
+  @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final HandleConnectionProperties handleConnectionProperties;
 
@@ -66,8 +68,6 @@ public class RecoveryService {
       throw new HandleResolutionException();
     }
   }
-
-
 
   private void recoverDigitalSpecimen(JsonNode pidRecordAttributes, EventType eventType)
       throws JsonProcessingException, DataCiteApiException {

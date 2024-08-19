@@ -24,6 +24,7 @@ public class DataCiteClient {
 
   @Qualifier(value = "datacite")
   private final WebClient webClient;
+  @Qualifier("objectMapper")
   private final ObjectMapper mapper;
 
   public JsonNode sendDoiRequest(JsonNode requestBody, HttpMethod method, String doi)
@@ -45,7 +46,7 @@ public class DataCiteClient {
   }
 
   public DcAttributes getDoiRecord(String doi) throws DataCiteApiException {
-    var uri = "/dois/" + doi;
+    var uri = "/" + doi;
     var response = webClient.get()
         .uri(uri)
         .retrieve()
@@ -58,7 +59,7 @@ public class DataCiteClient {
     var jsonNodeResponse = getResponse(response);
     try {
       return mapper.treeToValue(jsonNodeResponse.get("data").get("attributes"), DcAttributes.class);
-    } catch (JsonProcessingException e){
+    } catch (JsonProcessingException e) {
       log.error("Unable to parse response from DataCite: {}", jsonNodeResponse, e);
       throw new DataCiteApiException("Unexpected response from DataCite");
     }

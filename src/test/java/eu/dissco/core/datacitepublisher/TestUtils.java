@@ -27,6 +27,7 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcSubject;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcTitle;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
+import eu.dissco.core.datacitepublisher.domain.datacite.RelationType;
 import eu.dissco.core.datacitepublisher.domain.datacite.UriScheme;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType;
@@ -121,7 +122,7 @@ public class TestUtils {
 
   private static DcRelatedIdentifiers givenDcRelatedIdentifiers() {
     return DcRelatedIdentifiers.builder()
-        .relationType("IsVariantFormOf")
+        .relationType(RelationType.IS_VARIANT_FORM_OF)
         .relatedIdentifier(
             "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
         .relatedIdentifierType("URL")
@@ -159,7 +160,7 @@ public class TestUtils {
             .build()))
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
-                .relationType("IsVariantFormOf")
+                .relationType(RelationType.IS_VARIANT_FORM_OF)
                 .relatedIdentifier(
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL")
@@ -232,7 +233,7 @@ public class TestUtils {
             .build()))
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
-                .relationType("IsVariantFormOf")
+                .relationType(RelationType.IS_VARIANT_FORM_OF)
                 .relatedIdentifier(
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL").build()))
@@ -268,7 +269,7 @@ public class TestUtils {
             .build()))
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
-                .relationType("IsVariantFormOf")
+                .relationType(RelationType.IS_VARIANT_FORM_OF)
                 .relatedIdentifier(
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL").build()))
@@ -376,7 +377,7 @@ public class TestUtils {
     return DcRelatedIdentifiers.builder()
         .relatedIdentifier(PID_ALT)
         .relatedIdentifierType("DOI")
-        .relationType("Superseded By")
+        .relationType(RelationType.OBSOLETES)
         .build();
   }
 

@@ -27,6 +27,7 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcSubject;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcTitle;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
+import eu.dissco.core.datacitepublisher.domain.datacite.RelationType;
 import eu.dissco.core.datacitepublisher.domain.datacite.UriScheme;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
@@ -361,7 +362,7 @@ public class DataCitePublisherService {
     locs.remove(landingPage);
     for (var location : locs) {
       relatedIdentifiersList.add(DcRelatedIdentifiers.builder()
-          .relationType("IsVariantFormOf")
+          .relationType(RelationType.IS_VARIANT_FORM_OF)
           .relatedIdentifier(location)
           .relatedIdentifierType("URL")
           .build());
