@@ -1,5 +1,6 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter(value = AccessLevel.PACKAGE)
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DcCreator {
   private final String nameType= "Organizational";
   private String name;

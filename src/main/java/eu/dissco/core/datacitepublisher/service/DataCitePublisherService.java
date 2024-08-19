@@ -13,6 +13,7 @@ import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAlternateIdentifier;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcContributor;
@@ -29,12 +30,13 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
 import eu.dissco.core.datacitepublisher.domain.datacite.UriScheme;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
-import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileRecievedException;
+import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileReceivedException;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.DataCiteClient;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +64,36 @@ public class DataCitePublisherService {
     publishToDataCite(dcRequest, digitalSpecimenEvent.eventType());
   }
 
+  public void tombstoneRecord(TombstoneEvent event) throws DataCiteApiException {
+    var dcRecord = dataCiteClient.getDoiRecord(event.handle());
+    var dcRequest = buildDataCiteTombstoneRequest(dcRecord, event);
+    publishToDataCite(dcRequest, EventType.TOMBSTONE);
+  }
+
+  private DcRequest buildDataCiteTombstoneRequest(DcAttributes dcAttributes, TombstoneEvent event) {
+    var description = new ArrayList<>(dcAttributes.getDescriptions());
+    description.add(DcDescription.builder()
+        .description("This DOI has been tombstoned")
+        .build());
+    var relatedIdentifiers = new ArrayList<>(dcAttributes.getRelatedIdentifiers());
+    relatedIdentifiers.addAll(event.tombstonePids());
+    var dates = new ArrayList<>(dcAttributes.getDates());
+    dates.add(DcDate.builder()
+        .date(DATACITE_FORMATTER.format(Instant.now()))
+        .dateType("Withdrawn")
+        .build());
+    return DcRequest.builder()
+        .data(DcData.builder()
+            .attributes(DcAttributes.builder()
+                .descriptions(description)
+                .relatedIdentifiers(relatedIdentifiers)
+                .dates(dates)
+                .doi(getDoi(event.handle()))
+                .build())
+            .build())
+        .build();
+  }
+
   public void handleMessages(MediaObjectEvent mediaObjectEvent) throws DataCiteApiException {
     var dcRequest = buildDcRequest(mediaObjectEvent.pidRecord());
     publishToDataCite(dcRequest, mediaObjectEvent.eventType());
@@ -71,10 +103,12 @@ public class DataCitePublisherService {
       throws DataCiteApiException {
     var body = mapper.valueToTree(request);
     var method = eventType.equals(EventType.CREATE) ? HttpMethod.POST : HttpMethod.PUT;
-    log.info("Publishing DOI {} to datacite", request.getData().getAttributes().getDoi());
-    var response = dataCiteClient.sendDoiRequest(body, method, request.getData().getAttributes().getDoi());
+    log.info("Sending {} request to datacite with DOI {}", eventType.name(),
+        request.getData().getAttributes().getDoi());
+    var response = dataCiteClient.sendDoiRequest(body, method,
+        request.getData().getAttributes().getDoi());
     log.debug("received response from datacite: {}", response);
-    log.info("Successfully published DOI {} to datacite",
+    log.info("Successfully {}D DOI {} to datacite", eventType.name(),
         request.getData().getAttributes().getDoi());
   }
 
@@ -146,7 +180,7 @@ public class DataCitePublisherService {
                       .build())
                   .build()
           ).build();
-    } catch (InvalidFdoProfileRecievedException e) {
+    } catch (InvalidFdoProfileReceivedException e) {
       throw new DataCiteMappingException();
     }
   }
@@ -191,7 +225,7 @@ public class DataCitePublisherService {
         .build());
   }
 
-  private ZonedDateTime getDate(String pidIssueDate) throws InvalidFdoProfileRecievedException {
+  private ZonedDateTime getDate(String pidIssueDate) throws InvalidFdoProfileReceivedException {
     if (pidIssueDate == null) {
       return null;
     }
@@ -200,7 +234,7 @@ public class DataCitePublisherService {
       return ZonedDateTime.parse(pidIssueDate);
     } catch (DateTimeException e) {
       log.error("Unable to parse date {}", pidIssueDate, e);
-      throw new InvalidFdoProfileRecievedException();
+      throw new InvalidFdoProfileReceivedException();
     }
   }
 
@@ -208,7 +242,10 @@ public class DataCitePublisherService {
     if (pidIssueDate == null) {
       return Collections.emptyList();
     }
-    return List.of(DcDate.builder().date(pidIssueDate.format(DATACITE_FORMATTER)).build());
+    return List.of(DcDate.builder()
+        .date(pidIssueDate.format(DATACITE_FORMATTER))
+        .dateType("Issued")
+        .build());
   }
 
   private Integer getPublicationYear(ZonedDateTime pidIssueDate) {
@@ -243,7 +280,8 @@ public class DataCitePublisherService {
     }
     if (mediaObject.getLinkedDigitalObjectType() != null) {
       descriptionList.add(DcDescription.builder()
-              .description("Is media for an object of type " + mediaObject.getLinkedDigitalObjectType() + ".")
+          .description(
+              "Is media for an object of type " + mediaObject.getLinkedDigitalObjectType() + ".")
           .build());
     }
     return descriptionList;

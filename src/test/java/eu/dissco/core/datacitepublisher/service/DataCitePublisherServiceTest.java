@@ -7,6 +7,9 @@ import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
 import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.PREFIX;
 import static eu.dissco.core.datacitepublisher.TestUtils.SUFFIX;
+import static eu.dissco.core.datacitepublisher.TestUtils.TOMBSTONED;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDcRequest;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDcRequestTombstone;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributes;
@@ -15,13 +18,15 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObject;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObjectFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributes;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributesFull;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenType;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mockStatic;
 
-import eu.dissco.core.datacitepublisher.TestUtils;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
@@ -36,12 +41,15 @@ import eu.dissco.core.datacitepublisher.properties.DoiProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.DataCiteClient;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,10 +60,10 @@ class DataCitePublisherServiceTest {
   @Mock
   private DataCiteClient dataCiteClient;
   @Mock
-  private Environment environment;
-  @Mock
   DoiProperties properties;
   private DataCitePublisherService service;
+  private MockedStatic<Instant> mockedInstant;
+  private MockedStatic<Clock> mockedClock;
 
   @BeforeEach
   void setup() {
@@ -67,12 +75,7 @@ class DataCitePublisherServiceTest {
   void testHandleDigitalSpecimenMessage() throws Exception {
     // Given
     var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    var expected = MAPPER.valueToTree(
-        DcRequest.builder()
-            .data(DcData.builder()
-                .attributes(givenSpecimenDataCiteAttributes())
-                .build())
-            .build());
+    var expected = givenDcRequest(givenSpecimenDataCiteAttributes());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
     // When
@@ -86,12 +89,7 @@ class DataCitePublisherServiceTest {
   void testHandleDigitalSpecimenMessageUpdate() throws Exception {
     // Given
     var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.UPDATE);
-    var expected = MAPPER.valueToTree(
-        DcRequest.builder()
-            .data(DcData.builder()
-                .attributes(givenSpecimenDataCiteAttributes())
-                .build())
-            .build());
+    var expected = givenDcRequest(givenSpecimenDataCiteAttributes());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
     // When
@@ -105,12 +103,7 @@ class DataCitePublisherServiceTest {
   void testHandleDigitalSpecimenApiException() throws Exception {
     // Given
     var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    var requestBody = MAPPER.valueToTree(
-        DcRequest.builder()
-            .data(DcData.builder()
-                .attributes(givenSpecimenDataCiteAttributes())
-                .build())
-            .build());
+    var requestBody = givenDcRequest(givenSpecimenDataCiteAttributes());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
     given(dataCiteClient.sendDoiRequest(requestBody, HttpMethod.POST, DOI)).willThrow(
         DataCiteApiException.class);
@@ -123,12 +116,7 @@ class DataCitePublisherServiceTest {
   void testHandleDigitalSpecimenMessageFull() throws Exception {
     // Given
     var event = new DigitalSpecimenEvent(givenDigitalSpecimenFull(), EventType.CREATE);
-    var expected = MAPPER.valueToTree(
-        DcRequest.builder()
-            .data(DcData.builder()
-                .attributes(givenSpecimenDataCiteAttributesFull())
-                .build())
-            .build());
+    var expected = givenDcRequest(givenSpecimenDataCiteAttributesFull());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
     // When
@@ -142,12 +130,7 @@ class DataCitePublisherServiceTest {
   void testHandleMediaObjectMessage() throws Exception {
     // Given
     var event = new MediaObjectEvent(givenMediaObject(), EventType.CREATE);
-    var expected = MAPPER.valueToTree(
-        DcRequest.builder()
-            .data(DcData.builder()
-                .attributes(givenMediaAttributes())
-                .build())
-            .build());
+    var expected = givenDcRequest(givenMediaAttributes());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
     // When
@@ -161,12 +144,7 @@ class DataCitePublisherServiceTest {
   void testHandleMediaObjectMessageFull() throws Exception {
     // Given
     var event = new MediaObjectEvent(givenMediaObjectFull(), EventType.CREATE);
-    var expected = MAPPER.valueToTree(
-        DcRequest.builder()
-            .data(DcData.builder()
-                .attributes(givenMediaAttributesFull())
-                .build())
-            .build());
+    var expected = givenDcRequest(givenMediaAttributesFull());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
     // When
@@ -191,12 +169,7 @@ class DataCitePublisherServiceTest {
   void testHandleDigitalSpecimenMessageTestEnv() throws Exception {
     // Given
     var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    var expected = MAPPER.valueToTree(
-        DcRequest.builder()
-            .data(DcData.builder()
-                .attributes(TestUtils.givenSpecimenDataCiteAttributes(PREFIX + "/" + SUFFIX))
-                .build())
-            .build());
+    var expected = givenDcRequest(givenSpecimenDataCiteAttributes(PREFIX + "/" + SUFFIX));
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
     // When
@@ -242,24 +215,45 @@ class DataCitePublisherServiceTest {
             .withPid(PID),
         EventType.UPDATE
     );
-    var expected = MAPPER.valueToTree(DcRequest.builder()
-        .data(DcData.builder()
-            .attributes(
-                DcAttributes.builder()
-                    .doi(DOI)
-                    .suffix(SUFFIX)
-                    .types(givenType(DataCiteConstants.TYPE_MO))
-                    .build()
-            )
-            .build()
-        ).build()
-    );
+    var attributes = DcAttributes.builder()
+        .doi(DOI)
+        .suffix(SUFFIX)
+        .types(givenType(DataCiteConstants.TYPE_MO))
+        .build();
+    var expected = givenDcRequest(attributes);
 
     // When
     service.handleMessages(event);
 
     // Then
     then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.PUT, DOI);
+  }
+
+  @Test
+  void testTombstoneRecord() throws Exception{
+    // Given
+    given(dataCiteClient.getDoiRecord(DOI)).willReturn(givenSpecimenDataCiteAttributes());
+    var expected = MAPPER.valueToTree(givenDcRequestTombstone());
+    initTime();
+
+    // When
+    service.tombstoneRecord(givenTombstoneEvent());
+
+    // Then
+    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.PUT, DOI);
+    mockedInstant.close();
+    mockedClock.close();
+  }
+
+  private void initTime(){
+    Clock clock = Clock.fixed(TOMBSTONED, ZoneOffset.UTC);
+    Instant instant = Instant.now(clock);
+    mockedInstant = mockStatic(Instant.class);
+    mockedInstant.when(Instant::now).thenReturn(instant);
+    mockedInstant.when(() -> Instant.from(any())).thenReturn(instant);
+    mockedInstant.when(() -> Instant.parse(any())).thenReturn(instant);
+    mockedClock = mockStatic(Clock.class);
+    mockedClock.when(Clock::systemUTC).thenReturn(clock);
   }
 
 }

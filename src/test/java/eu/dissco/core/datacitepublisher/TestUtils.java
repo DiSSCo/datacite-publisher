@@ -12,15 +12,18 @@ import eu.dissco.core.datacitepublisher.configuration.InstantSerializer;
 import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.FdoType;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
+import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAlternateIdentifier;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcContributor;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcCreator;
+import eu.dissco.core.datacitepublisher.domain.datacite.DcData;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcDate;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcDescription;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcNameIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRelatedIdentifiers;
+import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcSubject;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcTitle;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
@@ -51,6 +54,7 @@ public class TestUtils {
   public static final String ROR = "https://ror.org/0566bfb96";
   public static final String HOST_NAME = "Naturalis Biodiversity Center";
   public static final String REFERENT_NAME = "New digital object";
+  public static final Instant TOMBSTONED = Instant.parse("2024-04-09T09:59:24.00Z");
   public static final String PID_ISSUE_DATE = "2024-03-08'T'11:17:13Z";
   public static final String LOCS = "<locations><location href=\"https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW\" id=\"0\" weight=\"1\"/><location href=\"https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW\" id=\"1\" weight=\"0\"/></locations>";
   public static final List<String> LOCS_ARR = List.of(
@@ -78,7 +82,7 @@ public class TestUtils {
     XML_MAPPER = new XmlMapper();
   }
 
-  public static DcAttributes givenSpecimenDataCiteAttributes(){
+  public static DcAttributes givenSpecimenDataCiteAttributes() {
     return givenSpecimenDataCiteAttributes(DOI);
   }
 
@@ -100,21 +104,30 @@ public class TestUtils {
         .alternateIdentifiers(List.of(DcAlternateIdentifier.builder()
             .alternateIdentifierType("primarySpecimenObjectId")
             .alternateIdentifier(LOCAL_ID).build()))
-        .dates(List.of(DcDate.builder()
-            .date("2024-03-08")
-            .build()))
-        .relatedIdentifiers(List.of(
-            DcRelatedIdentifiers.builder()
-                .relationType("IsVariantFormOf")
-                .relatedIdentifier(
-                    "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
-                .relatedIdentifierType("URL")
-                .build()))
+        .dates(List.of(givenDcIssueDate()))
+        .relatedIdentifiers(List.of(givenDcRelatedIdentifiers()))
         .descriptions(givenSpecimenDescription())
         .types(givenType(DataCiteConstants.TYPE_DS))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .build();
   }
+
+  private static DcDate givenDcIssueDate() {
+    return DcDate.builder()
+        .dateType("Issued")
+        .date("2024-03-08")
+        .build();
+  }
+
+  private static DcRelatedIdentifiers givenDcRelatedIdentifiers() {
+    return DcRelatedIdentifiers.builder()
+        .relationType("IsVariantFormOf")
+        .relatedIdentifier(
+            "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
+        .relatedIdentifierType("URL")
+        .build();
+  }
+
 
   public static DcType givenType(String resourceType) {
     return DcType.builder()
@@ -142,6 +155,7 @@ public class TestUtils {
             .alternateIdentifier(LOCAL_ID).build()))
         .dates(List.of(DcDate.builder()
             .date("2024-03-08")
+            .dateType("Issued")
             .build()))
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
@@ -178,6 +192,15 @@ public class TestUtils {
     return MAPPER.valueToTree(givenSpecimenDataCiteAttributes(doi));
   }
 
+  public static JsonNode givenDcRequest(DcAttributes attributes){
+    return MAPPER.valueToTree(
+        DcRequest.builder()
+            .data(DcData.builder()
+                .attributes(attributes)
+                .build())
+            .build());
+  }
+
   public static DcAttributes givenMediaAttributes() {
     return DcAttributes.builder()
         .suffix(SUFFIX)
@@ -205,6 +228,7 @@ public class TestUtils {
                 .alternateIdentifier(LOCAL_ID).build()))
         .dates(List.of(DcDate.builder()
             .date("2024-03-08")
+            .dateType("Issued")
             .build()))
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
@@ -239,6 +263,7 @@ public class TestUtils {
                 .alternateIdentifierType("primaryMediaId")
                 .alternateIdentifier(LOCAL_ID).build()))
         .dates(List.of(DcDate.builder()
+            .dateType("Issued")
             .date("2024-03-08")
             .build()))
         .relatedIdentifiers(List.of(
@@ -291,7 +316,7 @@ public class TestUtils {
     );
   }
 
-  public static DigitalSpecimen givenDigitalSpecimen(){
+  public static DigitalSpecimen givenDigitalSpecimen() {
     return givenDigitalSpecimen(PID);
   }
 
@@ -339,6 +364,46 @@ public class TestUtils {
     return givenMediaObject()
         .withMediaFormat(MediaFormat.IMAGE);
   }
+
+  public static TombstoneEvent givenTombstoneEvent() {
+    return new TombstoneEvent(
+        DOI,
+        List.of(givenDcRelatedIdentifiersTombstone())
+    );
+  }
+
+  private static DcRelatedIdentifiers givenDcRelatedIdentifiersTombstone() {
+    return DcRelatedIdentifiers.builder()
+        .relatedIdentifier(PID_ALT)
+        .relatedIdentifierType("DOI")
+        .relationType("Superseded By")
+        .build();
+  }
+
+  public static DcRequest givenDcRequestTombstone() {
+    var description = new ArrayList<>(givenSpecimenDescription());
+    description.add(DcDescription.builder()
+        .description("This DOI has been tombstoned")
+        .build());
+    return DcRequest.builder()
+        .data(DcData.builder()
+            .attributes(DcAttributes.builder()
+                .doi(DOI)
+                .relatedIdentifiers(
+                    List.of(givenDcRelatedIdentifiers(), givenDcRelatedIdentifiersTombstone()))
+                .dates(List.of(
+                    givenDcIssueDate(),
+                    DcDate.builder()
+                        .date("2024-04-09")
+                        .dateType("Withdrawn")
+                        .build()
+                ))
+                .descriptions(description)
+                .build())
+            .build())
+        .build();
+  }
+
 
   public static RecoveryEvent givenRecoveryEvent() {
     return new RecoveryEvent(List.of(DOI, DOI_ALT), EventType.CREATE);

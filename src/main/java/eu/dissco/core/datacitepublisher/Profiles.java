@@ -8,6 +8,7 @@ public class Profiles {
   private Profiles() {
   }
 
-  public static final String TEST = "test";
+  public static final String SANDBOX = "sandbox";
+  public static final String PRODUCTION = "production";
 
 }

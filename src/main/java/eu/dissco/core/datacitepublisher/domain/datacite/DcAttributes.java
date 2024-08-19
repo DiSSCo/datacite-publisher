@@ -5,19 +5,24 @@ import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.SCHEMA_VERSION;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.jackson.Jacksonized;
 
 @Builder
 @AllArgsConstructor
 @Setter(value = AccessLevel.PACKAGE)
 @Getter
 @JsonInclude(NON_EMPTY)
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DcAttributes {
 
   private String suffix;
