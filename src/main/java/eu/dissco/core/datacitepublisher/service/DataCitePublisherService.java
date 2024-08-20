@@ -5,6 +5,7 @@ import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.ALT_ID_TYPE_MO;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.LANDING_PAGE_DS;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.LANDING_PAGE_MO;
+import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_DS;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_MO;
 
@@ -77,7 +78,7 @@ public class DataCitePublisherService {
         .description("This DOI has been tombstoned")
         .build());
     var relatedIdentifiers = new ArrayList<>(dcAttributes.getRelatedIdentifiers());
-    relatedIdentifiers.addAll(event.tombstonePids());
+    relatedIdentifiers.addAll(event.dcRelatedIdentifiersTombstone());
     var dates = new ArrayList<>(dcAttributes.getDates());
     dates.add(DcDate.builder()
         .date(DATACITE_FORMATTER.format(Instant.now()))
@@ -178,6 +179,7 @@ public class DataCitePublisherService {
                       .titles(getTitles(referentName))
                       .types(getDcType(dcType))
                       .url(url)
+                      .publisher(PUBLISHER)
                       .build())
                   .build()
           ).build();

@@ -46,7 +46,7 @@ public class DataCiteClient {
   }
 
   public DcAttributes getDoiRecord(String doi) throws DataCiteApiException {
-    var uri = "/" + doi;
+    var uri = "/" + doi + "?publisher=true";
     var response = webClient.get()
         .uri(uri)
         .retrieve()

@@ -1,5 +1,6 @@
 package eu.dissco.core.datacitepublisher;
 
+import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
 import static eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType.ORGANISM_PART;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -110,6 +111,7 @@ public class TestUtils {
         .descriptions(givenSpecimenDescription())
         .types(givenType(DataCiteConstants.TYPE_DS))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .publisher(PUBLISHER)
         .build();
   }
 
@@ -181,6 +183,7 @@ public class TestUtils {
                 .subjectScheme("topicCategory")
                 .build())
         )
+        .publisher(PUBLISHER)
         .descriptions(givenSpecimenDescriptionFull())
         .build();
   }
@@ -239,6 +242,7 @@ public class TestUtils {
                 .relatedIdentifierType("URL").build()))
         .descriptions(givenMediaDescriptionFull())
         .types(givenType(DataCiteConstants.TYPE_MO))
+        .publisher(PUBLISHER)
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .build();
   }
@@ -276,6 +280,7 @@ public class TestUtils {
         .descriptions(givenMediaDescriptionFull())
         .types(givenType(DataCiteConstants.TYPE_MO))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .publisher(PUBLISHER)
         .subjects(List.of(
             DcSubject.builder()
                 .subjectScheme("mediaFormat")

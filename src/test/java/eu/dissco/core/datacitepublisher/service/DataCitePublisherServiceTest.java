@@ -20,6 +20,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAt
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributesFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenType;
+import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -33,8 +34,6 @@ import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
-import eu.dissco.core.datacitepublisher.domain.datacite.DcData;
-import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
@@ -187,17 +186,13 @@ class DataCitePublisherServiceTest {
             .withPid(PID),
         EventType.UPDATE
     );
-    var expected = MAPPER.valueToTree(DcRequest.builder()
-        .data(DcData.builder()
-            .attributes(
-                DcAttributes.builder()
-                    .doi(DOI)
-                    .suffix(SUFFIX)
-                    .types(givenType(DataCiteConstants.TYPE_DS))
-                    .build()
-            )
+    var expected = givenDcRequest(
+        DcAttributes.builder()
+            .doi(DOI)
+            .suffix(SUFFIX)
+            .types(givenType(DataCiteConstants.TYPE_DS))
+            .publisher(PUBLISHER)
             .build()
-        ).build()
     );
 
     // When
@@ -219,6 +214,7 @@ class DataCitePublisherServiceTest {
         .doi(DOI)
         .suffix(SUFFIX)
         .types(givenType(DataCiteConstants.TYPE_MO))
+        .publisher(PUBLISHER)
         .build();
     var expected = givenDcRequest(attributes);
 
@@ -230,7 +226,7 @@ class DataCitePublisherServiceTest {
   }
 
   @Test
-  void testTombstoneRecord() throws Exception{
+  void testTombstoneRecord() throws Exception {
     // Given
     given(dataCiteClient.getDoiRecord(DOI)).willReturn(givenSpecimenDataCiteAttributes());
     var expected = MAPPER.valueToTree(givenDcRequestTombstone());
@@ -245,7 +241,7 @@ class DataCitePublisherServiceTest {
     mockedClock.close();
   }
 
-  private void initTime(){
+  private void initTime() {
     Clock clock = Clock.fixed(TOMBSTONED, ZoneOffset.UTC);
     Instant instant = Instant.now(clock);
     mockedInstant = mockStatic(Instant.class);

@@ -274,7 +274,9 @@ class DataCiteClientTest {
                   "title": "Lamium amplexicaule"
                 }
               ],
-              "publisher": "Distributed System of Scientific Collections",
+              "publisher": {
+                "name":"Distributed System of Scientific Collections"
+               },
               "container": {},
               "publicationYear": 2023,
               "subjects": [

@@ -2,7 +2,6 @@ package eu.dissco.core.datacitepublisher.domain.datacite;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.DC_EVENT;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
 import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.SCHEMA_VERSION;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -37,7 +36,7 @@ public class DcAttributes {
   private List<DcRelatedIdentifiers> relatedIdentifiers; // tombstone pids; primary specimenObjectId; primaryMediaId
   private List<DcDescription> descriptions; // Specimen: Host + materialSampleType, Media: host + linked object type
   private String url; // human readable landing page
-  private final DcPublisher publisher = PUBLISHER;
+  private DcPublisher publisher;
   private final String schemaVersion = SCHEMA_VERSION;
   private final String event = DC_EVENT;
 
