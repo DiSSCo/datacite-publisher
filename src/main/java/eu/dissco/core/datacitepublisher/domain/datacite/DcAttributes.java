@@ -1,8 +1,8 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.DC_EVENT;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.SCHEMA_VERSION;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.DC_EVENT;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SCHEMA_VERSION;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

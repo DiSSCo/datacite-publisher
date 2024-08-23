@@ -1,11 +1,14 @@
 package eu.dissco.core.datacitepublisher.service;
 
+import static eu.dissco.core.datacitepublisher.TestUtils.DEFAULT_PUBLISHER;
 import static eu.dissco.core.datacitepublisher.TestUtils.DOI;
 import static eu.dissco.core.datacitepublisher.TestUtils.LOCS;
 import static eu.dissco.core.datacitepublisher.TestUtils.LOCS_ARR;
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
+import static eu.dissco.core.datacitepublisher.TestUtils.MEDIA_PAGE;
 import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.PREFIX;
+import static eu.dissco.core.datacitepublisher.TestUtils.SPECIMEN_PAGE;
 import static eu.dissco.core.datacitepublisher.TestUtils.SUFFIX;
 import static eu.dissco.core.datacitepublisher.TestUtils.TOMBSTONED;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDcRequest;
@@ -20,7 +23,8 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAt
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributesFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenType;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -32,7 +36,6 @@ import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
-import eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
@@ -68,6 +71,9 @@ class DataCitePublisherServiceTest {
   void setup() {
     service = new DataCitePublisherService(xmlLocReader, MAPPER, dataCiteClient, properties);
     lenient().when(properties.getPrefix()).thenReturn(PREFIX);
+    lenient().when(properties.getDefaultPublisher()).thenReturn(DEFAULT_PUBLISHER);
+    lenient().when(properties.getLandingPageSpecimen()).thenReturn(SPECIMEN_PAGE);
+    lenient().when(properties.getLandingPageMedia()).thenReturn(MEDIA_PAGE);
   }
 
   @Test
@@ -190,8 +196,8 @@ class DataCitePublisherServiceTest {
         DcAttributes.builder()
             .doi(DOI)
             .suffix(SUFFIX)
-            .types(givenType(DataCiteConstants.TYPE_DS))
-            .publisher(PUBLISHER)
+            .types(givenType(SPECIMEN_TYPE))
+            .publisher(DEFAULT_PUBLISHER)
             .build()
     );
 
@@ -213,8 +219,8 @@ class DataCitePublisherServiceTest {
     var attributes = DcAttributes.builder()
         .doi(DOI)
         .suffix(SUFFIX)
-        .types(givenType(DataCiteConstants.TYPE_MO))
-        .publisher(PUBLISHER)
+        .types(givenType(MEDIA_TYPE))
+        .publisher(DEFAULT_PUBLISHER)
         .build();
     var expected = givenDcRequest(attributes);
 

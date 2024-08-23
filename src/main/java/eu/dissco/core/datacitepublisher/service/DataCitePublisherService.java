@@ -1,13 +1,10 @@
 package eu.dissco.core.datacitepublisher.service;
 
 import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.DATACITE_FORMATTER;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.ALT_ID_TYPE_DS;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.ALT_ID_TYPE_MO;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.LANDING_PAGE_DS;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.LANDING_PAGE_MO;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_DS;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.TYPE_MO;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_ALT_ID_TYPE;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_ALT_ID_TYPE;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
@@ -117,8 +114,8 @@ public class DataCitePublisherService {
   private DcRequest buildDcRequest(DigitalSpecimen digitalSpecimen) {
     return buildDcRequest(
         digitalSpecimen.get10320Loc(),
-        LANDING_PAGE_DS,
-        ALT_ID_TYPE_DS,
+        properties.getLandingPageSpecimen(),
+        SPECIMEN_ALT_ID_TYPE,
         digitalSpecimen.getPrimarySpecimenObjectId(),
         digitalSpecimen.getSpecimenHostName(),
         digitalSpecimen.getSpecimenHost(),
@@ -127,7 +124,7 @@ public class DataCitePublisherService {
         digitalSpecimen.getPidRecordIssueDate(),
         digitalSpecimen.getPid(),
         digitalSpecimen.getReferentName(),
-        TYPE_DS,
+        SPECIMEN_TYPE,
         getDescriptionForSpecimen(digitalSpecimen),
         getSubjectsForSpecimen(digitalSpecimen));
   }
@@ -135,8 +132,8 @@ public class DataCitePublisherService {
   private DcRequest buildDcRequest(MediaObject mediaObject) {
     return buildDcRequest(
         mediaObject.get10320Loc(),
-        LANDING_PAGE_MO,
-        ALT_ID_TYPE_MO,
+        properties.getLandingPageMedia(),
+        MEDIA_ALT_ID_TYPE,
         mediaObject.getPrimaryMediaId(),
         mediaObject.getMediaHostName(),
         mediaObject.getMediaHost(),
@@ -145,7 +142,7 @@ public class DataCitePublisherService {
         mediaObject.getPidRecordIssueDate(),
         mediaObject.getPid(),
         mediaObject.getReferentName(),
-        TYPE_MO,
+        MEDIA_TYPE,
         getDescriptionForMedia(mediaObject),
         getSubjectsForMedia(mediaObject));
   }
@@ -179,7 +176,7 @@ public class DataCitePublisherService {
                       .titles(getTitles(referentName))
                       .types(getDcType(dcType))
                       .url(url)
-                      .publisher(PUBLISHER)
+                      .publisher(properties.getDefaultPublisher())
                       .build())
                   .build()
           ).build();

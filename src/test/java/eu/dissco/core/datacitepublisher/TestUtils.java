@@ -1,6 +1,7 @@
 package eu.dissco.core.datacitepublisher;
 
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 import static eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType.ORGANISM_PART;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -14,7 +15,6 @@ import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.FdoType;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
-import eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAlternateIdentifier;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcContributor;
@@ -23,6 +23,7 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcData;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcDate;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcDescription;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcNameIdentifiers;
+import eu.dissco.core.datacitepublisher.domain.datacite.DcPublisher;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRelatedIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcSubject;
@@ -69,6 +70,11 @@ public class TestUtils {
   public static final String LOCAL_ID = "PLANT-123";
   public static final ObjectMapper MAPPER;
   public static final XmlMapper XML_MAPPER;
+  public static final DcPublisher DEFAULT_PUBLISHER = new DcPublisher("Distributed System of Scientific Collections",
+      "https://ror.org/0566bfb96",  UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
+
+  public static final String SPECIMEN_PAGE = "https://sandbox.dissco.tech/ds/";
+  public static final String MEDIA_PAGE = "https://sandbox.dissco.tech/dm/";
 
   static {
     var mapper = new ObjectMapper().findAndRegisterModules();
@@ -109,9 +115,9 @@ public class TestUtils {
         .dates(List.of(givenDcIssueDate()))
         .relatedIdentifiers(List.of(givenDcRelatedIdentifiers()))
         .descriptions(givenSpecimenDescription())
-        .types(givenType(DataCiteConstants.TYPE_DS))
+        .types(givenType(SPECIMEN_TYPE))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
-        .publisher(PUBLISHER)
+        .publisher(DEFAULT_PUBLISHER)
         .build();
   }
 
@@ -167,7 +173,7 @@ public class TestUtils {
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL")
                 .build()))
-        .types(givenType(DataCiteConstants.TYPE_DS))
+        .types(givenType(SPECIMEN_TYPE))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .subjects(List.of(
             DcSubject.builder()
@@ -183,7 +189,7 @@ public class TestUtils {
                 .subjectScheme("topicCategory")
                 .build())
         )
-        .publisher(PUBLISHER)
+        .publisher(DEFAULT_PUBLISHER)
         .descriptions(givenSpecimenDescriptionFull())
         .build();
   }
@@ -241,8 +247,8 @@ public class TestUtils {
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL").build()))
         .descriptions(givenMediaDescriptionFull())
-        .types(givenType(DataCiteConstants.TYPE_MO))
-        .publisher(PUBLISHER)
+        .types(givenType(MEDIA_TYPE))
+        .publisher(DEFAULT_PUBLISHER)
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
         .build();
   }
@@ -278,9 +284,9 @@ public class TestUtils {
                     "https://sandbox.dissco.tech/api/v1/specimens/10.3535/QR1-P21-9FW")
                 .relatedIdentifierType("URL").build()))
         .descriptions(givenMediaDescriptionFull())
-        .types(givenType(DataCiteConstants.TYPE_MO))
+        .types(givenType(MEDIA_TYPE))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
-        .publisher(PUBLISHER)
+        .publisher(DEFAULT_PUBLISHER)
         .subjects(List.of(
             DcSubject.builder()
                 .subjectScheme("mediaFormat")
