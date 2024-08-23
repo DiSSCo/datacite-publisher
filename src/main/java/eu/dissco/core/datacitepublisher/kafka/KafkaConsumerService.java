@@ -64,7 +64,7 @@ public class KafkaConsumerService {
   @RetryableTopic(
       attempts = "1",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
-  @KafkaListener(topics = "tombstone", groupId = "${spring.kafka.consumer.group-id}")
+  @KafkaListener(topics = "${kafka.consumer.topic.tombstone}", groupId = "${spring.kafka.consumer.group-id}")
   public void tombstoneDois(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
       var event = mapper.readValue(message, TombstoneEvent.class);
