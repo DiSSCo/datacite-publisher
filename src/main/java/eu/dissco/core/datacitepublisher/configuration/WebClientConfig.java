@@ -32,11 +32,8 @@ public class WebClientConfig {
 
   @Bean("handle")
   public WebClient handleClient() {
-    ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
-        .ofResponseProcessor(WebClientUtils::exchangeFilterResponseProcessor);
     return WebClient.builder()
         .baseUrl(handleProperties.getEndpoint())
-        .filter(errorResponseFilter)
         .build();
   }
 

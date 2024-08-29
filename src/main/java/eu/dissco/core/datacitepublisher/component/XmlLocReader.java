@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlCData;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileRecievedException;
+import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileReceivedException;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class XmlLocReader {
   @Qualifier("xmlMapper")
   private final XmlMapper xmlMapper;
 
-  public List<String> getLocationsFromXml(String xmlDoc) throws InvalidFdoProfileRecievedException {
+  public List<String> getLocationsFromXml(String xmlDoc) throws InvalidFdoProfileReceivedException {
     if (xmlDoc == null) {
       log.warn("No url provided");
       return Collections.emptyList();
@@ -32,7 +32,7 @@ public class XmlLocReader {
       return locations.getLocation().stream().map(LocationXml::getHref).toList();
     } catch (JsonProcessingException e){
       log.error("Unable to parse 10320/loc field for fdo", e);
-      throw new InvalidFdoProfileRecievedException();
+      throw new InvalidFdoProfileReceivedException();
     }
   }
 

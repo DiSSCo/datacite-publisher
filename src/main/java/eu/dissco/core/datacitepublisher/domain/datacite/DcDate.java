@@ -14,6 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DcDate {
   private String date;
-  private final String dateType = "Issued";
+  private String dateType;
 
 }

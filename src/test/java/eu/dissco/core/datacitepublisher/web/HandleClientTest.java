@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,12 +36,9 @@ class HandleClientTest {
 
   @BeforeEach
   void setup() {
-    ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
-        .ofResponseProcessor(WebClientUtils::exchangeFilterResponseProcessor);
     var client = WebClient.builder()
         .baseUrl(String.format("http://%s:%s", mockHandleServer.getHostName(),
             mockHandleServer.getPort()))
-        .filter(errorResponseFilter)
         .build();
     handleClient = new HandleClient(client);
   }

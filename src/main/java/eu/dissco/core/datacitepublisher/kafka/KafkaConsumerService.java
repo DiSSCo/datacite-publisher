@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
+import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import eu.dissco.core.datacitepublisher.service.DataCitePublisherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,33 +34,45 @@ public class KafkaConsumerService {
       attempts = "1",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
   @KafkaListener(topics = "${kafka.consumer.topic.specimen}",
-      groupId = "${spring.kafka.consumer.group-id}" )
-  public void getSpecimenMessages(@Payload String message) throws DataCiteApiException {
-    DigitalSpecimenEvent event;
+      groupId = "${spring.kafka.consumer.group-id}")
+  public void getSpecimenMessages(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
-      event = mapper.readValue(message, DigitalSpecimenEvent.class);
+      var event = mapper.readValue(message, DigitalSpecimenEvent.class);
+      service.handleMessages(event);
     } catch (JsonProcessingException e) {
       log.error(ERROR_MSG, e);
       log.info("Message: {}", message);
-      throw new DataCiteApiException(ERROR_MSG);
+      throw new InvalidRequestException();
     }
-    service.handleMessages(event);
   }
 
   @RetryableTopic(
       attempts = "1",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
-  @KafkaListener(topics = "${kafka.consumer.topic.media}",  groupId = "${spring.kafka.consumer.group-id}")
-  public void getMediaMessages(@Payload String message) throws DataCiteApiException {
-    MediaObjectEvent event;
+  @KafkaListener(topics = "${kafka.consumer.topic.media}", groupId = "${spring.kafka.consumer.group-id}")
+  public void getMediaMessages(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
-      event = mapper.readValue(message, MediaObjectEvent.class);
+      var event = mapper.readValue(message, MediaObjectEvent.class);
+      service.handleMessages(event);
     } catch (JsonProcessingException e) {
       log.error(ERROR_MSG);
       log.info("Message: {}", message);
-      throw new DataCiteApiException(ERROR_MSG);
+      throw new InvalidRequestException();
     }
-    service.handleMessages(event);
+  }
+
+  @RetryableTopic(
+      attempts = "1",
+      dltStrategy = DltStrategy.FAIL_ON_ERROR)
+  @KafkaListener(topics = "${kafka.consumer.topic.tombstone}", groupId = "${spring.kafka.consumer.group-id}")
+  public void tombstoneDois(@Payload String message) throws DataCiteApiException, InvalidRequestException {
+    try {
+      var event = mapper.readValue(message, TombstoneEvent.class);
+      service.tombstoneRecord(event);
+    } catch (JsonProcessingException e){
+      log.error(ERROR_MSG + ". Message: {}", message, e);
+      throw new InvalidRequestException();
+    }
   }
 
   @DltHandler
@@ -66,6 +80,4 @@ public class KafkaConsumerService {
       @Header(KafkaHeaders.RECEIVED_TOPIC) String receivedTopic) {
     log.info("Message {} received in dlt handler at topic {} ", message, receivedTopic);
   }
-
-
 }

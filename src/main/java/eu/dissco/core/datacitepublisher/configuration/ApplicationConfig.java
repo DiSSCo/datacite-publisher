@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class ApplicationConfig {
 
   public static final DateTimeFormatter FDO_FORMATTER = DateTimeFormatter.ofPattern(
       "yyyy-MM-dd'T'HH:mm:ss.SSSXXX").withZone(ZoneOffset.UTC);
-  public static final DateTimeFormatter DATACITE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+  public static final DateTimeFormatter DATACITE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+      .withZone(ZoneId.of("UTC"));
 
   @Bean
   public ObjectMapper objectMapper() {

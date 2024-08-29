@@ -1,10 +1,10 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.DC_EVENT;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.PUBLISHER;
-import static eu.dissco.core.datacitepublisher.domain.datacite.DataCiteConstants.SCHEMA_VERSION;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.DC_EVENT;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SCHEMA_VERSION;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 import lombok.AccessLevel;
@@ -12,12 +12,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.jackson.Jacksonized;
 
 @Builder
 @AllArgsConstructor
 @Setter(value = AccessLevel.PACKAGE)
 @Getter
 @JsonInclude(NON_EMPTY)
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DcAttributes {
 
   private String suffix;
@@ -33,7 +36,7 @@ public class DcAttributes {
   private List<DcRelatedIdentifiers> relatedIdentifiers; // tombstone pids; primary specimenObjectId; primaryMediaId
   private List<DcDescription> descriptions; // Specimen: Host + materialSampleType, Media: host + linked object type
   private String url; // human readable landing page
-  private final DcPublisher publisher = PUBLISHER;
+  private DcPublisher publisher;
   private final String schemaVersion = SCHEMA_VERSION;
   private final String event = DC_EVENT;
 

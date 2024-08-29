@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter(value = AccessLevel.PACKAGE)
 @Getter
 public class DcRelatedIdentifiers {
-  private String relationType;
+  private RelationType relationType;
   private String relatedIdentifier;
   private String relatedIdentifierType;
 }

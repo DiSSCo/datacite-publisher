@@ -7,7 +7,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.XML_MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileRecievedException;
+import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileReceivedException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class XmlLocReaderTest {
   @Test
   void testGetLocationsBadLocs() {
     // When / Then
-    assertThrows(InvalidFdoProfileRecievedException.class,
+    assertThrows(InvalidFdoProfileReceivedException.class,
         () -> xmlLocReader.getLocationsFromXml("bad document"));
   }
 
