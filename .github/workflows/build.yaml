@@ -82,10 +82,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       - name: Set outputs
         id: vars
-        run: echo "name=sha_short" >> $GITHUB_OUTPUT
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       - name: Push tag
         if: github.event_name != 'pull_request'
-        uses: anothrNick/github-tag-action@1.36.0
+        uses: anothrNick/github-tag-action@1.70.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CUSTOM_TAG: sha-${{ steps.vars.outputs.sha_short }}
