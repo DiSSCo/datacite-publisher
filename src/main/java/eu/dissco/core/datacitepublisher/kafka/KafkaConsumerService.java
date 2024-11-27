@@ -33,8 +33,7 @@ public class KafkaConsumerService {
   @RetryableTopic(
       attempts = "1",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
-  @KafkaListener(topics = "${kafka.consumer.topic.specimen}",
-      groupId = "${spring.kafka.consumer.group-id}")
+  @KafkaListener(topics = "${kafka.consumer.topic.specimen}")
   public void getSpecimenMessages(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
       var event = mapper.readValue(message, DigitalSpecimenEvent.class);
@@ -49,7 +48,7 @@ public class KafkaConsumerService {
   @RetryableTopic(
       attempts = "1",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
-  @KafkaListener(topics = "${kafka.consumer.topic.media}", groupId = "${spring.kafka.consumer.group-id}")
+  @KafkaListener(topics = "${kafka.consumer.topic.media}")
   public void getMediaMessages(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
       var event = mapper.readValue(message, MediaObjectEvent.class);
@@ -64,7 +63,7 @@ public class KafkaConsumerService {
   @RetryableTopic(
       attempts = "1",
       dltStrategy = DltStrategy.FAIL_ON_ERROR)
-  @KafkaListener(topics = "${kafka.consumer.topic.tombstone}", groupId = "${spring.kafka.consumer.group-id}")
+  @KafkaListener(topics = "${kafka.consumer.topic.tombstone}")
   public void tombstoneDois(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
       var event = mapper.readValue(message, TombstoneEvent.class);

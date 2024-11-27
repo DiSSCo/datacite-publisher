@@ -2,6 +2,8 @@ package eu.dissco.core.datacitepublisher.security;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +21,8 @@ public class WebSecurityConfig  {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+        .requestMatchers(EndpointRequest.to(HealthEndpoint.class))
+        .permitAll()
         .anyRequest()
         .hasRole("orchestration-admin"));
 
