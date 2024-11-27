@@ -2,7 +2,6 @@ package eu.dissco.core.datacitepublisher.properties;
 
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -16,11 +15,5 @@ public class KafkaConsumerProperties {
 
   @NotBlank
   private String group;
-
-  @NotBlank
-  private String topic;
-
-  @Positive
-  private int batchSize = 5000;
 
 }
