@@ -25,7 +25,8 @@ public class MavenRunner {
       LOGGER.info("Processing json schema: {}", schemaUrl);
       var fileName = schemaUrl.substring(schemaUrl.lastIndexOf('/') + 1);
       fileName = fileName.replace("-request-attributes", "");
-      String outputFilePath = "src/main/resources/json-schema/" + fileName.replace("-request-attributes", "");
+      String outputFilePath =
+          "src/main/resources/json-schema/" + fileName.replace("-request-attributes", "");
       try {
         String schema = downloadSchema(schemaUrl);
         saveSchemaToFile(schema, outputFilePath);
@@ -38,7 +39,7 @@ public class MavenRunner {
 
   private static String downloadSchema(String schemaUrl) throws IOException, URISyntaxException {
     StringBuilder result = new StringBuilder();
-      URL url = new URI(schemaUrl).toURL();
+    URL url = new URI(schemaUrl).toURL();
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
     conn.setRequestMethod(RequestMethod.GET.name());
     try (BufferedReader reader = new BufferedReader(
