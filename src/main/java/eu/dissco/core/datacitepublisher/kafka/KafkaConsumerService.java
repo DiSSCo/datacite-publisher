@@ -3,7 +3,7 @@ package eu.dissco.core.datacitepublisher.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
-import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
@@ -51,7 +51,7 @@ public class KafkaConsumerService {
   @KafkaListener(topics = "${kafka.consumer.topic.media}")
   public void getMediaMessages(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
-      var event = mapper.readValue(message, MediaObjectEvent.class);
+      var event = mapper.readValue(message, DigitalMediaEvent.class);
       service.handleMessages(event);
     } catch (JsonProcessingException e) {
       log.error(ERROR_MSG);

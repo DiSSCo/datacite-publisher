@@ -1,8 +1,8 @@
 package eu.dissco.core.datacitepublisher.kafka;
 
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObject;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,7 +12,7 @@ import static org.mockito.Mockito.spy;
 
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
@@ -51,7 +51,7 @@ class KafkaConsumerServiceTest {
   @Test
   void testHandleSpecimenMessagesBadRequest() throws Exception {
     // Given
-    var event = new MediaObjectEvent(givenMediaObject(), EventType.CREATE);
+    var event = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
     var message = MAPPER.writeValueAsString(event);
 
     // When / Then
@@ -62,7 +62,7 @@ class KafkaConsumerServiceTest {
   @Test
   void testHandleMediaMessages() throws Exception {
     // Given
-    var event = new MediaObjectEvent(givenMediaObject(), EventType.CREATE);
+    var event = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
     var message = MAPPER.writeValueAsString(event);
 
     // When

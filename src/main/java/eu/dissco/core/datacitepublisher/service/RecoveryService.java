@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.FdoType;
-import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
 import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
+import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.HandleClient;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public class RecoveryService {
         if (type.equals(FdoType.DIGITAL_SPECIMEN)) {
           recoverDigitalSpecimen(pidRecordJson.get("attributes"), eventType);
         } else {
-          recoverMediaObject(pidRecordJson.get("attributes"), eventType);
+          recoverDigitalMedia(pidRecordJson.get("attributes"), eventType);
         }
       }
     } else {
@@ -75,10 +75,10 @@ public class RecoveryService {
     dataCitePublisherService.handleMessages(new DigitalSpecimenEvent(digitalSpecimen, eventType));
   }
 
-  private void recoverMediaObject(JsonNode pidRecordAttributes, EventType eventType)
+  private void recoverDigitalMedia(JsonNode pidRecordAttributes, EventType eventType)
       throws DataCiteApiException, JsonProcessingException {
-    var mediaObject = mapper.treeToValue(pidRecordAttributes, MediaObject.class);
-    dataCitePublisherService.handleMessages(new MediaObjectEvent(mediaObject, eventType));
+    var mediaObject = mapper.treeToValue(pidRecordAttributes, DigitalMedia.class);
+    dataCitePublisherService.handleMessages(new DigitalMediaEvent(mediaObject, eventType));
   }
 
 }

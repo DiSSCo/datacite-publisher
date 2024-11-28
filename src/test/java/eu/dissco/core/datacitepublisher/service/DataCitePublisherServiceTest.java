@@ -17,8 +17,8 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributes;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributesFull;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObject;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObjectFull;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMediaFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributes;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributesFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
@@ -35,13 +35,13 @@ import static org.mockito.Mockito.mockStatic;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
+import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.DataCiteClient;
 import java.time.Clock;
 import java.time.Instant;
@@ -132,9 +132,9 @@ class DataCitePublisherServiceTest {
   }
 
   @Test
-  void testHandleMediaObjectMessage() throws Exception {
+  void testHandleDigitalMediaMessage() throws Exception {
     // Given
-    var event = new MediaObjectEvent(givenMediaObject(), EventType.CREATE);
+    var event = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
     var expected = givenDcRequest(givenMediaAttributes());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
@@ -146,9 +146,9 @@ class DataCitePublisherServiceTest {
   }
 
   @Test
-  void testHandleMediaObjectMessageFull() throws Exception {
+  void testHandleDigitalMediaMessageFull() throws Exception {
     // Given
-    var event = new MediaObjectEvent(givenMediaObjectFull(), EventType.CREATE);
+    var event = new DigitalMediaEvent(givenDigitalMediaFull(), EventType.CREATE);
     var expected = givenDcRequest(givenMediaAttributesFull());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
@@ -209,10 +209,10 @@ class DataCitePublisherServiceTest {
   }
 
   @Test
-  void testHandleMediaObjectMessageNulls() throws Exception {
+  void testHandleDigitalMediaMessageNulls() throws Exception {
     // Given
-    var event = new MediaObjectEvent(
-        new MediaObject()
+    var event = new DigitalMediaEvent(
+        new DigitalMedia()
             .withPid(PID),
         EventType.UPDATE
     );
