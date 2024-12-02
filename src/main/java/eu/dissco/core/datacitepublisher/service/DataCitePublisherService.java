@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAlternateIdentifier;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
@@ -31,8 +31,8 @@ import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidFdoProfileReceivedException;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
+import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.schemas.MediaObject;
 import eu.dissco.core.datacitepublisher.web.DataCiteClient;
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -93,9 +93,9 @@ public class DataCitePublisherService {
         .build();
   }
 
-  public void handleMessages(MediaObjectEvent mediaObjectEvent) throws DataCiteApiException {
-    var dcRequest = buildDcRequest(mediaObjectEvent.pidRecord());
-    publishToDataCite(dcRequest, mediaObjectEvent.eventType());
+  public void handleMessages(DigitalMediaEvent digitalMediaEvent) throws DataCiteApiException {
+    var dcRequest = buildDcRequest(digitalMediaEvent.pidRecord());
+    publishToDataCite(dcRequest, digitalMediaEvent.eventType());
   }
 
   private void publishToDataCite(DcRequest request, EventType eventType)
@@ -116,7 +116,7 @@ public class DataCitePublisherService {
         digitalSpecimen.get10320Loc(),
         properties.getLandingPageSpecimen(),
         SPECIMEN_ALT_ID_TYPE,
-        digitalSpecimen.getPrimarySpecimenObjectId(),
+        digitalSpecimen.getNormalisedPrimarySpecimenObjectId(),
         digitalSpecimen.getSpecimenHostName(),
         digitalSpecimen.getSpecimenHost(),
         digitalSpecimen.getIssuedForAgentName(),
@@ -129,7 +129,7 @@ public class DataCitePublisherService {
         getSubjectsForSpecimen(digitalSpecimen));
   }
 
-  private DcRequest buildDcRequest(MediaObject mediaObject) {
+  private DcRequest buildDcRequest(DigitalMedia mediaObject) {
     return buildDcRequest(
         mediaObject.get10320Loc(),
         properties.getLandingPageMedia(),
@@ -271,7 +271,7 @@ public class DataCitePublisherService {
     return descriptionList;
   }
 
-  private List<DcDescription> getDescriptionForMedia(MediaObject mediaObject) {
+  private List<DcDescription> getDescriptionForMedia(DigitalMedia mediaObject) {
     var descriptionList = new ArrayList<DcDescription>();
     if (mediaObject.getMediaHostName() != null) {
       descriptionList.add(DcDescription.builder()
@@ -320,19 +320,19 @@ public class DataCitePublisherService {
     return subjectList;
   }
 
-  private List<DcSubject> getSubjectsForMedia(MediaObject mediaObject) {
+  private List<DcSubject> getSubjectsForMedia(DigitalMedia mediaObject) {
     var subjectList = new ArrayList<DcSubject>();
-    if (mediaObject.getMediaFormat() != null) {
+    if (mediaObject.getMimeType() != null) {
       subjectList.add(DcSubject.builder()
           .subjectScheme("mediaFormat")
-          .subject(mediaObject.getMediaFormat().value())
+          .subject(mediaObject.getMimeType())
           .build());
     }
     if (mediaObject.getLinkedDigitalObjectType() != null) {
       subjectList.add(
           DcSubject.builder()
               .subjectScheme("linkedDigitalObjectType")
-              .subject(mediaObject.getLinkedDigitalObjectType().value())
+              .subject(mediaObject.getLinkedDigitalObjectType())
               .build());
     }
     return subjectList;

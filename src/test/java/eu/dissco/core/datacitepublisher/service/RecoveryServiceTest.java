@@ -7,8 +7,8 @@ import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.PID_ALT;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenPidRecordSingle;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObject;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaObjectJson;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMediaJson;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenRecoveryEvent;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenPidRecord;
 import static org.junit.Assert.assertThrows;
@@ -18,7 +18,7 @@ import static org.mockito.BDDMockito.then;
 
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.domain.MediaObjectEvent;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
 import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
 import eu.dissco.core.datacitepublisher.web.HandleClient;
@@ -86,7 +86,7 @@ class RecoveryServiceTest {
   void testRecoverDoisMedia() throws Exception {
     // Given
     given(handleClient.resolveHandles(List.of(DOI, DOI_ALT)))
-        .willReturn(givenMediaObjectJson());
+        .willReturn(givenDigitalMediaJson());
     given(handleConnectionProperties.getMaxHandles()).willReturn(10);
 
     // When
@@ -94,9 +94,9 @@ class RecoveryServiceTest {
 
     // Then
     then(dataCitePublisherService).should()
-        .handleMessages(new MediaObjectEvent(givenMediaObject(), EventType.CREATE));
+        .handleMessages(new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE));
     then(dataCitePublisherService).should()
-        .handleMessages(new MediaObjectEvent(givenMediaObject(PID_ALT), EventType.CREATE));
+        .handleMessages(new DigitalMediaEvent(givenDigitalMedia(PID_ALT), EventType.CREATE));
   }
 
   @Test

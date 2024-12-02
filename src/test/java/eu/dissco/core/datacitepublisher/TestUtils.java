@@ -2,7 +2,6 @@ package eu.dissco.core.datacitepublisher;
 
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
-import static eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType.ORGANISM_PART;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,9 +35,7 @@ import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleTy
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicCategory;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDiscipline;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDomain;
-import eu.dissco.core.datacitepublisher.schemas.MediaObject;
-import eu.dissco.core.datacitepublisher.schemas.MediaObject.LinkedDigitalObjectType;
-import eu.dissco.core.datacitepublisher.schemas.MediaObject.MediaFormat;
+import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +63,8 @@ public class TestUtils {
   public static final TopicDiscipline TOPIC_DISCIPLINE = TopicDiscipline.BOTANY;
   public static final TopicCategory TOPIC_CATEGORY = TopicCategory.ALGAE;
   public static final TopicDomain TOPIC_DOMAIN = TopicDomain.LIFE;
-  public static final MaterialSampleType MATERIAL_SAMPLE_TYPE = ORGANISM_PART;
+  public static final String DIGITAL_SPECIMEN_TYPE = "https://hdl.handle.net/21.T11148/894b1e6cad57e921764e";
+  public static final MaterialSampleType MATERIAL_SAMPLE_TYPE = MaterialSampleType.BIOLOGICAL_MATERIAL_SAMPLE;
   public static final String LOCAL_ID = "PLANT-123";
   public static final ObjectMapper MAPPER;
   public static final XmlMapper XML_MAPPER;
@@ -230,7 +228,7 @@ public class TestUtils {
         .subjects(List.of(
             DcSubject.builder()
                 .subjectScheme("linkedDigitalObjectType")
-                .subject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
+                .subject(DIGITAL_SPECIMEN_TYPE)
                 .build()))
         .alternateIdentifiers(List.of(
             DcAlternateIdentifier.builder()
@@ -290,11 +288,11 @@ public class TestUtils {
         .subjects(List.of(
             DcSubject.builder()
                 .subjectScheme("mediaFormat")
-                .subject(MediaFormat.IMAGE.value())
+                .subject("jpg")
                 .build(),
             DcSubject.builder()
                 .subjectScheme("linkedDigitalObjectType")
-                .subject(LinkedDigitalObjectType.DIGITAL_SPECIMEN.value())
+                .subject(DIGITAL_SPECIMEN_TYPE)
                 .build())
         )
         .build();
@@ -322,7 +320,7 @@ public class TestUtils {
             .build(),
         DcDescription.builder()
             .description(
-                "Is media for an object of type " + LinkedDigitalObjectType.DIGITAL_SPECIMEN.value()
+                "Is media for an object of type " + DIGITAL_SPECIMEN_TYPE
                     + ".")
             .build()
     );
@@ -339,7 +337,7 @@ public class TestUtils {
         .withIssuedForAgent(ROR)
         .withIssuedForAgentName(HOST_NAME)
         .withPidRecordIssueDate(PID_ISSUE_DATE)
-        .withPrimarySpecimenObjectId(LOCAL_ID)
+        .withNormalisedPrimarySpecimenObjectId(LOCAL_ID)
         .withSpecimenHost(ROR)
         .withSpecimenHostName(HOST_NAME)
         .withReferentName(REFERENT_NAME);
@@ -353,12 +351,12 @@ public class TestUtils {
         .withMaterialSampleType(MATERIAL_SAMPLE_TYPE);
   }
 
-  public static MediaObject givenMediaObject() {
-    return givenMediaObject(PID);
+  public static DigitalMedia givenDigitalMedia() {
+    return givenDigitalMedia(PID);
   }
 
-  public static MediaObject givenMediaObject(String pid) {
-    return new MediaObject()
+  public static DigitalMedia givenDigitalMedia(String pid) {
+    return new DigitalMedia()
         .with10320Loc(LOCS)
         .withPid(pid)
         .withIssuedForAgent(ROR)
@@ -368,13 +366,13 @@ public class TestUtils {
         .withReferentName(REFERENT_NAME)
         .withMediaHostName(HOST_NAME)
         .withMediaHost(ROR)
-        .withLinkedDigitalObjectType(LinkedDigitalObjectType.DIGITAL_SPECIMEN);
+        .withLinkedDigitalObjectType(DIGITAL_SPECIMEN_TYPE);
   }
 
 
-  public static MediaObject givenMediaObjectFull() {
-    return givenMediaObject()
-        .withMediaFormat(MediaFormat.IMAGE);
+  public static DigitalMedia givenDigitalMediaFull() {
+    return givenDigitalMedia()
+        .withMimeType("jpg");
   }
 
   public static TombstoneEvent givenTombstoneEvent() {
@@ -447,13 +445,13 @@ public class TestUtils {
             .add(specimen1));
   }
 
-  public static JsonNode givenMediaObjectJson() {
+  public static JsonNode givenDigitalMediaJson() {
     var media1 = MAPPER.createObjectNode()
         .put("type", FdoType.MEDIA_OBJECT.toString())
-        .set("attributes", MAPPER.valueToTree(givenMediaObject()));
+        .set("attributes", MAPPER.valueToTree(givenDigitalMedia()));
     var media2 = MAPPER.createObjectNode()
         .put("type", FdoType.MEDIA_OBJECT.toString())
-        .set("attributes", MAPPER.valueToTree(givenMediaObject(PID_ALT)));
+        .set("attributes", MAPPER.valueToTree(givenDigitalMedia(PID_ALT)));
 
     return MAPPER.createObjectNode()
         .put("links", "https://dev.dissco.tech/api/v1/pids/records")
