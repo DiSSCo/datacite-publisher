@@ -59,5 +59,6 @@ public class XmlLocReader {
     String href;
     String id;
     String weight;
+    String view;
   }
 }

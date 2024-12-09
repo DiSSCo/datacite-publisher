@@ -181,6 +181,7 @@ public class DataCitePublisherService {
                   .build()
           ).build();
     } catch (InvalidFdoProfileReceivedException e) {
+      log.error("Unable to parse Fdo Profile", e);
       throw new DataCiteMappingException();
     }
   }
