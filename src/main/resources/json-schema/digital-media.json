@@ -189,6 +189,7 @@
     },
     "mediaType": {
       "type": "string",
+      "description": "Describes the primary nature of the digital media",
       "$comment": "idx = 407"
     },
     "mimeType": {
