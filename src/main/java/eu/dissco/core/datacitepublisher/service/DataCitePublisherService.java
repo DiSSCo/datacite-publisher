@@ -3,6 +3,8 @@ package eu.dissco.core.datacitepublisher.service;
 import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.DATACITE_FORMATTER;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_ALT_ID_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_DATASET;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_IMAGE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_ALT_ID_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 
@@ -137,8 +139,8 @@ public class DataCitePublisherService {
         mediaObject.getPrimaryMediaId(),
         mediaObject.getMediaHostName(),
         mediaObject.getMediaHost(),
-        mediaObject.getIssuedForAgentName(),
-        mediaObject.getIssuedForAgent(),
+        mediaObject.getMediaHostName(),
+        mediaObject.getMediaHost(),
         mediaObject.getPidRecordIssueDate(),
         mediaObject.getPid(),
         mediaObject.getReferentName(),
@@ -149,7 +151,7 @@ public class DataCitePublisherService {
 
   private DcRequest buildDcRequest(String xmlLoc, String landingPage, String altIdType,
       String localId, String hostName,
-      String hostId, String issuedForAgentName, String issuedForAgentId, String pidRecordIssueDate,
+      String hostId, String creatorName, String creatorId, String pidRecordIssueDate,
       String pid, String referentName, String dcType,
       List<DcDescription> descriptions, List<DcSubject> subjects) {
     try {
@@ -164,7 +166,7 @@ public class DataCitePublisherService {
                       .alternateIdentifiers(
                           getAltIds(altIdType, localId))
                       .contributors(getContributors(hostName, hostId))
-                      .creators(getCreator(issuedForAgentName, issuedForAgentId))
+                      .creators(getCreator(creatorName, creatorId))
                       .dates(getDates(issueDate))
                       .descriptions(descriptions)
                       .doi(getDoi(pid))
@@ -371,11 +373,10 @@ public class DataCitePublisherService {
   }
 
   private DcType getDcType(String type) {
-    if (type == null) {
-      return null;
-    }
+    var resourceTypeGeneral = type.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET : RESOURCE_TYPE_GENERAL_IMAGE;
     return DcType.builder()
         .resourceType(type)
+        .resourceTypeGeneral(resourceTypeGeneral)
         .build();
   }
 }

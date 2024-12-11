@@ -1,6 +1,8 @@
 package eu.dissco.core.datacitepublisher;
 
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_DATASET;
+import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_IMAGE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -137,8 +139,10 @@ public class TestUtils {
 
 
   public static DcType givenType(String resourceType) {
+    var resourceTypeGeneral = resourceType.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET : RESOURCE_TYPE_GENERAL_IMAGE;
     return DcType.builder()
         .resourceType(resourceType)
+        .resourceTypeGeneral(resourceTypeGeneral)
         .build();
   }
 

@@ -18,9 +18,9 @@ public class DoiProperties {
   @NotBlank
   private String publisherIdentifier = "https://ror.org/0566bfb96";
   @NotBlank
-  private String landingPageSpecimen = "https://sandbox.dissco.tech/ds/";
+  private String landingPageSpecimen;
   @NotBlank
-  private String landingPageMedia = "https://sandbox.dissco.tech/dm/";
+  private String landingPageMedia;
   private final DcPublisher defaultPublisher = new DcPublisher(publisherName, publisherIdentifier,
       UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
 
@@ -28,7 +28,8 @@ public class DoiProperties {
   public static final String MEDIA_ALT_ID_TYPE = "primaryMediaId";
   public static final String SPECIMEN_TYPE = "Digital Specimen";
   public static final String MEDIA_TYPE = "Media Object";
-  public static final String RESOURCE_TYPE_GENERAL = "Dataset";
+  public static final String RESOURCE_TYPE_GENERAL_DATASET = "Dataset";
+  public static final String RESOURCE_TYPE_GENERAL_IMAGE = "Audiovisual";
   public static final String DC_EVENT = "publish";
   public static final String SCHEMA_VERSION = "https://datacite.org/schema/kernel-4.4";
 
