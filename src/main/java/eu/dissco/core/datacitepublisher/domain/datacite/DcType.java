@@ -1,7 +1,6 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
 
-import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AccessLevel;
@@ -20,5 +19,5 @@ import lombok.Setter;
 public class DcType {
 
   private String resourceType;
-  private final String resourceTypeGeneral = RESOURCE_TYPE_GENERAL;
+  private String resourceTypeGeneral;
 }
