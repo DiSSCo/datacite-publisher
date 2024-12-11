@@ -119,8 +119,6 @@ public class DataCitePublisherService {
         digitalSpecimen.getPrimarySpecimenObjectId(),
         digitalSpecimen.getSpecimenHostName(),
         digitalSpecimen.getSpecimenHost(),
-        digitalSpecimen.getIssuedForAgentName(),
-        digitalSpecimen.getIssuedForAgent(),
         digitalSpecimen.getPidRecordIssueDate(),
         digitalSpecimen.getPid(),
         digitalSpecimen.getReferentName(),
@@ -137,8 +135,6 @@ public class DataCitePublisherService {
         mediaObject.getPrimaryMediaId(),
         mediaObject.getMediaHostName(),
         mediaObject.getMediaHost(),
-        mediaObject.getIssuedForAgentName(),
-        mediaObject.getIssuedForAgent(),
         mediaObject.getPidRecordIssueDate(),
         mediaObject.getPid(),
         mediaObject.getReferentName(),
@@ -149,7 +145,7 @@ public class DataCitePublisherService {
 
   private DcRequest buildDcRequest(String xmlLoc, String landingPage, String altIdType,
       String localId, String hostName,
-      String hostId, String issuedForAgentName, String issuedForAgentId, String pidRecordIssueDate,
+      String hostId, String pidRecordIssueDate,
       String pid, String referentName, String dcType,
       List<DcDescription> descriptions, List<DcSubject> subjects) {
     try {
@@ -164,7 +160,7 @@ public class DataCitePublisherService {
                       .alternateIdentifiers(
                           getAltIds(altIdType, localId))
                       .contributors(getContributors(hostName, hostId))
-                      .creators(getCreator(issuedForAgentName, issuedForAgentId))
+                      .creators(getCreator(hostName, hostId))
                       .dates(getDates(issueDate))
                       .descriptions(descriptions)
                       .doi(getDoi(pid))
