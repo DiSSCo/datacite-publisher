@@ -1,11 +1,11 @@
 {
-  "$id": "https://schemas.dissco.tech/schemas/fdo-profile/digital-specimen/1.0.0/digital-specimen.json",
+  "$id": "https://schemas.dissco.tech/schemas/fdo-profile/digital-media/1.0.0/digital-media.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Kernel from which all DiSSCo DOI FDO profiles are derived",
+  "description": "FDO Profile for digital media object",
   "$comment": "FDO Profile Version 1.0.0",
   "properties": {
     "fdoProfile": {
-      "const": "https://doi.org/21.T11148/d8de0819e144e4096645",
+      "const": "https://doi.org/21.T11148/bbad8c4e101e8af01115",
       "description": "PID to a machine readable description of the attributes in the FDO record",
       "$comment": "idx = 1"
     },
@@ -20,7 +20,7 @@
       "$comment": "idx = 3"
     },
     "digitalObjectType": {
-      "const": "https://doi.org/21.T11148/d8de0819e144e4096645",
+      "const": "https://doi.org/21.T11148/bbad8c4e101e8af01115",
       "description": "PID to a description of the Type of digital object that defines the metadata, bit sequences (if any) and operations for the object",
       "$comment": "idx = 4"
     },
@@ -145,179 +145,88 @@
       "example": "Mus musculus type 1",
       "$comment": "idx = 42"
     },
-    "specimenHost": {
+    "mediaHost": {
       "type": "string",
-      "description": "ROR or, in absence of a ROR, Wikidata Qnumber for the administrative organisation hosting the specimen. Same as: Latimer Core identifierSource.",
+      "description": "ROR or, in absence of a ROR, Wikidata Qnumber for the administrative organisation responsible for hosting the digital media object. Note that this can be DiSSCo also. The organisation may use an external repository like morphobank to host the object.",
       "example": "https://ror.org/0566bfb96",
-      "$comment": "idx = 200"
+      "$comment": "idx = 400"
     },
-    "specimenHostName": {
+    "mediaHostName": {
       "type": "string",
-      "description": "Name for the administrative organisation as derived from ROR or Wikidata at the point of creating the FDO record.",
+      "description": "Name for the administrative organisation hosting the digital media (name derived from ROR or Wikidata  at the point of creating the FDO record).",
       "example": "Naturalis Biodiversity Center",
-      "$comment": "idx = 201"
+      "$comment": "idx = 401"
     },
-    "normalisedPrimarySpecimenObjectId": {
+    "linkedDigitalObjectPid": {
       "type": "string",
-      "description": "For internal processing purposes only to make a local identifier globally unique. This is the primarySpecimenObjectId if it is globally unique or a combination of ROR ID string, source system ID string, primarySpecimenObjectId if it is a proprietary identifier.",
-      "example": "0566bfb96:20.5000.1025/GEE-W3J-HL2:RMNH.1.2b",
-      "$comment": "idx = 203"
+      "description": "Handle or DOI, the DO to which the media should be linked.",
+      "example": "https://hdl.handle.net/20.5000.1025/3X0-WA3-J8Q",
+      "$comment": "idx = 402"
     },
-    "otherSpecimenIds": {
-      "type": "array",
-      "$comment": "idx = 207",
-      "items": {
-        "type": "object",
-        "properties": {
-          "identifierValue": {
-            "type": "string"
-          },
-          "identifierType": {
-            "type": "string"
-          },
-          "resolvable": {
-            "type": "boolean",
-            "description": "whether or not the identifier is resolvable"
-          }
-        },
-        "required": [
-          "identifierValue",
-          "identifierType"
-        ],
-        "additionalProperties": false
-      },
-      "$comment": "idx = 204"
-    },
-    "topicOrigin": {
-      "enum": [
-        "Natural",
-        "Human-made",
-        "Mixed origin",
-        "Unclassified"
-      ],
-      "description": "Highest-level terms identifying the fundamentals of the activities, in which context the objects in the collection were collected.",
-      "$comment": "idx = 205"
-    },
-    "topicDomain": {
-      "enum": [
-        "Life",
-        "Environment",
-        "Earth System",
-        "Extraterrestrial",
-        "Cultural Artefacts",
-        "Archive Material",
-        "Unclassified"
-      ],
-      "description": "High-level terms providing general domain information with which the objects are associated.",
-      "$comment": "idx = 206"
-    },
-    "topicDiscipline": {
-      "enum": [
-        "Anthropology",
-        "Botany",
-        "Astrogeology",
-        "Geology",
-        "Microbiology",
-        "Palaeontology",
-        "Zoology",
-        "Ecology",
-        "Other Biodiversity",
-        "Other Geodiversity",
-        "Unclassified"
-      ],
-      "description": "Overarching classification of the scientific discipline to which the objects within the collection belong or are related.",
-      "$comment": "idx = 207"
-    },
-    "topicCategory": {
-      "enum": [
-        "Human remains",
-        "Hominid remains",
-        "Macrofungi, Lichens & Myxomycetes",
-        "Algae",
-        "Bryophytes",
-        "Pteridophytes",
-        "Seed plants",
-        "Other Botany Objects",
-        "Insects",
-        "Arachnids",
-        "Crustaceans & Myriapods",
-        "Porifera",
-        "Mollusca",
-        "Cnidaria",
-        "Echinodermata",
-        "Fishes",
-        "Amphibians",
-        "Reptiles",
-        "Birds",
-        "Mammals",
-        "AnimalGeneticResources",
-        "Other Zoology Objects",
-        "Phages",
-        "Bacteria & Archaea",
-        "Plasmids",
-        "Protozoa",
-        "Eukaryotic microorganisms",
-        "Viruses",
-        "Microfungi",
-        "Other Microbiology Objects",
-        "Botany Fossils",
-        "Invertebrate Fossils",
-        "Vertebrate Fossils",
-        "Other Palaeontology Objects",
-        "Minerals and Gems",
-        "Loose Sediment Sample",
-        "Mixed Solid Matter Sample",
-        "Water-Ice Sample",
-        "Liquid or Gaseous Matter Sample",
-        "Mixed Geology Objects",
-        "Terrestrial Finds/Falls",
-        "Terrestrial Impacta",
-        "Sample Returns",
-        "Sedimentary Rock",
-        "Metamorphic or Igneous Rock",
-        "Plant Genetic Resource",
-        "Floral and Faunal remains",
-        "Other Anthropology Objects",
-        "Unclassified"
-      ],
-      "description": "Countable things (objects) served as a more detailed classification of each of the disciplines.",
-      "$comment": "idx = 208"
-    },
-    "livingOrPreserved": {
-      "enum": [
-        "Living",
-        "Preserved"
-      ],
-      "description": "State of specimen",
-      "$comment": "idx = 209"
-    },
-    "materialSampleType": {
-      "enum": [
-        "Any biological specimen",
-        "Biological material sample",
-        "Fluid in container",
-        "Fluid in container",
-        "Non biologic solid object",
-        "Research product"
-      ],
-      "description": "https://isamplesorg.github.io/models/generated/vocabularies/specimenType.html",
-      "$comment": "idx = 211"
-    },
-    "markedAsType": {
-      "type": "boolean",
-      "description": "TRUE if the specimen is marked as type with a stamp or label.\n",
-      "$comment": "idx = 212"
-    },
-    "catalogNumber": {
+    "linkedDigitalObjectType": {
       "type": "string",
-      "description": "Identifier of source system catalog",
-      "$comment": "idx = 213"
+      "description": "FDO type type to which the media is linked.",
+      "$comment": "idx = 403"
+    },
+    "primaryMediaId": {
+      "type": "string",
+      "description": "Primary ID supplied by the original provider for the media (compatible with ac:providerManagedID). the mediaUrl may be the ID itself, for example: https://data.nhm.ac.uk/media/93012a86-a00f-435a-a985-8e3c0ab6e51b",
+      "example": "ae00-a4gg-123b4",
+      "$comment": "idx = 404"
+    },
+    "primaryMediaIdType": {
+      "enum": [
+        "Global",
+        "Local",
+        "Resolvable"
+      ],
+      "description": "Nature of institutional identifier. A globally unique identifier (e.g. a UUID) must be marked as \"Global\", while a resolvable identifier (e.g. a URL or a DOI including the proxy) must be marked at \"Resolvable\". If the identifier is unique only within the institution or collection system, it must be marked as \"Local\"",
+      "$comment": "idx = 405"
+    },
+    "primaryMediaIdName": {
+      "example": "ac:accessUr",
+      "$comment": "idx = 406"
+    },
+    "mediaType": {
+      "type": "string",
+      "description": "Describes the primary nature of the digital media",
+      "$comment": "idx = 407"
+    },
+    "mimeType": {
+      "type": "string",
+      "description": "Only mimetypes for audio, image, model, video, text should be provided. https://www.iana.org/assignments/media-types/media-types.xhtml",
+      "example": "image/jpeg",
+      "$comment": "idx = 408"
+    },
+    "licenseName": {
+      "type": "string",
+      "description": "http://purl.org/dc/terms/license.",
+      "example": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+      "$comment": "idx = 409"
+    },
+    "licenseUrl": {
+      "type": "string",
+      "description": "Machine-actionable licensing information. Uses SPDX Identifiers.",
+      "example": "https://spdx.org/licenses/CC0-1.0",
+      "$comment": "idx = 410"
+    },
+    "rightsHolder": {
+      "type": "string",
+      "description": "Usually the creator of the object, holds the copyright for the object. Defaults to the supplier of the media object. if no other rights holder is specified",
+      "example": "https://ror.org/0566bfb96",
+      "$comment": "idx = 411"
+    },
+    "rightsHolderPid": {
+      "type": "string",
+      "description": "Identifier of the rights holder",
+      "$comment": "idx = 412"
     }
   },
   "additionalProperties": false,
   "required": [
     "fdoProfile",
     "fdoRecordLicenseId",
+    "fdoRecordLicenseName",
     "digitalObjectType",
     "digitalObjectName",
     "pid",
@@ -329,8 +238,12 @@
     "pidStatus",
     "10320/loc",
     "referentName",
-    "specimenHost",
-    "specimenHostName",
-    "normalisedPrimarySpecimenObjectId"
+    "mediaHost",
+    "mediaHostName",
+    "linkedDigitalObjectPid",
+    "linkedDigitalObjectType",
+    "primaryMediaId",
+    "licenseName",
+    "rightsHolder"
   ]
 }

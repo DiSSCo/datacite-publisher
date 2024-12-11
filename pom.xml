@@ -167,6 +167,22 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <mainClass>eu.dissco.core.datacitepublisher.maven.MavenRunner</mainClass>
+          <arguments>
+            <argument>
+              https://schemas.dissco.tech/schemas/fdo-profile/digital-specimen/1.0.0/digital-specimen.json
+            </argument>
+            <argument>
+              https://schemas.dissco.tech/schemas/fdo-profile/digital-media/1.0.0/digital-media.json
+            </argument>
+          </arguments>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.jsonschema2pojo</groupId>
         <artifactId>jsonschema2pojo-maven-plugin</artifactId>
         <version>1.2.1</version>
