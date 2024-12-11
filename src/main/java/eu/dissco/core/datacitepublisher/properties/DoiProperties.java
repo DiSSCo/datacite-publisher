@@ -29,7 +29,7 @@ public class DoiProperties {
   public static final String SPECIMEN_TYPE = "Digital Specimen";
   public static final String MEDIA_TYPE = "Media Object";
   public static final String RESOURCE_TYPE_GENERAL_DATASET = "Dataset";
-  public static final String RESOURCE_TYPE_GENERAL_IMAGE = "Audiovisual";
+  public static final String RESOURCE_TYPE_GENERAL_IMAGE = "Image";
   public static final String DC_EVENT = "publish";
   public static final String SCHEMA_VERSION = "https://datacite.org/schema/kernel-4.4";
 
