@@ -18,9 +18,9 @@ public class DoiProperties {
   @NotBlank
   private String publisherIdentifier = "https://ror.org/0566bfb96";
   @NotBlank
-  private String landingPageSpecimen = "https://sandbox.dissco.tech/ds/";
+  private String landingPageSpecimen;
   @NotBlank
-  private String landingPageMedia = "https://sandbox.dissco.tech/dm/";
+  private String landingPageMedia;
   private final DcPublisher defaultPublisher = new DcPublisher(publisherName, publisherIdentifier,
       UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
 
