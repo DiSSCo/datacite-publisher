@@ -121,8 +121,6 @@ public class DataCitePublisherService {
         digitalSpecimen.getNormalisedPrimarySpecimenObjectId(),
         digitalSpecimen.getSpecimenHostName(),
         digitalSpecimen.getSpecimenHost(),
-        digitalSpecimen.getIssuedForAgentName(),
-        digitalSpecimen.getIssuedForAgent(),
         digitalSpecimen.getPidRecordIssueDate(),
         digitalSpecimen.getPid(),
         digitalSpecimen.getReferentName(),
@@ -139,8 +137,6 @@ public class DataCitePublisherService {
         mediaObject.getPrimaryMediaId(),
         mediaObject.getMediaHostName(),
         mediaObject.getMediaHost(),
-        mediaObject.getMediaHostName(),
-        mediaObject.getMediaHost(),
         mediaObject.getPidRecordIssueDate(),
         mediaObject.getPid(),
         mediaObject.getReferentName(),
@@ -150,10 +146,9 @@ public class DataCitePublisherService {
   }
 
   private DcRequest buildDcRequest(String xmlLoc, String landingPage, String altIdType,
-      String localId, String hostName,
-      String hostId, String creatorName, String creatorId, String pidRecordIssueDate,
-      String pid, String referentName, String dcType,
-      List<DcDescription> descriptions, List<DcSubject> subjects) {
+      String localId, String hostName, String hostId, String pidRecordIssueDate, String pid,
+      String referentName, String dcType, List<DcDescription> descriptions,
+      List<DcSubject> subjects) {
     try {
       var xmlLocs = xmlLocReader.getLocationsFromXml(xmlLoc);
       var url =
@@ -166,7 +161,7 @@ public class DataCitePublisherService {
                       .alternateIdentifiers(
                           getAltIds(altIdType, localId))
                       .contributors(getContributors(hostName, hostId))
-                      .creators(getCreator(creatorName, creatorId))
+                      .creators(getCreator(hostName, hostId))
                       .dates(getDates(issueDate))
                       .descriptions(descriptions)
                       .doi(getDoi(pid))
@@ -373,7 +368,8 @@ public class DataCitePublisherService {
   }
 
   private DcType getDcType(String type) {
-    var resourceTypeGeneral = type.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET : RESOURCE_TYPE_GENERAL_IMAGE;
+    var resourceTypeGeneral =
+        type.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET : RESOURCE_TYPE_GENERAL_IMAGE;
     return DcType.builder()
         .resourceType(type)
         .resourceTypeGeneral(resourceTypeGeneral)
