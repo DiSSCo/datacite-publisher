@@ -152,13 +152,10 @@ class DataCiteClientTest {
         .setResponseCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
         .setBody(givenDataCiteErrorResponse(true))
         .addHeader("Content-Type", "application/json"));
-    var expectedMessage = "DOI " + PID + " has already been taken";
 
-    // When
-    var e = assertThrows(DataCiteApiException.class,
+    // When / Then
+    assertThrows(DataCiteApiException.class,
         () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-
-    assertThat(e.getMessage()).contains(expectedMessage);
   }
 
   @Test
@@ -169,13 +166,11 @@ class DataCiteClientTest {
         .setResponseCode(HttpStatus.NOT_FOUND.value())
         .setBody(givenDataCiteErrorResponse(false))
         .addHeader("Content-Type", "application/json"));
-    var expectedMessage = ALT_ERROR + " DataCite credentials may be incorrect";
 
-    // When
-    var e = assertThrows(DataCiteApiException.class,
+    // When / Then
+    assertThrows(DataCiteApiException.class,
         () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
 
-    assertThat(e.getMessage()).contains(expectedMessage);
   }
 
   @Test

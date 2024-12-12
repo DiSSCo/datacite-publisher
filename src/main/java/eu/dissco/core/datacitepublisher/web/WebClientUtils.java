@@ -3,11 +3,13 @@ package eu.dissco.core.datacitepublisher.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import java.util.ArrayList;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 public class WebClientUtils {
 
   private WebClientUtils() {
@@ -22,28 +24,20 @@ public class WebClientUtils {
     var status = response.statusCode();
     if (HttpStatus.UNPROCESSABLE_ENTITY.equals(status)) {
       return response.bodyToMono(JsonNode.class)
-          .flatMap(body -> Mono.error(new DataCiteApiException(getErrorTitles(body))));
+          .flatMap(body -> {
+            log.error("An error has occurred with the datacite api: {}", body);
+            return Mono.error(new DataCiteApiException());
+          });
     }
     if (HttpStatus.NOT_FOUND.equals(status)){
       return response.bodyToMono(JsonNode.class)
-          .flatMap(body -> Mono.error(new DataCiteApiException(getErrorTitles(body) + " DataCite credentials may be incorrect")));
+          .flatMap(body -> {
+            log.error("Datacite credentials may be incorrect: {}", body);
+            return Mono.error(new DataCiteApiException());
+          });
     }
     return Mono.just(response);
   }
 
-  private static String getErrorTitles(JsonNode body) {
-    var errorTitles = new ArrayList<String>();
-    var errors = body.get("errors");
-    for (var error : errors) {
-      var errorTitle = error.get("title").asText();
-      if (errorTitle.contains("This DOI has already been taken")){
-        errorTitles.add(errorTitle.replace("This DOI", "DOI " + error.get("uid").asText()));
-      }
-      else{
-        errorTitles.add(errorTitle);
-      }
-    }
-    return errorTitles.toString().replace("[", "").replace("]", "");
-  }
 
 }

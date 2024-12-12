@@ -6,4 +6,8 @@ public class DataCiteApiException extends Exception {
     super(s);
   }
 
+  public DataCiteApiException(){
+
+  }
+
 }
