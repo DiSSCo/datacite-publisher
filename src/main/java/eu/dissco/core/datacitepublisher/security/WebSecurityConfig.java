@@ -6,7 +6,6 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointR
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,9 +21,10 @@ public class WebSecurityConfig  {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-        .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
-        .requestMatchers(HttpMethod.GET, "**").permitAll()
-        .anyRequest().authenticated());
+        .requestMatchers(EndpointRequest.to(HealthEndpoint.class))
+        .permitAll()
+        .anyRequest()
+        .hasRole("orchestration-admin"));
 
     http.oauth2ResourceServer(jwtoauth2ResourceServer -> jwtoauth2ResourceServer.jwt((
         jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)
