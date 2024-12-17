@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
 public class HandleConnectionProperties {
 
   @NotBlank
-  private String endpoint = "https://sandbox.dissco.tech/handle-manager/api/v1/pids/records";
+  private String endpoint;
 
   @NotNull
   private int maxHandles = 100;
