@@ -51,7 +51,6 @@ public class RecoveryService {
 
   private void processResolvedHandles(List<String> handles, EventType eventType)
       throws HandleResolutionException, DataCiteApiException, JsonProcessingException {
-
     var handleResolutionResponse = handleClient.resolveHandles(handles);
     if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data").isArray()) {
       var dataNodes = handleResolutionResponse.get("data");

@@ -29,6 +29,7 @@ public class DataCiteClient {
 
   public JsonNode sendDoiRequest(JsonNode requestBody, HttpMethod method, String doi)
       throws DataCiteApiException {
+    log.debug("Sending request to DataCite with method: {} and doi: {} with body: {}", method, doi, requestBody);
     String uri = method.equals(HttpMethod.PUT) ?
         "/" + doi :
         "";
