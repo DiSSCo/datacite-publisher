@@ -11,14 +11,15 @@ import static eu.dissco.core.datacitepublisher.TestUtils.PREFIX;
 import static eu.dissco.core.datacitepublisher.TestUtils.SPECIMEN_PAGE;
 import static eu.dissco.core.datacitepublisher.TestUtils.SUFFIX;
 import static eu.dissco.core.datacitepublisher.TestUtils.TOMBSTONED;
+import static eu.dissco.core.datacitepublisher.TestUtils.getRights;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDcRequest;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDcRequestTombstone;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMediaFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributes;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenMediaAttributesFull;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMediaFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributes;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenDataCiteAttributesFull;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
@@ -33,9 +34,9 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
@@ -58,11 +59,11 @@ import org.springframework.http.HttpMethod;
 class DataCitePublisherServiceTest {
 
   @Mock
+  DoiProperties properties;
+  @Mock
   private XmlLocReader xmlLocReader;
   @Mock
   private DataCiteClient dataCiteClient;
-  @Mock
-  DoiProperties properties;
   private DataCitePublisherService service;
   private MockedStatic<Instant> mockedInstant;
   private MockedStatic<Clock> mockedClock;
@@ -196,6 +197,7 @@ class DataCitePublisherServiceTest {
         DcAttributes.builder()
             .doi(DOI)
             .suffix(SUFFIX)
+            .rights(getRights())
             .types(givenType(SPECIMEN_TYPE))
             .publisher(DEFAULT_PUBLISHER)
             .build()
@@ -219,6 +221,7 @@ class DataCitePublisherServiceTest {
     var attributes = DcAttributes.builder()
         .doi(DOI)
         .suffix(SUFFIX)
+        .rights(getRights())
         .types(givenType(MEDIA_TYPE))
         .publisher(DEFAULT_PUBLISHER)
         .build();

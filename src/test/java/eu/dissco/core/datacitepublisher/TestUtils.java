@@ -27,25 +27,23 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcNameIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcPublisher;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRelatedIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
+import eu.dissco.core.datacitepublisher.domain.datacite.DcRights;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcSubject;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcTitle;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
 import eu.dissco.core.datacitepublisher.domain.datacite.RelationType;
 import eu.dissco.core.datacitepublisher.domain.datacite.UriScheme;
+import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicCategory;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDiscipline;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDomain;
-import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TestUtils {
-
-  private TestUtils() {
-  }
 
   public static final String SUFFIX = "QR1-P21-9FW";
   public static final String PREFIX = "10.3535";
@@ -70,9 +68,9 @@ public class TestUtils {
   public static final String LOCAL_ID = "PLANT-123";
   public static final ObjectMapper MAPPER;
   public static final XmlMapper XML_MAPPER;
-  public static final DcPublisher DEFAULT_PUBLISHER = new DcPublisher("Distributed System of Scientific Collections",
-      "https://ror.org/0566bfb96",  UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
-
+  public static final DcPublisher DEFAULT_PUBLISHER = new DcPublisher(
+      "Distributed System of Scientific Collections",
+      "https://ror.org/0566bfb96", UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
   public static final String SPECIMEN_PAGE = "https://sandbox.dissco.tech/ds/";
   public static final String MEDIA_PAGE = "https://sandbox.dissco.tech/dm/";
 
@@ -88,6 +86,9 @@ public class TestUtils {
 
   static {
     XML_MAPPER = new XmlMapper();
+  }
+
+  private TestUtils() {
   }
 
   public static DcAttributes givenSpecimenDataCiteAttributes() {
@@ -109,6 +110,7 @@ public class TestUtils {
             .name(HOST_NAME)
             .nameIdentifiers(List.of(givenIdentifier()))
             .build()))
+        .rights(getRights())
         .alternateIdentifiers(List.of(DcAlternateIdentifier.builder()
             .alternateIdentifierType("primarySpecimenObjectId")
             .alternateIdentifier(LOCAL_ID).build()))
@@ -139,7 +141,8 @@ public class TestUtils {
 
 
   public static DcType givenType(String resourceType) {
-    var resourceTypeGeneral = resourceType.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET : RESOURCE_TYPE_GENERAL_IMAGE;
+    var resourceTypeGeneral = resourceType.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET
+        : RESOURCE_TYPE_GENERAL_IMAGE;
     return DcType.builder()
         .resourceType(resourceType)
         .resourceTypeGeneral(resourceTypeGeneral)
@@ -177,6 +180,7 @@ public class TestUtils {
                 .build()))
         .types(givenType(SPECIMEN_TYPE))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .rights(getRights())
         .subjects(List.of(
             DcSubject.builder()
                 .subjectScheme("topicDiscipline")
@@ -204,7 +208,7 @@ public class TestUtils {
     return MAPPER.valueToTree(givenSpecimenDataCiteAttributes(doi));
   }
 
-  public static JsonNode givenDcRequest(DcAttributes attributes){
+  public static JsonNode givenDcRequest(DcAttributes attributes) {
     return MAPPER.valueToTree(
         DcRequest.builder()
             .data(DcData.builder()
@@ -242,6 +246,7 @@ public class TestUtils {
             .date("2024-03-08")
             .dateType("Issued")
             .build()))
+        .rights(getRights())
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
                 .relationType(RelationType.IS_VARIANT_FORM_OF)
@@ -275,6 +280,7 @@ public class TestUtils {
             DcAlternateIdentifier.builder()
                 .alternateIdentifierType("primaryMediaId")
                 .alternateIdentifier(LOCAL_ID).build()))
+        .rights(getRights())
         .dates(List.of(DcDate.builder()
             .dateType("Issued")
             .date("2024-03-08")
@@ -300,6 +306,17 @@ public class TestUtils {
                 .build())
         )
         .build();
+  }
+
+  public static List<DcRights> getRights() {
+    return List.of(DcRights.builder()
+        .rights("CC0 1.0 Universal")
+        .rightsUri("https://spdx.org/licenses/CC0-1.0.json")
+        .schemeUri("https://spdx.org/licenses/")
+        .rightsIdentifier("CC0-1.0")
+        .rightsIdentifierScheme("SPDX")
+        .lang("en")
+        .build());
   }
 
   private static List<DcDescription> givenSpecimenDescription() {
@@ -403,6 +420,7 @@ public class TestUtils {
         .data(DcData.builder()
             .attributes(DcAttributes.builder()
                 .doi(DOI)
+                .rights(getRights())
                 .relatedIdentifiers(
                     List.of(givenDcRelatedIdentifiers(), givenDcRelatedIdentifiersTombstone()))
                 .dates(List.of(

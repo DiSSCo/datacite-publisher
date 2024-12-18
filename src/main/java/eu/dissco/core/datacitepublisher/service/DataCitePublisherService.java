@@ -24,6 +24,7 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcDescription;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcNameIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRelatedIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
+import eu.dissco.core.datacitepublisher.domain.datacite.DcRights;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcSubject;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcTitle;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
@@ -87,6 +88,7 @@ public class DataCitePublisherService {
         .data(DcData.builder()
             .attributes(DcAttributes.builder()
                 .descriptions(description)
+                .rights(getRights())
                 .relatedIdentifiers(relatedIdentifiers)
                 .dates(dates)
                 .doi(getDoi(event.handle()))
@@ -126,7 +128,20 @@ public class DataCitePublisherService {
         digitalSpecimen.getReferentName(),
         SPECIMEN_TYPE,
         getDescriptionForSpecimen(digitalSpecimen),
-        getSubjectsForSpecimen(digitalSpecimen));
+        getSubjectsForSpecimen(digitalSpecimen),
+        getRights());
+  }
+
+  private List<DcRights> getRights() {
+    return List.of(
+        DcRights.builder()
+            .rights("CC0 1.0 Universal")
+            .rightsUri("https://spdx.org/licenses/CC0-1.0.json")
+            .schemeUri("https://spdx.org/licenses/")
+            .rightsIdentifier("CC0-1.0")
+            .rightsIdentifierScheme("SPDX")
+            .lang("en")
+            .build());
   }
 
   private DcRequest buildDcRequest(DigitalMedia mediaObject) {
@@ -142,13 +157,14 @@ public class DataCitePublisherService {
         mediaObject.getReferentName(),
         MEDIA_TYPE,
         getDescriptionForMedia(mediaObject),
-        getSubjectsForMedia(mediaObject));
+        getSubjectsForMedia(mediaObject),
+        getRights());
   }
 
   private DcRequest buildDcRequest(String xmlLoc, String landingPage, String altIdType,
       String localId, String hostName, String hostId, String pidRecordIssueDate, String pid,
       String referentName, String dcType, List<DcDescription> descriptions,
-      List<DcSubject> subjects) {
+      List<DcSubject> subjects, List<DcRights> rights) {
     try {
       var xmlLocs = xmlLocReader.getLocationsFromXml(xmlLoc);
       var url =
@@ -170,6 +186,7 @@ public class DataCitePublisherService {
                       .relatedIdentifiers(getRelatedIdentifiers(xmlLocs, url))
                       .subjects(subjects)
                       .suffix(getSuffix(pid))
+                      .rights(rights)
                       .titles(getTitles(referentName))
                       .types(getDcType(dcType))
                       .url(url)
