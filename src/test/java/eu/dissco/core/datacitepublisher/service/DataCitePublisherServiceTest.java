@@ -197,7 +197,7 @@ class DataCitePublisherServiceTest {
         DcAttributes.builder()
             .doi(DOI)
             .suffix(SUFFIX)
-            .rights(getRights())
+            .rightsList(getRights())
             .types(givenType(SPECIMEN_TYPE))
             .publisher(DEFAULT_PUBLISHER)
             .build()
@@ -221,7 +221,7 @@ class DataCitePublisherServiceTest {
     var attributes = DcAttributes.builder()
         .doi(DOI)
         .suffix(SUFFIX)
-        .rights(getRights())
+        .rightsList(getRights())
         .types(givenType(MEDIA_TYPE))
         .publisher(DEFAULT_PUBLISHER)
         .build();
