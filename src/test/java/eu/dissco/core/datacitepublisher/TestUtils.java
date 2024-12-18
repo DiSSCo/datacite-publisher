@@ -33,21 +33,17 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcTitle;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
 import eu.dissco.core.datacitepublisher.domain.datacite.RelationType;
 import eu.dissco.core.datacitepublisher.domain.datacite.UriScheme;
+import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleType;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicCategory;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDiscipline;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDomain;
-import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 
 public class TestUtils {
-
-  private TestUtils() {
-  }
 
   public static final String SUFFIX = "QR1-P21-9FW";
   public static final String PREFIX = "10.3535";
@@ -72,9 +68,9 @@ public class TestUtils {
   public static final String LOCAL_ID = "PLANT-123";
   public static final ObjectMapper MAPPER;
   public static final XmlMapper XML_MAPPER;
-  public static final DcPublisher DEFAULT_PUBLISHER = new DcPublisher("Distributed System of Scientific Collections",
-      "https://ror.org/0566bfb96",  UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
-
+  public static final DcPublisher DEFAULT_PUBLISHER = new DcPublisher(
+      "Distributed System of Scientific Collections",
+      "https://ror.org/0566bfb96", UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
   public static final String SPECIMEN_PAGE = "https://sandbox.dissco.tech/ds/";
   public static final String MEDIA_PAGE = "https://sandbox.dissco.tech/dm/";
 
@@ -90,6 +86,9 @@ public class TestUtils {
 
   static {
     XML_MAPPER = new XmlMapper();
+  }
+
+  private TestUtils() {
   }
 
   public static DcAttributes givenSpecimenDataCiteAttributes() {
@@ -142,7 +141,8 @@ public class TestUtils {
 
 
   public static DcType givenType(String resourceType) {
-    var resourceTypeGeneral = resourceType.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET : RESOURCE_TYPE_GENERAL_IMAGE;
+    var resourceTypeGeneral = resourceType.equals(SPECIMEN_TYPE) ? RESOURCE_TYPE_GENERAL_DATASET
+        : RESOURCE_TYPE_GENERAL_IMAGE;
     return DcType.builder()
         .resourceType(resourceType)
         .resourceTypeGeneral(resourceTypeGeneral)
@@ -208,7 +208,7 @@ public class TestUtils {
     return MAPPER.valueToTree(givenSpecimenDataCiteAttributes(doi));
   }
 
-  public static JsonNode givenDcRequest(DcAttributes attributes){
+  public static JsonNode givenDcRequest(DcAttributes attributes) {
     return MAPPER.valueToTree(
         DcRequest.builder()
             .data(DcData.builder()
