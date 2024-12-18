@@ -11,6 +11,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.PREFIX;
 import static eu.dissco.core.datacitepublisher.TestUtils.SPECIMEN_PAGE;
 import static eu.dissco.core.datacitepublisher.TestUtils.SUFFIX;
 import static eu.dissco.core.datacitepublisher.TestUtils.TOMBSTONED;
+import static eu.dissco.core.datacitepublisher.TestUtils.getRights;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDcRequest;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDcRequestTombstone;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
@@ -196,6 +197,7 @@ class DataCitePublisherServiceTest {
         DcAttributes.builder()
             .doi(DOI)
             .suffix(SUFFIX)
+            .rights(getRights())
             .types(givenType(SPECIMEN_TYPE))
             .publisher(DEFAULT_PUBLISHER)
             .build()
@@ -219,6 +221,7 @@ class DataCitePublisherServiceTest {
     var attributes = DcAttributes.builder()
         .doi(DOI)
         .suffix(SUFFIX)
+        .rights(getRights())
         .types(givenType(MEDIA_TYPE))
         .publisher(DEFAULT_PUBLISHER)
         .build();

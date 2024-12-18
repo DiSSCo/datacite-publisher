@@ -27,6 +27,7 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcNameIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcPublisher;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRelatedIdentifiers;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
+import eu.dissco.core.datacitepublisher.domain.datacite.DcRights;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcSubject;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcTitle;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcType;
@@ -41,6 +42,7 @@ import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class TestUtils {
 
@@ -109,6 +111,7 @@ public class TestUtils {
             .name(HOST_NAME)
             .nameIdentifiers(List.of(givenIdentifier()))
             .build()))
+        .rights(getRights())
         .alternateIdentifiers(List.of(DcAlternateIdentifier.builder()
             .alternateIdentifierType("primarySpecimenObjectId")
             .alternateIdentifier(LOCAL_ID).build()))
@@ -177,6 +180,7 @@ public class TestUtils {
                 .build()))
         .types(givenType(SPECIMEN_TYPE))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
+        .rights(getRights())
         .subjects(List.of(
             DcSubject.builder()
                 .subjectScheme("topicDiscipline")
@@ -242,6 +246,7 @@ public class TestUtils {
             .date("2024-03-08")
             .dateType("Issued")
             .build()))
+        .rights(getRights())
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
                 .relationType(RelationType.IS_VARIANT_FORM_OF)
@@ -275,6 +280,7 @@ public class TestUtils {
             DcAlternateIdentifier.builder()
                 .alternateIdentifierType("primaryMediaId")
                 .alternateIdentifier(LOCAL_ID).build()))
+        .rights(getRights())
         .dates(List.of(DcDate.builder()
             .dateType("Issued")
             .date("2024-03-08")
@@ -300,6 +306,17 @@ public class TestUtils {
                 .build())
         )
         .build();
+  }
+
+  public static List<DcRights> getRights() {
+    return List.of(DcRights.builder()
+        .rights("CC0 1.0 Universal")
+        .rightsUri("https://spdx.org/licenses/CC0-1.0.json")
+        .schemeUri("https://spdx.org/licenses/")
+        .rightsIdentifier("CC0-1.0")
+        .rightsIdentifierScheme("SPDX")
+        .lang("en")
+        .build());
   }
 
   private static List<DcDescription> givenSpecimenDescription() {
@@ -403,6 +420,7 @@ public class TestUtils {
         .data(DcData.builder()
             .attributes(DcAttributes.builder()
                 .doi(DOI)
+                .rights(getRights())
                 .relatedIdentifiers(
                     List.of(givenDcRelatedIdentifiers(), givenDcRelatedIdentifiersTombstone()))
                 .dates(List.of(

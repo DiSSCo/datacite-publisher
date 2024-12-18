@@ -31,6 +31,7 @@ public class DcAttributes {
   private List<DcSubject> subjects; // topic origin, topic domain, topic discipline, topic category (last one to do)
   private List<DcContributor> contributors; // SpecimenHost
   private List<DcDate> dates; // IssueDate
+  private List<DcRights> rights; // Rights
   private List<DcAlternateIdentifier> alternateIdentifiers; // primarySpecimenObjectId
   private DcType types; // "Digital Specimen" or "Media Object". Resource Type General = Other (TBD)
   private List<DcRelatedIdentifiers> relatedIdentifiers; // tombstone pids; primary specimenObjectId; primaryMediaId
