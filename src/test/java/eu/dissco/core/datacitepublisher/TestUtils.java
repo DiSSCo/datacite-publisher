@@ -110,7 +110,7 @@ public class TestUtils {
             .name(HOST_NAME)
             .nameIdentifiers(List.of(givenIdentifier()))
             .build()))
-        .rights(getRights())
+        .rightsList(getRights())
         .alternateIdentifiers(List.of(DcAlternateIdentifier.builder()
             .alternateIdentifierType("primarySpecimenObjectId")
             .alternateIdentifier(LOCAL_ID).build()))
@@ -180,7 +180,7 @@ public class TestUtils {
                 .build()))
         .types(givenType(SPECIMEN_TYPE))
         .url("https://sandbox.dissco.tech/ds/10.3535/QR1-P21-9FW")
-        .rights(getRights())
+        .rightsList(getRights())
         .subjects(List.of(
             DcSubject.builder()
                 .subjectScheme("topicDiscipline")
@@ -246,7 +246,7 @@ public class TestUtils {
             .date("2024-03-08")
             .dateType("Issued")
             .build()))
-        .rights(getRights())
+        .rightsList(getRights())
         .relatedIdentifiers(List.of(
             DcRelatedIdentifiers.builder()
                 .relationType(RelationType.IS_VARIANT_FORM_OF)
@@ -280,7 +280,7 @@ public class TestUtils {
             DcAlternateIdentifier.builder()
                 .alternateIdentifierType("primaryMediaId")
                 .alternateIdentifier(LOCAL_ID).build()))
-        .rights(getRights())
+        .rightsList(getRights())
         .dates(List.of(DcDate.builder()
             .dateType("Issued")
             .date("2024-03-08")
@@ -420,7 +420,7 @@ public class TestUtils {
         .data(DcData.builder()
             .attributes(DcAttributes.builder()
                 .doi(DOI)
-                .rights(getRights())
+                .rightsList(getRights())
                 .relatedIdentifiers(
                     List.of(givenDcRelatedIdentifiers(), givenDcRelatedIdentifiersTombstone()))
                 .dates(List.of(
