@@ -16,7 +16,7 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          release: 'oracle'
+          distribution: 'oracle'
           java-version: 21
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
