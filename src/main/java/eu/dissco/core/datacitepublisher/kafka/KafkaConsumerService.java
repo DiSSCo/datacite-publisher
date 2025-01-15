@@ -37,7 +37,9 @@ public class KafkaConsumerService {
   public void getSpecimenMessages(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
       var event = mapper.readValue(message, DigitalSpecimenEvent.class);
+      log.info("Received {} specimen message", event.eventType());
       service.handleMessages(event);
+      log.info("Successfully processed event for specimen {}", event.pidRecord().getPid());
     } catch (JsonProcessingException e) {
       log.error(ERROR_MSG, "specimen", e);
       log.info("Message: {}", message);
@@ -52,7 +54,9 @@ public class KafkaConsumerService {
   public void getMediaMessages(@Payload String message) throws DataCiteApiException, InvalidRequestException {
     try {
       var event = mapper.readValue(message, DigitalMediaEvent.class);
+      log.info("Received {} media message", event.eventType());
       service.handleMessages(event);
+      log.info("Successfully processed event for media {}", event.pidRecord().getPid());
     } catch (JsonProcessingException e) {
       log.error(ERROR_MSG, "media", e);
       log.info("Message: {}", message);
