@@ -3,12 +3,9 @@ package eu.dissco.core.datacitepublisher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.annotation.EnableKafkaRetryTopic;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
-@EnableKafkaRetryTopic
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class DatacitePublisherApplication {

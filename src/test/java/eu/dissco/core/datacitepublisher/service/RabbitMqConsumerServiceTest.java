@@ -1,4 +1,4 @@
-package eu.dissco.core.datacitepublisher.kafka;
+package eu.dissco.core.datacitepublisher.service;
 
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
@@ -10,13 +10,12 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
-import eu.dissco.core.datacitepublisher.service.DataCitePublisherService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,15 +23,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class KafkaConsumerServiceTest {
+class RabbitMqConsumerServiceTest {
 
   @Mock
   private DataCitePublisherService dataCiteService;
-  private KafkaConsumerService kafkaConsumerService;
+  private RabbitMqConsumerService rabbitMqConsumerService;
 
   @BeforeEach
   void setup() {
-    kafkaConsumerService = new KafkaConsumerService(MAPPER, dataCiteService);
+    rabbitMqConsumerService = new RabbitMqConsumerService(MAPPER, dataCiteService);
   }
 
   @Test
@@ -42,7 +41,7 @@ class KafkaConsumerServiceTest {
     var message = MAPPER.writeValueAsString(event);
 
     // When
-    kafkaConsumerService.getSpecimenMessages(message);
+    rabbitMqConsumerService.getSpecimenMessages(message);
 
     // Then
     then(dataCiteService).should().handleMessages(event);
@@ -56,7 +55,7 @@ class KafkaConsumerServiceTest {
 
     // When / Then
     assertThrows(InvalidRequestException.class,
-        () -> kafkaConsumerService.getSpecimenMessages(message));
+        () -> rabbitMqConsumerService.getSpecimenMessages(message));
   }
 
   @Test
@@ -66,7 +65,7 @@ class KafkaConsumerServiceTest {
     var message = MAPPER.writeValueAsString(event);
 
     // When
-    kafkaConsumerService.getMediaMessages(message);
+    rabbitMqConsumerService.getMediaMessages(message);
 
     // Then
     then(dataCiteService).should().handleMessages(event);
@@ -80,17 +79,17 @@ class KafkaConsumerServiceTest {
 
     // When / Then
     assertThrows(InvalidRequestException.class,
-        () -> kafkaConsumerService.getMediaMessages(message));
+        () -> rabbitMqConsumerService.getMediaMessages(message));
   }
 
   @Test
-  void testHandleTombstoneMessages() throws Exception  {
+  void testHandleTombstoneMessages() throws Exception {
     // Given
     var event = givenTombstoneEvent();
     var message = MAPPER.writeValueAsString(event);
 
     // When
-    kafkaConsumerService.tombstoneDois(message);
+    rabbitMqConsumerService.tombstoneDois(message);
 
     // Then
     then(dataCiteService).should().tombstoneRecord(any(TombstoneEvent.class));
@@ -103,13 +102,13 @@ class KafkaConsumerServiceTest {
 
     // When / Then
     assertThrows(InvalidRequestException.class,
-        () -> kafkaConsumerService.tombstoneDois(message));
+        () -> rabbitMqConsumerService.tombstoneDois(message));
   }
 
   @Test
   void testDlt() throws Exception {
     // Given
-    var spyConsumer = spy(kafkaConsumerService);
+    var spyConsumer = spy(rabbitMqConsumerService);
     var message = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
     doThrow(new DataCiteApiException("")).when(dataCiteService).handleMessages(message);
 
