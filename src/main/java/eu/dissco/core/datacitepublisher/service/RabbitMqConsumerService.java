@@ -56,7 +56,7 @@ public class RabbitMqConsumerService {
     }
   }
 
-  @RabbitListener(queues = "${rabbitmq.tombstone-doi-queue-name:tombstone-doi--queue}",
+  @RabbitListener(queues = "${rabbitmq.tombstone-doi-queue-name:tombstone-doi-queue}",
       containerFactory = "consumerBatchContainerFactory")
   public void tombstoneDois(@Payload String message)
       throws DataCiteApiException, InvalidRequestException {
