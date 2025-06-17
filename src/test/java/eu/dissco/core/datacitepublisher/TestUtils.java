@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import eu.dissco.core.datacitepublisher.configuration.InstantDeserializer;
 import eu.dissco.core.datacitepublisher.configuration.InstantSerializer;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
+import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.FdoType;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
@@ -351,6 +353,10 @@ public class TestUtils {
     return givenDigitalSpecimen(PID);
   }
 
+  public static DigitalSpecimenEvent givenDigitalSpecimenEvent() {
+    return new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+  }
+
   public static DigitalSpecimen givenDigitalSpecimen(String doi) {
     return new DigitalSpecimen()
         .with10320Loc(LOCS)
@@ -374,6 +380,10 @@ public class TestUtils {
 
   public static DigitalMedia givenDigitalMedia() {
     return givenDigitalMedia(PID);
+  }
+
+  public static DigitalMediaEvent givenDigitalMediaEvent() {
+    return new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
   }
 
   public static DigitalMedia givenDigitalMedia(String pid) {

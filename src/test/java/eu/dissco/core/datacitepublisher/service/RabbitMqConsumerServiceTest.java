@@ -1,18 +1,14 @@
 package eu.dissco.core.datacitepublisher.service;
 
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMediaEvent;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenEvent;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.spy;
 
-import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
-import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
-import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
@@ -27,17 +23,20 @@ class RabbitMqConsumerServiceTest {
 
   @Mock
   private DataCitePublisherService dataCiteService;
+  @Mock
+  private RabbitMqPublisherService rabbitMqPublisherService;
   private RabbitMqConsumerService rabbitMqConsumerService;
 
   @BeforeEach
   void setup() {
-    rabbitMqConsumerService = new RabbitMqConsumerService(MAPPER, dataCiteService);
+    rabbitMqConsumerService = new RabbitMqConsumerService(MAPPER, dataCiteService,
+        rabbitMqPublisherService);
   }
 
   @Test
   void testHandleSpecimenMessages() throws Exception {
     // Given
-    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+    var event = givenDigitalSpecimenEvent();
     var message = MAPPER.writeValueAsString(event);
 
     // When
@@ -50,18 +49,33 @@ class RabbitMqConsumerServiceTest {
   @Test
   void testHandleSpecimenMessagesBadRequest() throws Exception {
     // Given
-    var event = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
+    var event = givenDigitalMediaEvent();
     var message = MAPPER.writeValueAsString(event);
 
     // When / Then
     assertThrows(InvalidRequestException.class,
         () -> rabbitMqConsumerService.getSpecimenMessages(message));
+    then(rabbitMqPublisherService).should().deadLetterEventSpecimenDoiRaw(message);
+  }
+
+  @Test
+  void testHandleSpecimenMessagesDlq() throws Exception {
+    // Given
+    var event = givenDigitalSpecimenEvent();
+    var message = MAPPER.writeValueAsString(event);
+    doThrow(DataCiteApiException.class).when(dataCiteService).handleMessages(event);
+
+    // When
+    rabbitMqConsumerService.getSpecimenMessages(message);
+
+    // Then
+    then(rabbitMqPublisherService).should().deadLetterEventSpecimenDoi(event);
   }
 
   @Test
   void testHandleMediaMessages() throws Exception {
     // Given
-    var event = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
+    var event = givenDigitalMediaEvent();
     var message = MAPPER.writeValueAsString(event);
 
     // When
@@ -74,13 +88,29 @@ class RabbitMqConsumerServiceTest {
   @Test
   void testHandleMediaMessageBadRequest() throws Exception {
     // Given
-    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+    var event = givenDigitalSpecimenEvent();
     var message = MAPPER.writeValueAsString(event);
 
     // When / Then
     assertThrows(InvalidRequestException.class,
         () -> rabbitMqConsumerService.getMediaMessages(message));
+    then(rabbitMqPublisherService).should().deadLetterEventMediaDoiRaw(message);
   }
+
+  @Test
+  void testHandleMediaMessagesDlq() throws Exception {
+    // Given
+    var event = givenDigitalMediaEvent();
+    var message = MAPPER.writeValueAsString(event);
+    doThrow(DataCiteApiException.class).when(dataCiteService).handleMessages(event);
+
+    // When
+    rabbitMqConsumerService.getMediaMessages(message);
+
+    // Then
+    then(rabbitMqPublisherService).should().deadLetterEventMediaDoi(event);
+  }
+
 
   @Test
   void testHandleTombstoneMessages() throws Exception {
@@ -103,17 +133,21 @@ class RabbitMqConsumerServiceTest {
     // When / Then
     assertThrows(InvalidRequestException.class,
         () -> rabbitMqConsumerService.tombstoneDois(message));
+    then(rabbitMqPublisherService).should().deadLetterEventTombstoneRaw(message);
   }
 
   @Test
-  void testDlt() throws Exception {
+  void testHandleTombstoneMessagesDlq() throws Exception {
     // Given
-    var spyConsumer = spy(rabbitMqConsumerService);
-    var message = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    doThrow(new DataCiteApiException("")).when(dataCiteService).handleMessages(message);
+    var event = givenTombstoneEvent();
+    var message = MAPPER.writeValueAsString(event);
+    doThrow(DataCiteApiException.class).when(dataCiteService).tombstoneRecord(any());
 
-    // When Then
-    assertThrows(DataCiteApiException.class,
-        () -> spyConsumer.getSpecimenMessages(MAPPER.writeValueAsString(message)));
+    // When
+    rabbitMqConsumerService.tombstoneDois(message);
+
+    // Then
+    then(dataCiteService).should().tombstoneRecord(any(TombstoneEvent.class));
   }
+
 }
