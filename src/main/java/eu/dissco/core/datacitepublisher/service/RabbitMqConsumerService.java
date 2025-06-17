@@ -22,7 +22,7 @@ public class RabbitMqConsumerService {
   private static final String ERROR_MSG = "Unable to parse {} event from the handle API";
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
-  private final DataCitePublisherService service;
+  private final DataCiteService service;
   private final RabbitMqPublisherService rabbitMqPublisherService;
 
   @RabbitListener(queues = "${rabbitmq.specimen-doi-queue-name:specimen-doi-queue}",

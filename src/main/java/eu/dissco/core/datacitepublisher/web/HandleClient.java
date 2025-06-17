@@ -1,6 +1,7 @@
 package eu.dissco.core.datacitepublisher.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
 import java.time.Duration;
@@ -9,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,9 +19,10 @@ import reactor.util.retry.Retry;
 @RequiredArgsConstructor
 @Component
 @Slf4j
+@Profile(Profiles.PUBLISH)
 public class HandleClient {
 
-  @Qualifier(value = "handle")
+  @Qualifier("handle")
   private final WebClient webClient;
 
   public JsonNode resolveHandles(List<String> handles) throws HandleResolutionException {

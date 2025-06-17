@@ -1,18 +1,21 @@
 package eu.dissco.core.datacitepublisher.configuration;
 
+import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.properties.DataCiteConnectionProperties;
 import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
 import eu.dissco.core.datacitepublisher.web.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @RequiredArgsConstructor
-public class WebClientConfig {
+@Profile(Profiles.PUBLISH)
+public class DataCiteClientConfig {
 
   private final DataCiteConnectionProperties dataciteProperties;
   private final HandleConnectionProperties handleProperties;

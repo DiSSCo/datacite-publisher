@@ -3,10 +3,11 @@ package eu.dissco.core.datacitepublisher.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.dissco.core.datacitepublisher.Profiles;
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.FdoType;
-import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
@@ -18,11 +19,13 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Profile(Profiles.PUBLISH)
 public class RecoveryService {
 
   private final HandleClient handleClient;
