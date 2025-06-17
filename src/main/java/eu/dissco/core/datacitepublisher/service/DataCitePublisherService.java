@@ -9,6 +9,7 @@ import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
@@ -46,6 +47,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +61,7 @@ public class DataCitePublisherService {
   private final ObjectMapper mapper;
   private final DataCiteClient dataCiteClient;
   private final DoiProperties properties;
+  private final Environment environment;
 
   public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent)
       throws DataCiteApiException {
@@ -106,11 +109,15 @@ public class DataCitePublisherService {
       throws DataCiteApiException {
     var body = mapper.valueToTree(request);
     var method = eventType.equals(EventType.CREATE) ? HttpMethod.POST : HttpMethod.PUT;
-    log.info("Sending {} request to datacite with DOI {}", eventType.name(),
-        request.getData().getAttributes().getDoi());
-    var response = dataCiteClient.sendDoiRequest(body, method,
-        request.getData().getAttributes().getDoi());
-    log.debug("received response from datacite: {}", response);
+    if (!environment.matchesProfiles(Profiles.TEST)) {
+      log.info("Sending {} request to datacite with DOI {}", eventType.name(),
+          request.getData().getAttributes().getDoi());
+      var response = dataCiteClient.sendDoiRequest(body, method,
+          request.getData().getAttributes().getDoi());
+      log.debug("received response from datacite: {}", response);
+    } else {
+      log.info("Test profile -- Skipping datacite request");
+    }
     log.info("Successfully {}D DOI {} to datacite", eventType.name(),
         request.getData().getAttributes().getDoi());
   }

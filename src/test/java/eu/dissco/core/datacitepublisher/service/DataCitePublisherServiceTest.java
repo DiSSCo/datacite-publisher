@@ -33,6 +33,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 
+import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
@@ -53,6 +54,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,13 +66,15 @@ class DataCitePublisherServiceTest {
   private XmlLocReader xmlLocReader;
   @Mock
   private DataCiteClient dataCiteClient;
+  @Mock
+  private Environment environment;
   private DataCitePublisherService service;
   private MockedStatic<Instant> mockedInstant;
   private MockedStatic<Clock> mockedClock;
 
   @BeforeEach
   void setup() {
-    service = new DataCitePublisherService(xmlLocReader, MAPPER, dataCiteClient, properties);
+    service = new DataCitePublisherService(xmlLocReader, MAPPER, dataCiteClient, properties, environment);
     lenient().when(properties.getPrefix()).thenReturn(PREFIX);
     lenient().when(properties.getDefaultPublisher()).thenReturn(DEFAULT_PUBLISHER);
     lenient().when(properties.getLandingPageSpecimen()).thenReturn(SPECIMEN_PAGE);
@@ -89,6 +93,20 @@ class DataCitePublisherServiceTest {
 
     // Then
     then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.POST, DOI);
+  }
+
+  @Test
+  void testHandleDigitalSpecimenMessageTestProfile() throws Exception {
+    // Given
+    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+    given(environment.matchesProfiles(Profiles.TEST)).willReturn(true);
+
+    // When
+    service.handleMessages(event);
+
+    // Then
+    then(dataCiteClient).shouldHaveNoInteractions();
   }
 
   @Test
