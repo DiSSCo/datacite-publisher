@@ -1,10 +1,12 @@
 package eu.dissco.core.datacitepublisher.security;
 
+import eu.dissco.core.datacitepublisher.Profiles;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +16,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile(Profiles.PUBLISH)
 public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     @Override

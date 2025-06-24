@@ -64,13 +64,14 @@ class DataCitePublisherServiceTest {
   private XmlLocReader xmlLocReader;
   @Mock
   private DataCiteClient dataCiteClient;
+  @Mock
   private DataCitePublisherService service;
   private MockedStatic<Instant> mockedInstant;
   private MockedStatic<Clock> mockedClock;
 
   @BeforeEach
   void setup() {
-    service = new DataCitePublisherService(xmlLocReader, MAPPER, dataCiteClient, properties);
+    service = new DataCitePublisherService(xmlLocReader, MAPPER, properties, dataCiteClient);
     lenient().when(properties.getPrefix()).thenReturn(PREFIX);
     lenient().when(properties.getDefaultPublisher()).thenReturn(DEFAULT_PUBLISHER);
     lenient().when(properties.getLandingPageSpecimen()).thenReturn(SPECIMEN_PAGE);

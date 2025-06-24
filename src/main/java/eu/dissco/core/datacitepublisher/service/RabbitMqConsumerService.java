@@ -22,12 +22,12 @@ public class RabbitMqConsumerService {
   private static final String ERROR_MSG = "Unable to parse {} event from the handle API";
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
-  private final DataCitePublisherService service;
+  private final DataCiteService service;
 
   @RabbitListener(queues = "${rabbitmq.specimen-doi-queue-name:specimen-doi-queue}",
       containerFactory = "consumerBatchContainerFactory")
   public void getSpecimenMessages(@Payload String message)
-      throws DataCiteApiException, InvalidRequestException {
+      throws InvalidRequestException, DataCiteApiException {
     try {
       var event = mapper.readValue(message, DigitalSpecimenEvent.class);
       log.info("Received {} specimen message", event.eventType());
@@ -43,7 +43,7 @@ public class RabbitMqConsumerService {
   @RabbitListener(queues = "${rabbitmq.media-doi-queue-name:media-doi-queue}",
       containerFactory = "consumerBatchContainerFactory")
   public void getMediaMessages(@Payload String message)
-      throws DataCiteApiException, InvalidRequestException {
+      throws InvalidRequestException, DataCiteApiException {
     try {
       var event = mapper.readValue(message, DigitalMediaEvent.class);
       log.info("Received {} media message", event.eventType());
@@ -59,12 +59,12 @@ public class RabbitMqConsumerService {
   @RabbitListener(queues = "${rabbitmq.tombstone-doi-queue-name:tombstone-doi-queue}",
       containerFactory = "consumerBatchContainerFactory")
   public void tombstoneDois(@Payload String message)
-      throws DataCiteApiException, InvalidRequestException {
+      throws InvalidRequestException, DataCiteApiException {
     try {
       var event = mapper.readValue(message, TombstoneEvent.class);
       service.tombstoneRecord(event);
     } catch (JsonProcessingException e) {
-      log.error(ERROR_MSG + ". Message: {}", message, e);
+      log.error(ERROR_MSG, message, e);
       throw new InvalidRequestException();
     }
   }

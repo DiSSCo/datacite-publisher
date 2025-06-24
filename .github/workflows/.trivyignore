@@ -1,5 +1,4 @@
-# April 22
-# Issue with Alpine
+# June 17
+# Issue with Tomcat - Spring needs to update
 
-CVE-2025-0840
-CVE-2024-8176
+CVE-2025-48988
