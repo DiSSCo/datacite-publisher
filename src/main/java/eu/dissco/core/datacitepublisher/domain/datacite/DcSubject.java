@@ -13,5 +13,6 @@ import lombok.Setter;
 public class DcSubject {
   private String subject;
   private String subjectScheme;
+  private String schemeUri;
 
 }
