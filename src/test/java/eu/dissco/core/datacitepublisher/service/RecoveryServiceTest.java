@@ -17,9 +17,9 @@ import static org.mockito.BDDMockito.then;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
-import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
-import eu.dissco.core.datacitepublisher.web.HandleClient;
+import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
+import eu.dissco.core.datacitepublisher.properties.DoiConnectionProperties;
+import eu.dissco.core.datacitepublisher.web.DoiClient;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,11 +31,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RecoveryServiceTest {
 
   @Mock
-  private HandleClient handleClient;
+  private DoiClient handleClient;
   @Mock
   private DataCitePublisherService dataCitePublisherService;
   @Mock
-  private HandleConnectionProperties handleConnectionProperties;
+  private DoiConnectionProperties handleConnectionProperties;
 
   private RecoveryService recoveryService;
 
@@ -47,9 +47,9 @@ class RecoveryServiceTest {
   @Test
   void testRecoverDoisSpecimen() throws Exception {
     // Given
-    given(handleClient.resolveHandles(List.of(DOI, DOI_ALT)))
+    given(handleClient.resolveDois(List.of(DOI, DOI_ALT)))
         .willReturn(givenDigitalSpecimenPidRecord());
-    given(handleConnectionProperties.getMaxHandles()).willReturn(10);
+    given(handleConnectionProperties.getMaxDois()).willReturn(10);
 
     // When
     recoveryService.recoverDataciteDois(givenRecoveryEvent());
@@ -64,9 +64,9 @@ class RecoveryServiceTest {
   @Test
   void testRecoverDoisMedia() throws Exception {
     // Given
-    given(handleClient.resolveHandles(List.of(DOI, DOI_ALT)))
+    given(handleClient.resolveDois(List.of(DOI, DOI_ALT)))
         .willReturn(givenDigitalMediaJson());
-    given(handleConnectionProperties.getMaxHandles()).willReturn(10);
+    given(handleConnectionProperties.getMaxDois()).willReturn(10);
 
     // When
     recoveryService.recoverDataciteDois(givenRecoveryEvent());
@@ -86,11 +86,12 @@ class RecoveryServiceTest {
           "links":"https://dev.dissco.tech/api/v1/pids/records"
         }
         """);
-    given(handleClient.resolveHandles(anyList())).willReturn(handleMessage);
-    given(handleConnectionProperties.getMaxHandles()).willReturn(10);
+    given(handleClient.resolveDois(anyList())).willReturn(handleMessage);
+    given(handleConnectionProperties.getMaxDois()).willReturn(10);
 
     // Then
-    assertThrows(HandleResolutionException.class, () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
+    assertThrows(DoiResolutionException.class,
+        () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
   }
 
   @Test
@@ -102,11 +103,12 @@ class RecoveryServiceTest {
           "data": "yep"
         }
         """);
-    given(handleClient.resolveHandles(anyList())).willReturn(handleMessage);
-    given(handleConnectionProperties.getMaxHandles()).willReturn(10);
+    given(handleClient.resolveDois(anyList())).willReturn(handleMessage);
+    given(handleConnectionProperties.getMaxDois()).willReturn(10);
 
     // Then
-    assertThrows(HandleResolutionException.class, () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
+    assertThrows(DoiResolutionException.class,
+        () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
   }
 
 }

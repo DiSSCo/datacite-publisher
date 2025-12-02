@@ -10,14 +10,14 @@ import org.springframework.validation.annotation.Validated;
 
 @Data
 @Validated
-@ConfigurationProperties("handle")
+@ConfigurationProperties("pid")
 @Profile({Profiles.PUBLISH, Profiles.WEB})
-public class HandleConnectionProperties {
+public class DoiConnectionProperties {
 
   @NotBlank
   private String endpoint;
 
   @NotNull
-  private int maxHandles = 100;
+  private int maxDois = 100;
 
 }

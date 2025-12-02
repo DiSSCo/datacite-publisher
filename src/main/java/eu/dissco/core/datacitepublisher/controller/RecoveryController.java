@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
-import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
+import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import eu.dissco.core.datacitepublisher.service.RecoveryService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class RecoveryController {
 
   @PostMapping("")
   public ResponseEntity<Void> recoverPids(@RequestBody RecoveryEvent event)
-      throws HandleResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
+      throws DoiResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
     recoveryService.recoverDataciteDois(event);
     return ResponseEntity.ok(null);
   }

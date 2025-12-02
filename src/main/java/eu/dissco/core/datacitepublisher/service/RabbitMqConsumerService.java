@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Profile({Profiles.PUBLISH, Profiles.TEST})
 public class RabbitMqConsumerService {
 
-  private static final String ERROR_MSG = "Unable to parse {} event from the handle API";
+  private static final String ERROR_MSG = "Unable to parse {} event from the doi API";
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final DataCiteService service;

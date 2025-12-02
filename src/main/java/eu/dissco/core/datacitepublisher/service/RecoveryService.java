@@ -11,12 +11,12 @@ import eu.dissco.core.datacitepublisher.domain.FdoType;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
-import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
+import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
-import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
+import eu.dissco.core.datacitepublisher.properties.DoiConnectionProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.web.HandleClient;
+import eu.dissco.core.datacitepublisher.web.DoiClient;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,26 +30,26 @@ import org.springframework.stereotype.Service;
 @Profile(Profiles.WEB)
 public class RecoveryService {
 
-  private final HandleClient handleClient;
+  private final DoiClient handleClient;
   private final DataCitePublisherService dataCitePublisherService;
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
-  private final HandleConnectionProperties handleConnectionProperties;
+  private final DoiConnectionProperties handleConnectionProperties;
 
   public void recoverDataciteDois(RecoveryEvent event)
-      throws HandleResolutionException, JsonProcessingException, DataCiteApiException, InvalidRequestException {
-    if (event.dois().size() > handleConnectionProperties.getMaxHandles()) {
+      throws DoiResolutionException, JsonProcessingException, DataCiteApiException, InvalidRequestException {
+    if (event.dois().size() > handleConnectionProperties.getMaxDois()) {
       log.error("Attempting to recover {} dois, which exceeds maximum permitted",
           event.dois().size());
       throw new InvalidRequestException(
-          "Number of dois can not exceed " + handleConnectionProperties.getMaxHandles());
+          "Number of dois can not exceed " + handleConnectionProperties.getMaxDois());
     }
     recoverDois(event.dois(), event.eventType());
   }
 
   private void recoverDois(List<String> dois, EventType eventType)
-      throws HandleResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
-    var handleResolutionResponse = handleClient.resolveHandles(dois);
+      throws DoiResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
+    var handleResolutionResponse = handleClient.resolveDois(dois);
     if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data").isArray()) {
       var dataNodes = handleResolutionResponse.get("data");
       for (var pidRecordJson : dataNodes) {
@@ -63,8 +63,8 @@ public class RecoveryService {
         }
       }
     } else {
-      log.error("Unexpected response from handle api: {}", handleResolutionResponse);
-      throw new HandleResolutionException();
+      log.error("Unexpected response from doi api: {}", handleResolutionResponse);
+      throw new DoiResolutionException();
     }
   }
 

@@ -42,7 +42,8 @@ public class XmlLocReader {
         return location;
       }
     }
-    log.warn("Unable to find landing page location from 10320/loc in handle record. Using first value in field");
+    log.warn(
+        "Unable to find landing page location from 10320/loc in doi record. Using first value in field");
     return locations.getFirst();
   }
 

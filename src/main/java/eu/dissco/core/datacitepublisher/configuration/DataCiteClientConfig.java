@@ -2,7 +2,7 @@ package eu.dissco.core.datacitepublisher.configuration;
 
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.properties.DataCiteConnectionProperties;
-import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
+import eu.dissco.core.datacitepublisher.properties.DoiConnectionProperties;
 import eu.dissco.core.datacitepublisher.web.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class DataCiteClientConfig {
 
   private final DataCiteConnectionProperties dataciteProperties;
-  private final HandleConnectionProperties handleProperties;
+  private final DoiConnectionProperties doiConnProperties;
 
   @Bean("datacite")
   public WebClient dataciteClient() {
@@ -33,10 +33,10 @@ public class DataCiteClientConfig {
         .build();
   }
 
-  @Bean("handle")
-  public WebClient handleClient() {
+  @Bean("doi")
+  public WebClient doiClient() {
     return WebClient.builder()
-        .baseUrl(handleProperties.getEndpoint())
+        .baseUrl(doiConnProperties.getEndpoint())
         .build();
   }
 
