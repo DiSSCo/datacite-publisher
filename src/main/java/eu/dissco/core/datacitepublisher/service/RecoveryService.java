@@ -50,7 +50,8 @@ public class RecoveryService {
   private void recoverDois(List<String> dois, EventType eventType)
       throws DoiResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
     var handleResolutionResponse = handleClient.resolveDois(dois);
-    if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data").isArray()) {
+    if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data")
+        .isArray()) {
       var dataNodes = handleResolutionResponse.get("data");
       for (var pidRecordJson : dataNodes) {
         var type = FdoType.fromString(pidRecordJson.get("type").asText());
@@ -76,7 +77,6 @@ public class RecoveryService {
         dataCitePublisherService.handleMessages(
             new DigitalSpecimenEvent(digitalSpecimen, EventType.CREATE));
       } catch (DataCiteConflictException e) {
-        log.debug(e.getMessage());
         dataCitePublisherService.handleMessages(
             new DigitalSpecimenEvent(digitalSpecimen, EventType.UPDATE));
       }
@@ -88,6 +88,15 @@ public class RecoveryService {
   private void recoverDigitalMedia(JsonNode pidRecordAttributes, EventType eventType)
       throws DataCiteApiException, JsonProcessingException {
     var mediaObject = mapper.treeToValue(pidRecordAttributes, DigitalMedia.class);
+    if (eventType == null) {
+      try {
+        dataCitePublisherService.handleMessages(
+            new DigitalMediaEvent(mediaObject, EventType.CREATE));
+      } catch (DataCiteConflictException e) {
+        dataCitePublisherService.handleMessages(
+            new DigitalMediaEvent(mediaObject, EventType.UPDATE));
+      }
+    }
     dataCitePublisherService.handleMessages(new DigitalMediaEvent(mediaObject, eventType));
   }
 
