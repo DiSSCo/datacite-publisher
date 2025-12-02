@@ -6,6 +6,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
+import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
 import java.io.IOException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -145,6 +147,20 @@ class DataCiteClientTest {
   }
 
   @Test
+  void testDataCiteUnprocessable() throws Exception {
+    // Given
+    var request = givenSpecimenJson();
+    mockDataCiteServer.enqueue(new MockResponse()
+        .setResponseCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+        .setBody(givenDataCiteErrorResponse(false))
+        .addHeader("Content-Type", "application/json"));
+
+    // When / Then
+    assertThrowsExactly(DataCiteApiException.class,
+        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
+  }
+
+  @Test
   void testDataCiteConflict() throws Exception {
     // Given
     var request = givenSpecimenJson();
@@ -154,7 +170,7 @@ class DataCiteClientTest {
         .addHeader("Content-Type", "application/json"));
 
     // When / Then
-    assertThrows(DataCiteApiException.class,
+    assertThrowsExactly(DataCiteConflictException.class,
         () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
   }
 

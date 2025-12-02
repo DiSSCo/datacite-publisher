@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 @ConfigurationProperties("handle")
-@Profile(Profiles.PUBLISH)
+@Profile({Profiles.PUBLISH, Profiles.WEB})
 public class HandleConnectionProperties {
 
   @NotBlank

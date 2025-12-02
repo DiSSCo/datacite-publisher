@@ -3,22 +3,20 @@ package eu.dissco.core.datacitepublisher.service;
 import static eu.dissco.core.datacitepublisher.TestUtils.DOI;
 import static eu.dissco.core.datacitepublisher.TestUtils.DOI_ALT;
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
-import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.PID_ALT;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenPidRecordSingle;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMedia;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMediaJson;
-import static eu.dissco.core.datacitepublisher.TestUtils.givenRecoveryEvent;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenPidRecord;
+import static eu.dissco.core.datacitepublisher.TestUtils.givenRecoveryEvent;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
+import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
-import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
 import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
 import eu.dissco.core.datacitepublisher.web.HandleClient;
@@ -52,25 +50,6 @@ class RecoveryServiceTest {
     given(handleClient.resolveHandles(List.of(DOI, DOI_ALT)))
         .willReturn(givenDigitalSpecimenPidRecord());
     given(handleConnectionProperties.getMaxHandles()).willReturn(10);
-
-    // When
-    recoveryService.recoverDataciteDois(givenRecoveryEvent());
-
-    // Then
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE));
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(PID_ALT), EventType.CREATE));
-  }
-
-  @Test
-  void testRecoverDoisSpecimenTwoPages() throws Exception {
-    // Given
-    given(handleClient.resolveHandles(List.of(DOI)))
-        .willReturn(givenDigitalSpecimenPidRecordSingle(PID));
-    given(handleClient.resolveHandles(List.of(DOI_ALT)))
-        .willReturn(givenDigitalSpecimenPidRecordSingle(PID_ALT));
-    given(handleConnectionProperties.getMaxHandles()).willReturn(1);
 
     // When
     recoveryService.recoverDataciteDois(givenRecoveryEvent());

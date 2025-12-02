@@ -19,7 +19,7 @@ import reactor.util.retry.Retry;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-@Profile(Profiles.PUBLISH)
+@Profile({Profiles.PUBLISH, Profiles.WEB})
 public class HandleClient {
 
   @Qualifier("handle")

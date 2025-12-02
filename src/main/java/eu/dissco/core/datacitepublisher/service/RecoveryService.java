@@ -10,7 +10,9 @@ import eu.dissco.core.datacitepublisher.domain.EventType;
 import eu.dissco.core.datacitepublisher.domain.FdoType;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
+import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
+import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import eu.dissco.core.datacitepublisher.properties.HandleConnectionProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
@@ -25,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Profile(Profiles.PUBLISH)
+@Profile(Profiles.WEB)
 public class RecoveryService {
 
   private final HandleClient handleClient;
@@ -35,34 +37,29 @@ public class RecoveryService {
   private final HandleConnectionProperties handleConnectionProperties;
 
   public void recoverDataciteDois(RecoveryEvent event)
-      throws HandleResolutionException, JsonProcessingException, DataCiteApiException {
-    int handlesProcessed = 0;
-    while (handlesProcessed < event.handles().size()){
-      int upperIndex = getUpperIndex(handlesProcessed, event.handles().size());
-      var handles = event.handles().subList(handlesProcessed, upperIndex);
-      processResolvedHandles(handles, event.eventType());
-      handlesProcessed = upperIndex;
+      throws HandleResolutionException, JsonProcessingException, DataCiteApiException, InvalidRequestException {
+    if (event.dois().size() > handleConnectionProperties.getMaxHandles()) {
+      log.error("Attempting to recover {} dois, which exceeds maximum permitted",
+          event.dois().size());
+      throw new InvalidRequestException(
+          "Number of dois can not exceed " + handleConnectionProperties.getMaxHandles());
     }
+    recoverDois(event.dois(), event.eventType());
   }
 
-  private int getUpperIndex(int handlesProcessed, int totalHandles) {
-    if (handlesProcessed + handleConnectionProperties.getMaxHandles() > totalHandles) {
-      return totalHandles;
-    }
-    return handlesProcessed + handleConnectionProperties.getMaxHandles();
-  }
-
-  private void processResolvedHandles(List<String> handles, EventType eventType)
-      throws HandleResolutionException, DataCiteApiException, JsonProcessingException {
-    var handleResolutionResponse = handleClient.resolveHandles(handles);
+  private void recoverDois(List<String> dois, EventType eventType)
+      throws HandleResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
+    var handleResolutionResponse = handleClient.resolveHandles(dois);
     if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data").isArray()) {
       var dataNodes = handleResolutionResponse.get("data");
       for (var pidRecordJson : dataNodes) {
         var type = FdoType.fromString(pidRecordJson.get("type").asText());
         if (type.equals(FdoType.DIGITAL_SPECIMEN)) {
           recoverDigitalSpecimen(pidRecordJson.get("attributes"), eventType);
-        } else {
+        } else if (type.equals(FdoType.MEDIA_OBJECT)) {
           recoverDigitalMedia(pidRecordJson.get("attributes"), eventType);
+        } else {
+          throw new InvalidRequestException("Can only recover specimen and media DOIs");
         }
       }
     } else {
@@ -74,7 +71,18 @@ public class RecoveryService {
   private void recoverDigitalSpecimen(JsonNode pidRecordAttributes, EventType eventType)
       throws JsonProcessingException, DataCiteApiException {
     var digitalSpecimen = mapper.treeToValue(pidRecordAttributes, DigitalSpecimen.class);
-    dataCitePublisherService.handleMessages(new DigitalSpecimenEvent(digitalSpecimen, eventType));
+    if (eventType == null) {
+      try {
+        dataCitePublisherService.handleMessages(
+            new DigitalSpecimenEvent(digitalSpecimen, EventType.CREATE));
+      } catch (DataCiteConflictException e) {
+        log.debug(e.getMessage());
+        dataCitePublisherService.handleMessages(
+            new DigitalSpecimenEvent(digitalSpecimen, EventType.UPDATE));
+      }
+    } else {
+      dataCitePublisherService.handleMessages(new DigitalSpecimenEvent(digitalSpecimen, eventType));
+    }
   }
 
   private void recoverDigitalMedia(JsonNode pidRecordAttributes, EventType eventType)

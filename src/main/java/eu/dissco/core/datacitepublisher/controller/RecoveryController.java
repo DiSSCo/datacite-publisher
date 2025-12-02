@@ -5,6 +5,7 @@ import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.domain.RecoveryEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
+import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import eu.dissco.core.datacitepublisher.service.RecoveryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/datacite-recovery")
 @RequiredArgsConstructor
 @Slf4j
-@Profile(Profiles.PUBLISH)
+@Profile(Profiles.WEB)
 public class RecoveryController {
 
   private final RecoveryService recoveryService;
 
   @PostMapping("")
   public ResponseEntity<Void> recoverPids(@RequestBody RecoveryEvent event)
-      throws HandleResolutionException, DataCiteApiException, JsonProcessingException {
+      throws HandleResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
     recoveryService.recoverDataciteDois(event);
     return ResponseEntity.ok(null);
   }

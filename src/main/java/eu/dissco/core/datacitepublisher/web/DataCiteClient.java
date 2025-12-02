@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
+import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ import reactor.util.retry.Retry;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-@Profile(Profiles.PUBLISH)
+@Profile({Profiles.PUBLISH, Profiles.WEB})
 public class DataCiteClient {
 
   @Qualifier("datacite")
@@ -32,7 +33,8 @@ public class DataCiteClient {
 
   public JsonNode sendDoiRequest(JsonNode requestBody, HttpMethod method, String doi)
       throws DataCiteApiException {
-    log.debug("Sending request to DataCite with method: {} and doi: {} with body: {}", method, doi, requestBody);
+    log.debug("Sending request to DataCite with method: {} and doi: {} with body: {}", method, doi,
+        requestBody);
     String uri = method.equals(HttpMethod.PUT) ?
         "/" + doi :
         "";
@@ -78,6 +80,9 @@ public class DataCiteClient {
       throw new DataCiteApiException(e.getMessage());
     } catch (ExecutionException e) {
       log.error("An execution Exception with the DataCite API has occurred", e);
+      if (e.getCause() instanceof DataCiteConflictException) {
+        throw new DataCiteConflictException(e.getCause().getMessage());
+      }
       throw new DataCiteApiException(e.getLocalizedMessage());
     }
   }

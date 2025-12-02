@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@Profile(Profiles.PUBLISH)
+@Profile({Profiles.PUBLISH, Profiles.WEB})
 public class DataCitePublisherService extends DataCiteService {
 
   @Qualifier("datacite")

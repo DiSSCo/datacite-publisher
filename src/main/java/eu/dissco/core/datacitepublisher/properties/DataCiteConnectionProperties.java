@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 @ConfigurationProperties("datacite")
-@Profile(Profiles.PUBLISH)
+@Profile({Profiles.PUBLISH, Profiles.WEB})
 public class DataCiteConnectionProperties {
 
   @NotBlank

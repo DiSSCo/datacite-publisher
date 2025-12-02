@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @RequiredArgsConstructor
-@Profile(Profiles.PUBLISH)
+@Profile({Profiles.PUBLISH, Profiles.WEB})
 public class DataCiteClientConfig {
 
   private final DataCiteConnectionProperties dataciteProperties;
