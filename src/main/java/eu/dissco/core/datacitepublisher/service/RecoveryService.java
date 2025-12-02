@@ -96,8 +96,9 @@ public class RecoveryService {
         dataCitePublisherService.handleMessages(
             new DigitalMediaEvent(mediaObject, EventType.UPDATE));
       }
+    } else {
+      dataCitePublisherService.handleMessages(new DigitalMediaEvent(mediaObject, eventType));
     }
-    dataCitePublisherService.handleMessages(new DigitalMediaEvent(mediaObject, eventType));
   }
 
 }
