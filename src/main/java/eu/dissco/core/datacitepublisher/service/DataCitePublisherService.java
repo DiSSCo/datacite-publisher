@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@Profile(Profiles.PUBLISH)
+@Profile({Profiles.PUBLISH, Profiles.WEB})
 public class DataCitePublisherService extends DataCiteService {
 
   @Qualifier("datacite")
@@ -48,7 +48,7 @@ public class DataCitePublisherService extends DataCiteService {
 
   @Override
   public void tombstoneRecord(TombstoneEvent event) throws DataCiteApiException {
-    var dcRecord = dataCiteClient.getDoiRecord(event.handle());
+    var dcRecord = dataCiteClient.getDoiRecord(event.doi());
     var dcRequest = buildDataCiteTombstoneRequest(dcRecord, event);
     publishToDataCite(dcRequest, EventType.TOMBSTONE);
   }

@@ -7,7 +7,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenPid
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
+import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
 import java.io.IOException;
 import java.util.List;
 import okhttp3.mockwebserver.MockResponse;
@@ -25,7 +25,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 class HandleClientTest {
 
   private static MockWebServer mockHandleServer;
-  private HandleClient handleClient;
+  private DoiClient handleClient;
 
   @BeforeAll
   static void init() throws IOException {
@@ -40,7 +40,7 @@ class HandleClientTest {
         .baseUrl(String.format("http://%s:%s", mockHandleServer.getHostName(),
             mockHandleServer.getPort()))
         .build();
-    handleClient = new HandleClient(client);
+    handleClient = new DoiClient(client);
   }
 
   @AfterAll
@@ -56,7 +56,7 @@ class HandleClientTest {
         .addHeader("Content-Type", "application/json"));
 
     // When
-    var response = handleClient.resolveHandles(List.of(DOI, DOI_ALT));
+    var response = handleClient.resolveDois(List.of(DOI, DOI_ALT));
 
     // Then
     assertThat(response).isEqualTo(givenDigitalSpecimenPidRecord());
@@ -72,8 +72,8 @@ class HandleClientTest {
     mockHandleServer.enqueue(new MockResponse().setResponseCode(501));
 
     // When
-    assertThrows(HandleResolutionException.class,
-        () -> handleClient.resolveHandles(List.of(DOI)));
+    assertThrows(DoiResolutionException.class,
+        () -> handleClient.resolveDois(List.of(DOI)));
     var newRequestCount = mockHandleServer.getRequestCount();
 
     // Then
@@ -89,8 +89,8 @@ class HandleClientTest {
     Thread.currentThread().interrupt();
 
     // When / Then
-    assertThrows(HandleResolutionException.class,
-        () -> handleClient.resolveHandles(List.of(DOI)));
+    assertThrows(DoiResolutionException.class,
+        () -> handleClient.resolveDois(List.of(DOI)));
   }
 
 }

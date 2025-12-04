@@ -10,4 +10,5 @@ public class Profiles {
 
   public static final String TEST = "test";
   public static final String PUBLISH = "publish";
+  public static final String WEB = "web";
 }

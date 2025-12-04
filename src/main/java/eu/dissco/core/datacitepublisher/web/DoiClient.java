@@ -3,7 +3,7 @@ package eu.dissco.core.datacitepublisher.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
-import eu.dissco.core.datacitepublisher.exceptions.HandleResolutionException;
+import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -19,16 +19,16 @@ import reactor.util.retry.Retry;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-@Profile(Profiles.PUBLISH)
-public class HandleClient {
+@Profile({Profiles.PUBLISH, Profiles.WEB})
+public class DoiClient {
 
-  @Qualifier("handle")
+  @Qualifier("doi")
   private final WebClient webClient;
 
-  public JsonNode resolveHandles(List<String> handles) throws HandleResolutionException {
+  public JsonNode resolveDois(List<String> dois) throws DoiResolutionException {
     var response = webClient.method(HttpMethod.GET)
         .uri(uriBuilder -> uriBuilder
-            .queryParam("handles", handles)
+            .queryParam("handles", dois)
             .build())
         .retrieve()
         .bodyToMono(JsonNode.class)
@@ -41,11 +41,12 @@ public class HandleClient {
       return response.toFuture().get();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      log.error("An Interrupted Exception has occurred in communicating with the Handle Manager API.", e);
-      throw new HandleResolutionException();
+      log.error("An Interrupted Exception has occurred in communicating with the DOI Manager API.",
+          e);
+      throw new DoiResolutionException();
     } catch (ExecutionException e) {
-      log.error("An execution Exception with the Handle API has occurred", e);
-      throw new HandleResolutionException();
+      log.error("An execution Exception with the DOI API has occurred", e);
+      throw new DoiResolutionException();
     }
 
   }

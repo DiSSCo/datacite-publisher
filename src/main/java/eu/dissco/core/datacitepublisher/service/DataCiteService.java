@@ -132,7 +132,7 @@ public abstract class DataCiteService {
                 .rightsList(getRights())
                 .relatedIdentifiers(relatedIdentifiers)
                 .dates(dates)
-                .doi(getDoi(event.handle()))
+                .doi(getDoi(event.doi()))
                 .build())
             .build())
         .build();

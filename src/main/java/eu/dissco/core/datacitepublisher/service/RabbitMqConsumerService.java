@@ -2,6 +2,7 @@ package eu.dissco.core.datacitepublisher.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
@@ -11,15 +12,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Profile({Profiles.PUBLISH, Profiles.TEST})
 public class RabbitMqConsumerService {
 
-  private static final String ERROR_MSG = "Unable to parse {} event from the handle API";
+  private static final String ERROR_MSG = "Unable to parse {} event from the doi API";
   @Qualifier("objectMapper")
   private final ObjectMapper mapper;
   private final DataCiteService service;

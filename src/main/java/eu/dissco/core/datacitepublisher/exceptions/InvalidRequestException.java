@@ -5,4 +5,8 @@ public class InvalidRequestException extends Exception {
     super();
   }
 
+  public InvalidRequestException(String message) {
+    super(message);
+  }
+
 }

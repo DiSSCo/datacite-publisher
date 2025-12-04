@@ -18,9 +18,27 @@ DataCite APIs when the message reaches this Publisher.
 
 [Infrastructure Diagram](docs/publisher.png)
 
-## Error Handling
+## Profiles
 
-In the event of an exception during this process, a critical error is logged. Manual action will be
-needed to amend the issue. It is not possible to rollback previously minted PIDs, as this
-publication process is asynchronous, so the PID may already be in active use by the time the message
-is received by this Publisher.  
+There are three profiles:
+
+- `PUBLISH`: This publishes messages to DataCite (test or production environment, depending on
+  configuration)
+- `TEST`: The service formats a request, but does not publish messages to DataCite.
+- `WEB`: Exposes a controller to recover from errors (see "Error Recovery")
+
+### Error Recovery
+
+To recover from errors, we include the `WEB` profile. This exposes a controller which accepts a list
+of DOIs to re-send a message to DataCite.
+
+The recovery service reads the FDO record for each handle and sends a request to DataCite, either an
+update or a create.
+
+**If Event Type is Unknown**: If it is unknown if DataCite has a record of the DOI, we may send
+multiple requests to recover from the error. First, we send a POST to DataCite. If DataCite already
+has a copy of this record, they will return a 422 UNPROCESSABLE ENTITY and an error message
+indicating the DOI is already taken. In that case, we recover from this error and send an update
+message to DataCite instead. Only in the WEB profile is this error recovery flow implemented; in the
+regular flow, we assume we know if it is an update or a new DOI record, and structure the message to
+DataCite accordingly. 
