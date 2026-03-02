@@ -1,6 +1,5 @@
 package eu.dissco.core.datacitepublisher.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.JsonNode;
 
 @Slf4j
 public class WebClientUtils {
@@ -24,7 +24,7 @@ public class WebClientUtils {
 
   public static Mono<ClientResponse> exchangeFilterResponseProcessor(ClientResponse response) {
     var status = response.statusCode();
-    if (HttpStatus.UNPROCESSABLE_ENTITY.equals(status)) {
+    if (HttpStatus.UNPROCESSABLE_CONTENT.equals(status)) {
       return response.bodyToMono(JsonNode.class)
           .flatMap(body -> {
             log.error("An error has occurred with the datacite api: {}", body);
@@ -47,7 +47,7 @@ public class WebClientUtils {
   private static boolean isConflictException(JsonNode errorBody) {
     if (errorBody.has(ERRORS) && errorBody.get(ERRORS).isArray()) {
       for (JsonNode error : errorBody.get(ERRORS)) {
-        if ("This DOI has already been taken".equals(error.get("title").asText())) {
+        if ("This DOI has already been taken".equals(error.get("title").asString())) {
           return true;
         }
       }

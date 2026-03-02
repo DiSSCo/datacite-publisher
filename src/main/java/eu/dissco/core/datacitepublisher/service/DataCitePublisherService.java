@@ -1,6 +1,5 @@
 package eu.dissco.core.datacitepublisher.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @Slf4j
@@ -26,8 +26,7 @@ public class DataCitePublisherService extends DataCiteService {
   private final DataCiteClient dataCiteClient;
 
   public DataCitePublisherService(XmlLocReader xmlLocReader,
-      @Qualifier("objectMapper")
-      ObjectMapper mapper,
+      JsonMapper mapper,
       DoiProperties properties, DataCiteClient dataCiteClient) {
     super(xmlLocReader, mapper, properties);
     this.dataCiteClient = dataCiteClient;

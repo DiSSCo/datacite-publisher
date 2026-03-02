@@ -1,6 +1,5 @@
 package eu.dissco.core.datacitepublisher.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
@@ -15,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
+import tools.jackson.databind.JsonNode;
 
 @RequiredArgsConstructor
 @Component

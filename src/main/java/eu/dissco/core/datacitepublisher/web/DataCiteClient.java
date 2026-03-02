@@ -1,8 +1,5 @@
 package eu.dissco.core.datacitepublisher.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
@@ -19,6 +16,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @RequiredArgsConstructor
 @Component
@@ -28,8 +27,7 @@ public class DataCiteClient {
 
   @Qualifier("datacite")
   private final WebClient webClient;
-  @Qualifier("objectMapper")
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
 
   public JsonNode sendDoiRequest(JsonNode requestBody, HttpMethod method, String doi)
       throws DataCiteApiException {
@@ -63,12 +61,7 @@ public class DataCiteClient {
                 .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new DataCiteApiException(
                     "External Service failed to process after max retries")));
     var jsonNodeResponse = getResponse(response);
-    try {
-      return mapper.treeToValue(jsonNodeResponse.get("data").get("attributes"), DcAttributes.class);
-    } catch (JsonProcessingException e) {
-      log.error("Unable to parse response from DataCite: {}", jsonNodeResponse, e);
-      throw new DataCiteApiException("Unexpected response from DataCite");
-    }
+    return mapper.treeToValue(jsonNodeResponse.get("data").get("attributes"), DcAttributes.class);
   }
 
   private JsonNode getResponse(Mono<JsonNode> response) throws DataCiteApiException {

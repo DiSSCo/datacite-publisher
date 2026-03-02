@@ -8,10 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
@@ -29,6 +25,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import tools.jackson.databind.JsonNode;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -116,12 +113,12 @@ class DataCiteClientTest {
   }
 
   @Test
-  void testDoiAlreadyTaken() throws Exception {
+  void testDoiAlreadyTaken() {
     // Given
     var request = givenSpecimenJson();
     var response = MAPPER.createObjectNode().put("errors", "yep");
     mockDataCiteServer.enqueue(
-        new MockResponse().setResponseCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+        new MockResponse().setResponseCode(HttpStatus.UNPROCESSABLE_CONTENT.value())
             .setBody(MAPPER.writeValueAsString(response))
             .addHeader("Content-Type", "application/json"));
 
@@ -131,7 +128,7 @@ class DataCiteClientTest {
   }
 
   @Test
-  void testInterruptedException() throws Exception {
+  void testInterruptedException() {
     // Given
     var request = givenSpecimenJson();
     var expected = MAPPER.createObjectNode().put("data", "yep");
@@ -147,11 +144,11 @@ class DataCiteClientTest {
   }
 
   @Test
-  void testDataCiteUnprocessable() throws Exception {
+  void testDataCiteUnprocessable() {
     // Given
     var request = givenSpecimenJson();
     mockDataCiteServer.enqueue(new MockResponse()
-        .setResponseCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+        .setResponseCode(HttpStatus.UNPROCESSABLE_CONTENT.value())
         .setBody(givenDataCiteErrorResponse(false))
         .addHeader("Content-Type", "application/json"));
 
@@ -161,11 +158,11 @@ class DataCiteClientTest {
   }
 
   @Test
-  void testDataCiteConflict() throws Exception {
+  void testDataCiteConflict() {
     // Given
     var request = givenSpecimenJson();
     mockDataCiteServer.enqueue(new MockResponse()
-        .setResponseCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+        .setResponseCode(HttpStatus.UNPROCESSABLE_CONTENT.value())
         .setBody(givenDataCiteErrorResponse(true))
         .addHeader("Content-Type", "application/json"));
 
@@ -175,7 +172,7 @@ class DataCiteClientTest {
   }
 
   @Test
-  void testDataCiteNotFound() throws Exception {
+  void testDataCiteNotFound() {
     // Given
     var request = givenSpecimenJson();
     mockDataCiteServer.enqueue(new MockResponse()
@@ -190,7 +187,7 @@ class DataCiteClientTest {
   }
 
   @Test
-  void testDataCiteOther() throws Exception {
+  void testDataCiteOther() {
     // Given
     var request = givenSpecimenJson();
     mockDataCiteServer.enqueue(new MockResponse()
@@ -221,9 +218,9 @@ class DataCiteClientTest {
     assertThat(result).isInstanceOf(DcAttributes.class);
   }
 
-  private static String givenDataCiteErrorResponse(boolean conflict) throws Exception {
-    ArrayNode errors = MAPPER.createArrayNode();
-    ObjectNode message = MAPPER.createObjectNode();
+  private static String givenDataCiteErrorResponse(boolean conflict) {
+    var errors = MAPPER.createArrayNode();
+    var message = MAPPER.createObjectNode();
     if (conflict) {
       message
           .put("title", "This DOI has already been taken")
@@ -237,7 +234,7 @@ class DataCiteClientTest {
         .set("errors", errors));
   }
 
-  private JsonNode givenDataCiteResponse() throws JsonProcessingException {
+  private JsonNode givenDataCiteResponse() {
     return MAPPER.readTree("""
         {
           "data": {

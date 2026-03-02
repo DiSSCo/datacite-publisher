@@ -1,6 +1,5 @@
 package eu.dissco.core.datacitepublisher.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
@@ -10,9 +9,9 @@ import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
 
 @Profile(Profiles.TEST)
 @Service
@@ -21,8 +20,7 @@ public class DataCiteTestService extends DataCiteService {
 
   public DataCiteTestService(
       XmlLocReader xmlLocReader,
-      @Qualifier("objectMapper")
-      ObjectMapper mapper,
+      JsonMapper mapper,
       DoiProperties properties) {
     super(xmlLocReader, mapper, properties);
   }
