@@ -42,3 +42,29 @@ indicating the DOI is already taken. In that case, we recover from this error an
 message to DataCite instead. Only in the WEB profile is this error recovery flow implemented; in the
 regular flow, we assume we know if it is an update or a new DOI record, and structure the message to
 DataCite accordingly. 
+
+# Run locally
+
+## Background Services
+
+Running locally requires:
+
+- Access to the rabbitmq cluster via localhost:5672
+  - `kubectl port-forward -n rabbitmq rabbitmq-cluster-server-0 5672`
+
+## Application properties
+
+```properties
+doi.prefix=Prefix for DOIs, e.g. 10.3535
+doi.landing-page-media=landing page for media objects, e.g. https://disscover.dissco.eu/dm/
+doi.landing-page-specimen=https://disscover.dissco.eu/ds/
+spring.profiles.active=one of the above profiles
+spring.rabbitmq.password=rabbitmq password
+spring.rabbitmq.username=rabbitmq username
+datacite.endpoint=endpoint to make datacite requests to, e.g. https://api.test.datacite.org/dois
+datacite.password=datacite password
+datacite.repository-id=datacite repository id
+pid.endpoint=DOI api, i.e. https://api.dissco.eu/doi/v1/records
+spring.security.oauth2.resourceserver.jwt.issuer-uri=https://login-demo.dissco.eu/auth/realms/dissco
+spring.security.oauth2.authorizationserver.endpoint.jwk-set-uri=
+```

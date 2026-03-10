@@ -2,239 +2,69 @@ package eu.dissco.core.datacitepublisher.web;
 
 import static eu.dissco.core.datacitepublisher.TestUtils.DOI;
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
-import static eu.dissco.core.datacitepublisher.TestUtils.PID;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenSpecimenJson;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
+import eu.dissco.core.datacitepublisher.client.DataCiteClient;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcAttributes;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
-import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
-import java.io.IOException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
 import tools.jackson.databind.JsonNode;
 
-
 @ExtendWith(MockitoExtension.class)
-class DataCiteClientTest {
+class DataCiteComponentTest {
 
-  private static MockWebServer mockDataCiteServer;
+  @Mock
   private DataCiteClient dataCiteClient;
-  private static final String ALT_ERROR = "another error message";
 
-  @BeforeAll
-  static void init() throws IOException {
-    mockDataCiteServer = new MockWebServer();
-    mockDataCiteServer.start();
-  }
+  private DataCiteComponent dataCiteComponent;
 
   @BeforeEach
-  void setup() {
-    ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
-        .ofResponseProcessor(WebClientUtils::exchangeFilterResponseProcessor);
-
-    var webClient = WebClient.builder()
-        .baseUrl(String.format("http://%s:%s", mockDataCiteServer.getHostName(),
-            mockDataCiteServer.getPort()))
-        .filter(errorResponseFilter)
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/vnd.api+json")
-        .build();
-    dataCiteClient = new DataCiteClient(webClient, MAPPER);
-  }
-
-  @AfterAll
-  static void destroy() throws IOException {
-    mockDataCiteServer.shutdown();
+  void init() {
+    dataCiteComponent = new DataCiteComponent(dataCiteClient, MAPPER);
   }
 
   @Test
-  void testPostDoi() throws Exception {
+  void testCreateNewDataCiteRecord() throws DataCiteApiException {
     // Given
-    var request = givenSpecimenJson();
-    var expected = MAPPER.createObjectNode().put("data", "yep");
-    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(HttpStatus.OK.value())
-        .setBody(MAPPER.writeValueAsString(expected))
-        .addHeader("Content-Type", "application/json"));
 
     // When
-    var response = dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI);
+    dataCiteComponent.createNewDataCiteRecord(givenSpecimenJson(), DOI);
 
     // Then
-    assertThat(response).isEqualTo(expected);
+    then(dataCiteClient).should().postDoi(givenSpecimenJson());
   }
 
   @Test
-  void testUpdateDoi() throws Exception {
+  void testUpdateDataCiteRecord() throws DataCiteApiException {
     // Given
-    var request = givenSpecimenJson();
-    var expected = MAPPER.createObjectNode().put("data", "yep");
-    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(HttpStatus.OK.value())
-        .setBody(MAPPER.writeValueAsString(expected))
-        .addHeader("Content-Type", "application/json"));
 
     // When
-    var response = dataCiteClient.sendDoiRequest(request, HttpMethod.PUT, DOI);
+    dataCiteComponent.updateDataCiteRecord(givenSpecimenJson(), DOI);
 
     // Then
-    assertThat(response).isEqualTo(expected);
+    then(dataCiteClient).should().updateDoi(DOI, givenSpecimenJson());
   }
 
   @Test
-  void testRetries() {
+  void testGetDataCiteRecord() {
     // Given
-    var request = givenSpecimenJson();
-    int requestCount = mockDataCiteServer.getRequestCount();
-
-    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(501));
-    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(501));
-    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(501));
-    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(501));
+    given(dataCiteClient.getDataCiteRecord(DOI)).willReturn(givenDataCiteResponse());
 
     // When
-    assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-    var newRequestCount = mockDataCiteServer.getRequestCount();
-
-    // Then
-    assertThat(newRequestCount - requestCount).isEqualTo(4);
-  }
-
-  @Test
-  void testDoiAlreadyTaken() {
-    // Given
-    var request = givenSpecimenJson();
-    var response = MAPPER.createObjectNode().put("errors", "yep");
-    mockDataCiteServer.enqueue(
-        new MockResponse().setResponseCode(HttpStatus.UNPROCESSABLE_CONTENT.value())
-            .setBody(MAPPER.writeValueAsString(response))
-            .addHeader("Content-Type", "application/json"));
-
-    // When / Then
-    assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-  }
-
-  @Test
-  void testInterruptedException() {
-    // Given
-    var request = givenSpecimenJson();
-    var expected = MAPPER.createObjectNode().put("data", "yep");
-    mockDataCiteServer.enqueue(new MockResponse().setResponseCode(HttpStatus.OK.value())
-        .setBody(MAPPER.writeValueAsString(expected))
-        .addHeader("Content-Type", "application/json"));
-
-    Thread.currentThread().interrupt();
-
-    // When / Then
-    assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-  }
-
-  @Test
-  void testDataCiteUnprocessable() {
-    // Given
-    var request = givenSpecimenJson();
-    mockDataCiteServer.enqueue(new MockResponse()
-        .setResponseCode(HttpStatus.UNPROCESSABLE_CONTENT.value())
-        .setBody(givenDataCiteErrorResponse(false))
-        .addHeader("Content-Type", "application/json"));
-
-    // When / Then
-    assertThrowsExactly(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-  }
-
-  @Test
-  void testDataCiteConflict() {
-    // Given
-    var request = givenSpecimenJson();
-    mockDataCiteServer.enqueue(new MockResponse()
-        .setResponseCode(HttpStatus.UNPROCESSABLE_CONTENT.value())
-        .setBody(givenDataCiteErrorResponse(true))
-        .addHeader("Content-Type", "application/json"));
-
-    // When / Then
-    assertThrowsExactly(DataCiteConflictException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-  }
-
-  @Test
-  void testDataCiteNotFound() {
-    // Given
-    var request = givenSpecimenJson();
-    mockDataCiteServer.enqueue(new MockResponse()
-        .setResponseCode(HttpStatus.NOT_FOUND.value())
-        .setBody(givenDataCiteErrorResponse(false))
-        .addHeader("Content-Type", "application/json"));
-
-    // When / Then
-    assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-
-  }
-
-  @Test
-  void testDataCiteOther() {
-    // Given
-    var request = givenSpecimenJson();
-    mockDataCiteServer.enqueue(new MockResponse()
-        .setResponseCode(HttpStatus.BAD_REQUEST.value())
-        .setBody(givenDataCiteErrorResponse(false))
-        .addHeader("Content-Type", "application/json"));
-    var expectedMessage = " 400 Bad Request from POST";
-
-    // When
-    var e = assertThrows(DataCiteApiException.class,
-        () -> dataCiteClient.sendDoiRequest(request, HttpMethod.POST, DOI));
-
-    assertThat(e.getMessage()).contains(expectedMessage);
-  }
-
-  @Test
-  void testGetDoiRecord() throws Exception {
-    // Given
-    mockDataCiteServer.enqueue(new MockResponse()
-        .setResponseCode(HttpStatus.OK.value())
-        .setBody(MAPPER.writeValueAsString(givenDataCiteResponse()))
-        .addHeader("Content-Type", "application/json"));
-
-    // When
-    var result = dataCiteClient.getDoiRecord(DOI);
+    var result = dataCiteComponent.getDataCiteRecord(DOI);
 
     // Then
     assertThat(result).isInstanceOf(DcAttributes.class);
   }
 
-  private static String givenDataCiteErrorResponse(boolean conflict) {
-    var errors = MAPPER.createArrayNode();
-    var message = MAPPER.createObjectNode();
-    if (conflict) {
-      message
-          .put("title", "This DOI has already been taken")
-          .put("uid", PID);
-    } else {
-      message
-          .put("title", ALT_ERROR);
-    }
-    errors.add(message);
-    return MAPPER.writeValueAsString(MAPPER.createObjectNode()
-        .set("errors", errors));
-  }
-
-  private JsonNode givenDataCiteResponse() {
+  private static JsonNode givenDataCiteResponse() {
     return MAPPER.readTree("""
         {
           "data": {

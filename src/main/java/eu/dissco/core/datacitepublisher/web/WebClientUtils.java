@@ -27,9 +27,9 @@ public class WebClientUtils {
     if (HttpStatus.UNPROCESSABLE_CONTENT.equals(status)) {
       return response.bodyToMono(JsonNode.class)
           .flatMap(body -> {
-            log.error("An error has occurred with the datacite api: {}", body);
+            log.error("An error has occurred with the api: {}", body);
             if (isConflictException(body)) {
-              return Mono.error(new DataCiteConflictException("DOI has already been taken"));
+              return Mono.error(new DataCiteConflictException("ID has already been taken"));
             }
             return Mono.error(new DataCiteApiException());
           });
@@ -37,7 +37,7 @@ public class WebClientUtils {
     if (HttpStatus.NOT_FOUND.equals(status)){
       return response.bodyToMono(JsonNode.class)
           .flatMap(body -> {
-            log.error("Datacite credentials may be incorrect: {}", body);
+            log.error("credentials may be incorrect: {}", body);
             return Mono.error(new DataCiteApiException());
           });
     }
@@ -47,7 +47,7 @@ public class WebClientUtils {
   private static boolean isConflictException(JsonNode errorBody) {
     if (errorBody.has(ERRORS) && errorBody.get(ERRORS).isArray()) {
       for (JsonNode error : errorBody.get(ERRORS)) {
-        if ("This DOI has already been taken".equals(error.get("title").asString())) {
+        if ("This ID has already been taken".equals(error.get("title").asString())) {
           return true;
         }
       }
