@@ -102,6 +102,12 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <compilerArgument>-parameters</compilerArgument>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
