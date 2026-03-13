@@ -9,7 +9,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalMediaJson;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimen;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenDigitalSpecimenPidRecord;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenRecoveryEvent;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;

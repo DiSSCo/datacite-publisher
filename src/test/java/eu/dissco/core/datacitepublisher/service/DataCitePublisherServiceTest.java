@@ -26,7 +26,7 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenType;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
