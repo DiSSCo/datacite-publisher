@@ -13,7 +13,7 @@ import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import eu.dissco.core.datacitepublisher.properties.DoiConnectionProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.web.DoiClient;
+import eu.dissco.core.datacitepublisher.web.DoiResolutionComponent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ import tools.jackson.databind.json.JsonMapper;
 @Profile(Profiles.WEB)
 public class RecoveryService {
 
-  private final DoiClient handleClient;
+  private final DoiResolutionComponent doiClient;
   private final DataCitePublisherService dataCitePublisherService;
   private final JsonMapper mapper;
   private final DoiConnectionProperties handleConnectionProperties;
@@ -46,7 +46,7 @@ public class RecoveryService {
 
   private void recoverDois(List<String> dois, EventType eventType)
       throws DoiResolutionException, DataCiteApiException, InvalidRequestException {
-    var handleResolutionResponse = handleClient.resolveDois(dois);
+    var handleResolutionResponse = doiClient.resolveDois(dois);
     if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data")
         .isArray()) {
       var dataNodes = handleResolutionResponse.get("data");

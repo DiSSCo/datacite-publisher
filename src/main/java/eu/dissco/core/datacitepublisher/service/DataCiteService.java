@@ -1,7 +1,7 @@
 package eu.dissco.core.datacitepublisher.service;
 
 
-import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.DATACITE_FORMATTER;
+import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfiguration.DATACITE_FORMATTER;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_ALT_ID_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_DATASET;

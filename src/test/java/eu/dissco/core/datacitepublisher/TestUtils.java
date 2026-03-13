@@ -1,6 +1,6 @@
 package eu.dissco.core.datacitepublisher;
 
-import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.DATE_STRING;
+import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfiguration.DATE_STRING;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_DATASET;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_IMAGE;

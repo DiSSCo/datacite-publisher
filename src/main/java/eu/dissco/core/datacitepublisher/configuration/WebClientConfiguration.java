@@ -5,7 +5,6 @@ import eu.dissco.core.datacitepublisher.client.DataCiteClient;
 import eu.dissco.core.datacitepublisher.client.DoiClient;
 import eu.dissco.core.datacitepublisher.properties.DataCiteConnectionProperties;
 import eu.dissco.core.datacitepublisher.properties.DoiConnectionProperties;
-import eu.dissco.core.datacitepublisher.web.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Configuration
 @RequiredArgsConstructor
 @Profile({Profiles.PUBLISH, Profiles.WEB})
-public class WebClientConfig {
+public class WebClientConfiguration {
 
   private final DataCiteConnectionProperties dataciteProperties;
   private final DoiConnectionProperties doiConnProperties;
@@ -27,7 +26,7 @@ public class WebClientConfig {
   @Bean
   public DataCiteClient dataCiteClient() {
     ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
-        .ofResponseProcessor(WebClientUtils::exchangeFilterResponseProcessor);
+        .ofResponseProcessor(WebClientErrorHandling::exchangeFilterResponseProcessorDataCite);
     var webClient = WebClient.builder()
         .baseUrl(dataciteProperties.getEndpoint())
         .filter(errorResponseFilter)
@@ -43,8 +42,11 @@ public class WebClientConfig {
 
   @Bean
   public DoiClient doiClient() {
+    ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
+        .ofResponseProcessor(WebClientErrorHandling::exchangeFilterResponseProcessorDoi);
     var webClient = WebClient.builder()
         .baseUrl(doiConnProperties.getEndpoint())
+        .filter(errorResponseFilter)
         .build();
     var proxyFactory = HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))

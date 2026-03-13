@@ -19,7 +19,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 @RequiredArgsConstructor
-public class ApplicationConfig {
+public class ApplicationConfiguration {
 
   public static final String DATE_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
   public static final DateTimeFormatter DATACITE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")

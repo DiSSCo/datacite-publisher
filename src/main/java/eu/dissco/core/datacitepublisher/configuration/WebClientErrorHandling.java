@@ -1,28 +1,37 @@
-package eu.dissco.core.datacitepublisher.web;
+package eu.dissco.core.datacitepublisher.configuration;
 
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
+import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.JsonNode;
 
 @Slf4j
-public class WebClientUtils {
+public class WebClientErrorHandling {
 
-  private WebClientUtils() {
+  private WebClientErrorHandling() {
   }
 
   private static final String ERRORS = "errors";
 
-  public static boolean is5xxServerError(Throwable throwable) {
-    return throwable instanceof WebClientResponseException webClientResponseException
-        && webClientResponseException.getStatusCode().is5xxServerError();
+  public static Mono<ClientResponse> exchangeFilterResponseProcessorDoi(ClientResponse response) {
+    var status = response.statusCode();
+    if (status.is4xxClientError() || status.is5xxServerError()) {
+      return response.bodyToMono(JsonNode.class)
+          .flatMap(body -> {
+            log.error("An error has occurred with the DOI service. Status code: {}, response: {}",
+                status, body);
+            return Mono.error(new DoiResolutionException());
+          });
+    }
+    return Mono.just(response);
   }
 
-  public static Mono<ClientResponse> exchangeFilterResponseProcessor(ClientResponse response) {
+  public static Mono<ClientResponse> exchangeFilterResponseProcessorDataCite(
+      ClientResponse response) {
     var status = response.statusCode();
     if (HttpStatus.UNPROCESSABLE_CONTENT.equals(status)) {
       return response.bodyToMono(JsonNode.class)
@@ -34,7 +43,7 @@ public class WebClientUtils {
             return Mono.error(new DataCiteApiException());
           });
     }
-    if (HttpStatus.NOT_FOUND.equals(status)){
+    if (HttpStatus.NOT_FOUND.equals(status)) {
       return response.bodyToMono(JsonNode.class)
           .flatMap(body -> {
             log.error("credentials may be incorrect: {}", body);

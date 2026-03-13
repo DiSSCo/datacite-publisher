@@ -23,7 +23,7 @@ import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
 import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
 import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import eu.dissco.core.datacitepublisher.properties.DoiConnectionProperties;
-import eu.dissco.core.datacitepublisher.web.DoiClient;
+import eu.dissco.core.datacitepublisher.web.DoiResolutionComponent;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RecoveryServiceTest {
 
   @Mock
-  private DoiClient doiClient;
+  private DoiResolutionComponent doiClient;
   @Mock
   private DataCitePublisherService dataCitePublisherService;
   @Mock

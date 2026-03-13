@@ -1,11 +1,11 @@
-package eu.dissco.core.datacitepublisher.web;
+package eu.dissco.core.datacitepublisher.configuration;
 
 import static eu.dissco.core.datacitepublisher.TestUtils.MAPPER;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteConflictException;
+import eu.dissco.core.datacitepublisher.exceptions.DoiResolutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,7 +18,7 @@ import reactor.test.StepVerifier;
 import tools.jackson.databind.JsonNode;
 
 @ExtendWith(MockitoExtension.class)
-class WebClientUtilsTest {
+class WebClientErrorHandlingTest {
 
   @Mock
   private ClientResponse clientResponse;
@@ -26,49 +26,15 @@ class WebClientUtilsTest {
   @Mock
   private WebClientResponseException webClientResponseException;
 
-  @Test
-  void testIs5xxErrorTrue() {
-    // Given
-    given(webClientResponseException.getStatusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR);
-
-    // When
-    boolean result = WebClientUtils.is5xxServerError(webClientResponseException);
-
-    // Then
-    assertThat(result).isTrue();
-  }
 
   @Test
-  void testIs5xErrorOtherKindOfError() {
-    // Given
-    given(webClientResponseException.getStatusCode()).willReturn(HttpStatus.BAD_REQUEST);
-
-    // When
-    boolean result = WebClientUtils.is5xxServerError(webClientResponseException);
-
-    // Then
-    assertThat(result).isFalse();
-  }
-
-  @Test
-  void testIs5xxErrorOk() {
-    // Given
-    given(webClientResponseException.getStatusCode()).willReturn(HttpStatus.OK);
-
-    // When
-    boolean result = WebClientUtils.is5xxServerError(webClientResponseException);
-
-    // Then
-    assertThat(result).isFalse();
-  }
-
-  @Test
-  void testExchangeFilterOk() {
+  void testExchangeFilterDataCiteOk() {
     // Given
     given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 
     // When
-    Mono<ClientResponse> result = WebClientUtils.exchangeFilterResponseProcessor(clientResponse);
+    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
+        clientResponse);
 
     // Then
     StepVerifier.create(result)
@@ -77,14 +43,15 @@ class WebClientUtilsTest {
   }
 
   @Test
-  void testExchangeFilterNotFound() {
+  void testExchangeFilterDataCiteNotFound() {
     // Given
     var body = MAPPER.readTree("{\"message\":\"Not found details\"}");
     given(clientResponse.statusCode()).willReturn(HttpStatus.NOT_FOUND);
     given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
     // When
-    Mono<ClientResponse> result = WebClientUtils.exchangeFilterResponseProcessor(clientResponse);
+    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
+        clientResponse);
 
     // Then
     StepVerifier.create(result)
@@ -93,14 +60,15 @@ class WebClientUtilsTest {
   }
 
   @Test
-  void testExchangeFilterUnprocessable() {
+  void testExchangeFilterDataCiteUnprocessable() {
     // Given
     var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
     given(clientResponse.statusCode()).willReturn(HttpStatus.UNPROCESSABLE_CONTENT);
     given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
     // When
-    Mono<ClientResponse> result = WebClientUtils.exchangeFilterResponseProcessor(clientResponse);
+    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
+        clientResponse);
 
     // Then
     StepVerifier.create(result)
@@ -109,7 +77,7 @@ class WebClientUtilsTest {
   }
 
   @Test
-  void testExchangeFilterConflict() {
+  void testExchangeFilterDataCiteConflict() {
     // Given
     var body = MAPPER.readTree("""
         {
@@ -127,12 +95,62 @@ class WebClientUtilsTest {
     given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
     // When
-    Mono<ClientResponse> result = WebClientUtils.exchangeFilterResponseProcessor(clientResponse);
+    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
+        clientResponse);
 
     // Then
     StepVerifier.create(result)
         .expectError(DataCiteConflictException.class)
         .verify();
+  }
+
+  @Test
+  void testExchangeFilterDoi4xxError() {
+    // Given
+    var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
+    given(clientResponse.statusCode()).willReturn(HttpStatus.NOT_FOUND);
+    given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
+
+    // When
+    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(
+        clientResponse);
+
+    // Then
+    StepVerifier.create(result)
+        .expectError(DoiResolutionException.class)
+        .verify();
+  }
+
+  @Test
+  void testExchangeFilterDoi5xxError() {
+    // Given
+    var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
+    given(clientResponse.statusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR);
+    given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
+
+    // When
+    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(
+        clientResponse);
+
+    // Then
+    StepVerifier.create(result)
+        .expectError(DoiResolutionException.class)
+        .verify();
+  }
+
+  @Test
+  void testExchangeFilterDoiOk() {
+    // Given
+    given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
+
+    // When
+    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(
+        clientResponse);
+
+    // Then
+    StepVerifier.create(result)
+        .expectNext(clientResponse)
+        .verifyComplete();
   }
 
 }
