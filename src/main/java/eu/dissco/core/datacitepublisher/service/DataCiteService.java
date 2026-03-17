@@ -1,7 +1,7 @@
 package eu.dissco.core.datacitepublisher.service;
 
 
-import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfig.DATACITE_FORMATTER;
+import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfiguration.DATACITE_FORMATTER;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_ALT_ID_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_DATASET;
@@ -9,7 +9,6 @@ import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_ALT_ID_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
@@ -44,15 +43,14 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import tools.jackson.databind.json.JsonMapper;
 
 @RequiredArgsConstructor
 @Slf4j
 public abstract class DataCiteService {
 
   protected final XmlLocReader xmlLocReader;
-  @Qualifier("objectMapper")
-  protected final ObjectMapper mapper;
+  protected final JsonMapper mapper;
   protected final DoiProperties properties;
 
 

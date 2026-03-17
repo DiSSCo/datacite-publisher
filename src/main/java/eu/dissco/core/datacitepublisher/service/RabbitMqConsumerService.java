@@ -1,20 +1,17 @@
 package eu.dissco.core.datacitepublisher.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
-import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @Slf4j
@@ -22,53 +19,34 @@ import org.springframework.stereotype.Service;
 @Profile({Profiles.PUBLISH, Profiles.TEST})
 public class RabbitMqConsumerService {
 
-  private static final String ERROR_MSG = "Unable to parse {} event from the doi API";
-  @Qualifier("objectMapper")
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
   private final DataCiteService service;
 
   @RabbitListener(queues = "${rabbitmq.specimen-doi-queue-name:specimen-doi-queue}",
       containerFactory = "consumerBatchContainerFactory")
   public void getSpecimenMessages(@Payload String message)
-      throws InvalidRequestException, DataCiteApiException {
-    try {
-      var event = mapper.readValue(message, DigitalSpecimenEvent.class);
-      log.info("Received {} specimen message", event.eventType());
-      service.handleMessages(event);
-      log.info("Successfully processed event for specimen {}", event.pidRecord().getPid());
-    } catch (JsonProcessingException e) {
-      log.error(ERROR_MSG, "specimen", e);
-      log.info("Message: {}", message);
-      throw new InvalidRequestException();
-    }
+      throws DataCiteApiException {
+    var event = mapper.readValue(message, DigitalSpecimenEvent.class);
+    log.info("Received {} specimen message", event.eventType());
+    service.handleMessages(event);
+    log.info("Successfully processed event for specimen {}", event.pidRecord().getPid());
   }
 
   @RabbitListener(queues = "${rabbitmq.media-doi-queue-name:media-doi-queue}",
       containerFactory = "consumerBatchContainerFactory")
   public void getMediaMessages(@Payload String message)
-      throws InvalidRequestException, DataCiteApiException {
-    try {
-      var event = mapper.readValue(message, DigitalMediaEvent.class);
-      log.info("Received {} media message", event.eventType());
-      service.handleMessages(event);
-      log.info("Successfully processed event for media {}", event.pidRecord().getPid());
-    } catch (JsonProcessingException e) {
-      log.error(ERROR_MSG, "media", e);
-      log.info("Message: {}", message);
-      throw new InvalidRequestException();
-    }
+      throws DataCiteApiException {
+    var event = mapper.readValue(message, DigitalMediaEvent.class);
+    log.info("Received {} media message", event.eventType());
+    service.handleMessages(event);
+    log.info("Successfully processed event for media {}", event.pidRecord().getPid());
   }
 
   @RabbitListener(queues = "${rabbitmq.tombstone-doi-queue-name:tombstone-doi-queue}",
       containerFactory = "consumerBatchContainerFactory")
   public void tombstoneDois(@Payload String message)
-      throws InvalidRequestException, DataCiteApiException {
-    try {
-      var event = mapper.readValue(message, TombstoneEvent.class);
-      service.tombstoneRecord(event);
-    } catch (JsonProcessingException e) {
-      log.error(ERROR_MSG, message, e);
-      throw new InvalidRequestException();
-    }
+      throws DataCiteApiException {
+    var event = mapper.readValue(message, TombstoneEvent.class);
+    service.tombstoneRecord(event);
   }
 }

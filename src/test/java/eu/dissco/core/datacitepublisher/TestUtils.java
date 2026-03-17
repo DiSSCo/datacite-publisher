@@ -1,17 +1,14 @@
 package eu.dissco.core.datacitepublisher;
 
+import static eu.dissco.core.datacitepublisher.configuration.ApplicationConfiguration.DATE_STRING;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_DATASET;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.RESOURCE_TYPE_GENERAL_IMAGE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.annotation.JsonSetter.Value;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import eu.dissco.core.datacitepublisher.configuration.InstantDeserializer;
-import eu.dissco.core.datacitepublisher.configuration.InstantSerializer;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
 import eu.dissco.core.datacitepublisher.domain.EventType;
@@ -41,9 +38,16 @@ import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.MaterialSampleTy
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicCategory;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDiscipline;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen.TopicDomain;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class TestUtils {
 
@@ -68,23 +72,23 @@ public class TestUtils {
   public static final String DIGITAL_SPECIMEN_TYPE = "https://hdl.handle.net/21.T11148/894b1e6cad57e921764e";
   public static final MaterialSampleType MATERIAL_SAMPLE_TYPE = MaterialSampleType.BIOLOGICAL_MATERIAL_SAMPLE;
   public static final String LOCAL_ID = "PLANT-123";
-  public static final ObjectMapper MAPPER;
+  public static final JsonMapper MAPPER = JsonMapper.builder()
+      .findAndAddModules()
+      .defaultDateFormat(new SimpleDateFormat(DATE_STRING))
+      .defaultTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC))
+      .withConfigOverride(List.class, cfg ->
+          cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
+      .withConfigOverride(Map.class, cfg ->
+          cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
+      .withConfigOverride(Set.class, cfg ->
+          cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
+      .build();
   public static final XmlMapper XML_MAPPER;
   public static final DcPublisher DEFAULT_PUBLISHER = new DcPublisher(
       "Distributed System of Scientific Collections",
       "https://ror.org/0566bfb96", UriScheme.ROR.getSchemeName(), UriScheme.ROR.getUri());
   public static final String SPECIMEN_PAGE = "https://sandbox.dissco.tech/ds/";
   public static final String MEDIA_PAGE = "https://sandbox.dissco.tech/dm/";
-
-  static {
-    var mapper = new ObjectMapper().findAndRegisterModules();
-    SimpleModule dateModule = new SimpleModule();
-    dateModule.addSerializer(Instant.class, new InstantSerializer());
-    dateModule.addDeserializer(Instant.class, new InstantDeserializer());
-    mapper.registerModule(dateModule);
-    mapper.setSerializationInclusion(Include.NON_NULL);
-    MAPPER = mapper;
-  }
 
   static {
     XML_MAPPER = new XmlMapper();

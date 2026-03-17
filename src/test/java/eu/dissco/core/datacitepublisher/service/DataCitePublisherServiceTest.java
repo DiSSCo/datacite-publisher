@@ -26,10 +26,11 @@ import static eu.dissco.core.datacitepublisher.TestUtils.givenTombstoneEvent;
 import static eu.dissco.core.datacitepublisher.TestUtils.givenType;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.MEDIA_TYPE;
 import static eu.dissco.core.datacitepublisher.properties.DoiProperties.SPECIMEN_TYPE;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 
@@ -43,7 +44,7 @@ import eu.dissco.core.datacitepublisher.exceptions.DataCiteMappingException;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.web.DataCiteClient;
+import eu.dissco.core.datacitepublisher.web.DataCiteComponent;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -53,7 +54,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
 
 @ExtendWith(MockitoExtension.class)
 class DataCitePublisherServiceTest {
@@ -63,7 +63,7 @@ class DataCitePublisherServiceTest {
   @Mock
   private XmlLocReader xmlLocReader;
   @Mock
-  private DataCiteClient dataCiteClient;
+  private DataCiteComponent dataCiteClient;
   @Mock
   private DataCitePublisherService service;
   private MockedStatic<Instant> mockedInstant;
@@ -89,7 +89,7 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.POST, DOI);
+    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
   }
 
   @Test
@@ -103,7 +103,7 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.PUT, DOI);
+    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
   }
 
   @Test
@@ -112,8 +112,8 @@ class DataCitePublisherServiceTest {
     var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
     var requestBody = givenDcRequest(givenSpecimenDataCiteAttributes());
     given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
-    given(dataCiteClient.sendDoiRequest(requestBody, HttpMethod.POST, DOI)).willThrow(
-        DataCiteApiException.class);
+    doThrow(DataCiteApiException.class).when(dataCiteClient)
+        .createNewDataCiteRecord(requestBody, DOI);
 
     // When / Then
     assertThrows(DataCiteApiException.class, () -> service.handleMessages(event));
@@ -130,7 +130,7 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.POST, DOI);
+    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
   }
 
   @Test
@@ -144,7 +144,7 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.POST, DOI);
+    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
   }
 
   @Test
@@ -158,7 +158,7 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.POST, DOI);
+    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
   }
 
   @Test
@@ -183,11 +183,11 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.POST, DOI);
+    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
   }
 
   @Test
-  void testHandleDigitalSpecimenMessageNulls() throws Exception {
+  void testHandleDigitalSpecimenMessageNulls() throws DataCiteApiException {
     // Given
     var event = new DigitalSpecimenEvent(
         new DigitalSpecimen()
@@ -208,7 +208,7 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.PUT, DOI);
+    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
   }
 
   @Test
@@ -232,13 +232,13 @@ class DataCitePublisherServiceTest {
     service.handleMessages(event);
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.PUT, DOI);
+    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
   }
 
   @Test
   void testTombstoneRecord() throws Exception {
     // Given
-    given(dataCiteClient.getDoiRecord(DOI)).willReturn(givenSpecimenDataCiteAttributes());
+    given(dataCiteClient.getDataCiteRecord(DOI)).willReturn(givenSpecimenDataCiteAttributes());
     var expected = MAPPER.valueToTree(givenDcRequestTombstone());
     initTime();
 
@@ -246,7 +246,7 @@ class DataCitePublisherServiceTest {
     service.tombstoneRecord(givenTombstoneEvent());
 
     // Then
-    then(dataCiteClient).should().sendDoiRequest(expected, HttpMethod.PUT, DOI);
+    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
     mockedInstant.close();
     mockedClock.close();
   }

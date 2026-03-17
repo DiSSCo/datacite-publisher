@@ -1,8 +1,5 @@
 package eu.dissco.core.datacitepublisher.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
 import eu.dissco.core.datacitepublisher.domain.DigitalSpecimenEvent;
@@ -16,13 +13,14 @@ import eu.dissco.core.datacitepublisher.exceptions.InvalidRequestException;
 import eu.dissco.core.datacitepublisher.properties.DoiConnectionProperties;
 import eu.dissco.core.datacitepublisher.schemas.DigitalMedia;
 import eu.dissco.core.datacitepublisher.schemas.DigitalSpecimen;
-import eu.dissco.core.datacitepublisher.web.DoiClient;
+import eu.dissco.core.datacitepublisher.web.DoiResolutionComponent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -30,14 +28,13 @@ import org.springframework.stereotype.Service;
 @Profile(Profiles.WEB)
 public class RecoveryService {
 
-  private final DoiClient handleClient;
+  private final DoiResolutionComponent doiClient;
   private final DataCitePublisherService dataCitePublisherService;
-  @Qualifier("objectMapper")
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
   private final DoiConnectionProperties handleConnectionProperties;
 
   public void recoverDataciteDois(RecoveryEvent event)
-      throws DoiResolutionException, JsonProcessingException, DataCiteApiException, InvalidRequestException {
+      throws DoiResolutionException, DataCiteApiException, InvalidRequestException {
     if (event.dois().size() > handleConnectionProperties.getMaxDois()) {
       log.error("Attempting to recover {} dois, which exceeds maximum permitted",
           event.dois().size());
@@ -48,13 +45,13 @@ public class RecoveryService {
   }
 
   private void recoverDois(List<String> dois, EventType eventType)
-      throws DoiResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
-    var handleResolutionResponse = handleClient.resolveDois(dois);
+      throws DoiResolutionException, DataCiteApiException, InvalidRequestException {
+    var handleResolutionResponse = doiClient.resolveDois(dois);
     if (handleResolutionResponse.get("data") != null && handleResolutionResponse.get("data")
         .isArray()) {
       var dataNodes = handleResolutionResponse.get("data");
       for (var pidRecordJson : dataNodes) {
-        var type = FdoType.fromString(pidRecordJson.get("type").asText());
+        var type = FdoType.fromString(pidRecordJson.get("type").asString());
         if (type.equals(FdoType.DIGITAL_SPECIMEN)) {
           recoverDigitalSpecimen(pidRecordJson.get("attributes"), eventType);
         } else if (type.equals(FdoType.MEDIA_OBJECT)) {
@@ -70,13 +67,13 @@ public class RecoveryService {
   }
 
   private void recoverDigitalSpecimen(JsonNode pidRecordAttributes, EventType eventType)
-      throws JsonProcessingException, DataCiteApiException {
+      throws DataCiteApiException {
     var digitalSpecimen = mapper.treeToValue(pidRecordAttributes, DigitalSpecimen.class);
     if (eventType == null) {
       try {
         dataCitePublisherService.handleMessages(
             new DigitalSpecimenEvent(digitalSpecimen, EventType.CREATE));
-      } catch (DataCiteConflictException e) {
+      } catch (DataCiteConflictException _) {
         dataCitePublisherService.handleMessages(
             new DigitalSpecimenEvent(digitalSpecimen, EventType.UPDATE));
       }
@@ -86,13 +83,13 @@ public class RecoveryService {
   }
 
   private void recoverDigitalMedia(JsonNode pidRecordAttributes, EventType eventType)
-      throws DataCiteApiException, JsonProcessingException {
+      throws DataCiteApiException {
     var mediaObject = mapper.treeToValue(pidRecordAttributes, DigitalMedia.class);
     if (eventType == null) {
       try {
         dataCitePublisherService.handleMessages(
             new DigitalMediaEvent(mediaObject, EventType.CREATE));
-      } catch (DataCiteConflictException e) {
+      } catch (DataCiteConflictException _) {
         dataCitePublisherService.handleMessages(
             new DigitalMediaEvent(mediaObject, EventType.UPDATE));
       }

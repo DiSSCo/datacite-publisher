@@ -1,3 +1,7 @@
-# March 2, 2026
-# Issue with Jackson, requires update to jackson 3
+# March 10, 2026
+# Issue with Jackson, wait for spring to update
 GHSA-72hv-8253-57qq
+
+# March 10, 2026
+# Issue with Jackson, wait for spring to update
+CVE-2026-29062

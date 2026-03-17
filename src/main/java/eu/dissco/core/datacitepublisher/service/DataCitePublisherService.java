@@ -1,6 +1,5 @@
 package eu.dissco.core.datacitepublisher.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.core.datacitepublisher.Profiles;
 import eu.dissco.core.datacitepublisher.component.XmlLocReader;
 import eu.dissco.core.datacitepublisher.domain.DigitalMediaEvent;
@@ -10,12 +9,12 @@ import eu.dissco.core.datacitepublisher.domain.TombstoneEvent;
 import eu.dissco.core.datacitepublisher.domain.datacite.DcRequest;
 import eu.dissco.core.datacitepublisher.exceptions.DataCiteApiException;
 import eu.dissco.core.datacitepublisher.properties.DoiProperties;
-import eu.dissco.core.datacitepublisher.web.DataCiteClient;
+import eu.dissco.core.datacitepublisher.web.DataCiteComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @Slf4j
@@ -23,12 +22,11 @@ import org.springframework.stereotype.Service;
 public class DataCitePublisherService extends DataCiteService {
 
   @Qualifier("datacite")
-  private final DataCiteClient dataCiteClient;
+  private final DataCiteComponent dataCiteClient;
 
   public DataCitePublisherService(XmlLocReader xmlLocReader,
-      @Qualifier("objectMapper")
-      ObjectMapper mapper,
-      DoiProperties properties, DataCiteClient dataCiteClient) {
+      JsonMapper mapper,
+      DoiProperties properties, DataCiteComponent dataCiteClient) {
     super(xmlLocReader, mapper, properties);
     this.dataCiteClient = dataCiteClient;
   }
@@ -48,7 +46,7 @@ public class DataCitePublisherService extends DataCiteService {
 
   @Override
   public void tombstoneRecord(TombstoneEvent event) throws DataCiteApiException {
-    var dcRecord = dataCiteClient.getDoiRecord(event.doi());
+    var dcRecord = dataCiteClient.getDataCiteRecord(event.doi());
     var dcRequest = buildDataCiteTombstoneRequest(dcRecord, event);
     publishToDataCite(dcRequest, EventType.TOMBSTONE);
   }
@@ -56,12 +54,13 @@ public class DataCitePublisherService extends DataCiteService {
   protected void publishToDataCite(DcRequest request, EventType eventType)
       throws DataCiteApiException {
     var body = mapper.valueToTree(request);
-    var method = eventType.equals(EventType.CREATE) ? HttpMethod.POST : HttpMethod.PUT;
     log.info("Sending {} request to datacite with DOI {}", eventType.name(),
         request.getData().getAttributes().getDoi());
-    var response = dataCiteClient.sendDoiRequest(body, method,
-        request.getData().getAttributes().getDoi());
-    log.debug("received response from datacite: {}", response);
+    if (eventType.equals(EventType.CREATE)) {
+      dataCiteClient.createNewDataCiteRecord(body, request.getData().getAttributes().getDoi());
+    } else {
+      dataCiteClient.updateDataCiteRecord(body, request.getData().getAttributes().getDoi());
+    }
     log.info("Successfully {}D DOI {} to datacite", eventType.name(),
         request.getData().getAttributes().getDoi());
   }
