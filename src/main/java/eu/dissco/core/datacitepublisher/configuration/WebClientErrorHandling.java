@@ -33,20 +33,27 @@ public class WebClientErrorHandling {
   public static Mono<ClientResponse> exchangeFilterResponseProcessorDataCite(
       ClientResponse response) {
     var status = response.statusCode();
-    if (HttpStatus.UNPROCESSABLE_CONTENT.equals(status)) {
+    if (status.is4xxClientError() || status.is5xxServerError()) {
+      if (HttpStatus.UNPROCESSABLE_CONTENT.equals(status)) {
+        return response.bodyToMono(JsonNode.class)
+            .flatMap(body -> {
+              log.error("An error has occurred with the api: {}", body);
+              if (isConflictException(body)) {
+                return Mono.error(new DataCiteConflictException("ID has already been taken"));
+              }
+              return Mono.error(new DataCiteApiException());
+            });
+      }
+      if (HttpStatus.NOT_FOUND.equals(status)) {
+        return response.bodyToMono(JsonNode.class)
+            .flatMap(body -> {
+              log.error("credentials may be incorrect: {}", body);
+              return Mono.error(new DataCiteApiException());
+            });
+      }
       return response.bodyToMono(JsonNode.class)
           .flatMap(body -> {
-            log.error("An error has occurred with the api: {}", body);
-            if (isConflictException(body)) {
-              return Mono.error(new DataCiteConflictException("ID has already been taken"));
-            }
-            return Mono.error(new DataCiteApiException());
-          });
-    }
-    if (HttpStatus.NOT_FOUND.equals(status)) {
-      return response.bodyToMono(JsonNode.class)
-          .flatMap(body -> {
-            log.error("credentials may be incorrect: {}", body);
+            log.error("An error has occurred with the Datacite API: {}", body);
             return Mono.error(new DataCiteApiException());
           });
     }
