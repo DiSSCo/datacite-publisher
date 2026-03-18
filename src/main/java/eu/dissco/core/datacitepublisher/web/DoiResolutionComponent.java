@@ -13,13 +13,13 @@ import tools.jackson.databind.JsonNode;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-@Profile({Profiles.PUBLISH, Profiles.WEB})
+@Profile({ Profiles.PUBLISH, Profiles.WEB })
 public class DoiResolutionComponent {
 
-  private final DoiClient doiClient;
+	private final DoiClient doiClient;
 
-  public JsonNode resolveDois(List<String> dois) throws DoiResolutionException {
-    return doiClient.resolveDois(dois);
-  }
+	public JsonNode resolveDois(List<String> dois) throws DoiResolutionException {
+		return doiClient.resolveDois(dois);
+	}
 
 }

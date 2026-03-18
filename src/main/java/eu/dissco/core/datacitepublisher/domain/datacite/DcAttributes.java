@@ -23,22 +23,43 @@ import lombok.extern.jackson.Jacksonized;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DcAttributes {
 
-  private String suffix;
-  private String doi;
-  private List<DcCreator> creators; // IssuedForAgent
-  private List<DcTitle> titles; // ReferentName
-  private Integer publicationYear; // From issueDate
-  private List<DcSubject> subjects; // topic origin, topic domain, topic discipline, topic category (last one to do)
-  private List<DcContributor> contributors; // SpecimenHost
-  private List<DcDate> dates; // IssueDate
-  private List<DcRights> rightsList; // Rights
-  private List<DcAlternateIdentifier> alternateIdentifiers; // primarySpecimenObjectId
-  private DcType types; // "Digital Specimen" or "Media Object". Resource Type General = Other (TBD)
-  private List<DcRelatedIdentifiers> relatedIdentifiers; // tombstone pids; primary specimenObjectId; primaryMediaId
-  private List<DcDescription> descriptions; // Specimen: Host + materialSampleType, Media: host + linked object type
-  private String url; // human readable landing page
-  private DcPublisher publisher;
-  private final String schemaVersion = SCHEMA_VERSION;
-  private final String event = DC_EVENT;
+	private String suffix;
+
+	private String doi;
+
+	private List<DcCreator> creators; // IssuedForAgent
+
+	private List<DcTitle> titles; // ReferentName
+
+	private Integer publicationYear; // From issueDate
+
+	private List<DcSubject> subjects; // topic origin, topic domain, topic discipline,
+										// topic category (last one to do)
+
+	private List<DcContributor> contributors; // SpecimenHost
+
+	private List<DcDate> dates; // IssueDate
+
+	private List<DcRights> rightsList; // Rights
+
+	private List<DcAlternateIdentifier> alternateIdentifiers; // primarySpecimenObjectId
+
+	private DcType types; // "Digital Specimen" or "Media Object". Resource Type General =
+							// Other (TBD)
+
+	private List<DcRelatedIdentifiers> relatedIdentifiers; // tombstone pids,
+															// primarySpecimenObjectId,
+															// primaryMediaId
+
+	private List<DcDescription> descriptions; // Specimen: Host + materialSampleType,
+												// Media: host + linked object type
+
+	private String url; // human readable landing page
+
+	private DcPublisher publisher;
+
+	private final String schemaVersion = SCHEMA_VERSION;
+
+	private final String event = DC_EVENT;
 
 }

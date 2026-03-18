@@ -14,7 +14,11 @@ import lombok.Setter;
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DcCreator {
-  private final String nameType= "Organizational";
-  private String name;
-  private List<DcNameIdentifiers> nameIdentifiers;
+
+	private final String nameType = "Organizational";
+
+	private String name;
+
+	private List<DcNameIdentifiers> nameIdentifiers;
+
 }

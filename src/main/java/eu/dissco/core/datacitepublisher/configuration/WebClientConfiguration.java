@@ -17,41 +17,42 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @Configuration
 @RequiredArgsConstructor
-@Profile({Profiles.PUBLISH, Profiles.WEB})
+@Profile({ Profiles.PUBLISH, Profiles.WEB })
 public class WebClientConfiguration {
 
-  private final DataCiteConnectionProperties dataciteProperties;
-  private final DoiConnectionProperties doiConnProperties;
+	private final DataCiteConnectionProperties dataciteProperties;
 
-  @Bean
-  public DataCiteClient dataCiteClient() {
-    ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
-        .ofResponseProcessor(WebClientErrorHandling::exchangeFilterResponseProcessorDataCite);
-    var webClient = WebClient.builder()
-        .baseUrl(dataciteProperties.getEndpoint())
-        .filter(errorResponseFilter)
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/vnd.api+json")
-        .defaultHeaders(
-            header -> header.setBasicAuth(dataciteProperties.getRepositoryId(), dataciteProperties.getPassword()))
-        .build();
-    var proxyFactory = HttpServiceProxyFactory.builder()
-        .exchangeAdapter(WebClientAdapter.create(webClient))
-        .build();
-    return proxyFactory.createClient(DataCiteClient.class);
-  }
+	private final DoiConnectionProperties doiConnProperties;
 
-  @Bean
-  public DoiClient doiClient() {
-    ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
-        .ofResponseProcessor(WebClientErrorHandling::exchangeFilterResponseProcessorDoi);
-    var webClient = WebClient.builder()
-        .baseUrl(doiConnProperties.getEndpoint())
-        .filter(errorResponseFilter)
-        .build();
-    var proxyFactory = HttpServiceProxyFactory.builder()
-        .exchangeAdapter(WebClientAdapter.create(webClient))
-        .build();
-    return proxyFactory.createClient(DoiClient.class);
-  }
+	@Bean
+	public DataCiteClient dataCiteClient() {
+		ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
+			.ofResponseProcessor(WebClientErrorHandling::exchangeFilterResponseProcessorDataCite);
+		var webClient = WebClient.builder()
+			.baseUrl(dataciteProperties.getEndpoint())
+			.filter(errorResponseFilter)
+			.defaultHeader(HttpHeaders.CONTENT_TYPE, "application/vnd.api+json")
+			.defaultHeaders(header -> header.setBasicAuth(dataciteProperties.getRepositoryId(),
+					dataciteProperties.getPassword()))
+			.build();
+		var proxyFactory = HttpServiceProxyFactory.builder()
+			.exchangeAdapter(WebClientAdapter.create(webClient))
+			.build();
+		return proxyFactory.createClient(DataCiteClient.class);
+	}
+
+	@Bean
+	public DoiClient doiClient() {
+		ExchangeFilterFunction errorResponseFilter = ExchangeFilterFunction
+			.ofResponseProcessor(WebClientErrorHandling::exchangeFilterResponseProcessorDoi);
+		var webClient = WebClient.builder()
+			.baseUrl(doiConnProperties.getEndpoint())
+			.filter(errorResponseFilter)
+			.build();
+		var proxyFactory = HttpServiceProxyFactory.builder()
+			.exchangeAdapter(WebClientAdapter.create(webClient))
+			.build();
+		return proxyFactory.createClient(DoiClient.class);
+	}
 
 }

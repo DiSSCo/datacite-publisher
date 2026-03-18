@@ -12,7 +12,8 @@ import lombok.Setter;
 @Getter
 public class DcAlternateIdentifier {
 
-  private String alternateIdentifierType;
-  private String alternateIdentifier;
+	private String alternateIdentifierType;
+
+	private String alternateIdentifier;
 
 }

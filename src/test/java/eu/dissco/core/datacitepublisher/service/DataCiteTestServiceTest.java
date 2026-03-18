@@ -17,34 +17,36 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DataCiteTestServiceTest {
 
-  @Mock
-  DoiProperties properties = new DoiProperties();
-  @Mock
-  private XmlLocReader xmlLocReader;
-  @Mock
-  private DataCiteTestService service;
+	@Mock
+	DoiProperties properties = new DoiProperties();
 
-  @BeforeEach
-  void setup() {
-    service = new DataCiteTestService(xmlLocReader, MAPPER, properties);
-  }
+	@Mock
+	private XmlLocReader xmlLocReader;
 
-  @Test
-  void testHandleMessagesSpecimen() {
-    // When / Then
-    assertAll(() -> service.handleMessages(givenDigitalSpecimenEvent()));
-  }
+	@Mock
+	private DataCiteTestService service;
 
-  @Test
-  void testHandleMessagesMedia() {
-    // When / Then
-    assertAll(() -> service.handleMessages(givenDigitalMediaEvent()));
-  }
+	@BeforeEach
+	void setup() {
+		service = new DataCiteTestService(xmlLocReader, MAPPER, properties);
+	}
 
-  @Test
-  void testHandleMessagesTombstone() {
-    // When / Then
-    assertAll(() -> service.tombstoneRecord(givenTombstoneEvent()));
-  }
+	@Test
+	void testHandleMessagesSpecimen() {
+		// When / Then
+		assertAll(() -> service.handleMessages(givenDigitalSpecimenEvent()));
+	}
+
+	@Test
+	void testHandleMessagesMedia() {
+		// When / Then
+		assertAll(() -> service.handleMessages(givenDigitalMediaEvent()));
+	}
+
+	@Test
+	void testHandleMessagesTombstone() {
+		// When / Then
+		assertAll(() -> service.tombstoneRecord(givenTombstoneEvent()));
+	}
 
 }

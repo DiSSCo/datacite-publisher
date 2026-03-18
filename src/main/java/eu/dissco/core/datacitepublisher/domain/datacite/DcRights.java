@@ -12,11 +12,16 @@ import lombok.Setter;
 @Getter
 public class DcRights {
 
-  private String rights;
-  private String rightsUri;
-  private String schemeUri;
-  private String rightsIdentifier;
-  private String rightsIdentifierScheme;
-  private String lang;
+	private String rights;
+
+	private String rightsUri;
+
+	private String schemeUri;
+
+	private String rightsIdentifier;
+
+	private String rightsIdentifierScheme;
+
+	private String lang;
 
 }

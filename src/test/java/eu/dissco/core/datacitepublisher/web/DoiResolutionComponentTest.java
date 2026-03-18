@@ -14,25 +14,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DoiResolutionComponentTest {
 
-  @Mock
-  private DoiClient doiClient;
+	@Mock
+	private DoiClient doiClient;
 
-  private DoiResolutionComponent doiResolutionComponent;
+	private DoiResolutionComponent doiResolutionComponent;
 
-  @BeforeEach
-  void setup() {
-    doiResolutionComponent = new DoiResolutionComponent(doiClient);
-  }
+	@BeforeEach
+	void setup() {
+		doiResolutionComponent = new DoiResolutionComponent(doiClient);
+	}
 
-  @Test
-  void testResolveHandle() throws Exception {
-    // Given
+	@Test
+	void testResolveHandle() throws Exception {
+		// Given
 
-    // When
-    doiResolutionComponent.resolveDois(List.of(DOI));
+		// When
+		doiResolutionComponent.resolveDois(List.of(DOI));
 
-    // Then
-    then(doiClient).should().resolveDois(List.of(DOI));
-  }
+		// Then
+		then(doiClient).should().resolveDois(List.of(DOI));
+	}
 
 }

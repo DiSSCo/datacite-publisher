@@ -20,137 +20,115 @@ import tools.jackson.databind.JsonNode;
 @ExtendWith(MockitoExtension.class)
 class WebClientErrorHandlingTest {
 
-  @Mock
-  private ClientResponse clientResponse;
+	@Mock
+	private ClientResponse clientResponse;
 
-  @Mock
-  private WebClientResponseException webClientResponseException;
+	@Mock
+	private WebClientResponseException webClientResponseException;
 
+	@Test
+	void testExchangeFilterDataCiteOk() {
+		// Given
+		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 
-  @Test
-  void testExchangeFilterDataCiteOk() {
-    // Given
-    given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
+		// When
+		Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(clientResponse);
 
-    // When
-    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
-        clientResponse);
+		// Then
+		StepVerifier.create(result).expectNext(clientResponse).verifyComplete();
+	}
 
-    // Then
-    StepVerifier.create(result)
-        .expectNext(clientResponse)
-        .verifyComplete();
-  }
+	@Test
+	void testExchangeFilterDataCiteNotFound() {
+		// Given
+		var body = MAPPER.readTree("{\"message\":\"Not found details\"}");
+		given(clientResponse.statusCode()).willReturn(HttpStatus.NOT_FOUND);
+		given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
-  @Test
-  void testExchangeFilterDataCiteNotFound() {
-    // Given
-    var body = MAPPER.readTree("{\"message\":\"Not found details\"}");
-    given(clientResponse.statusCode()).willReturn(HttpStatus.NOT_FOUND);
-    given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
+		// When
+		Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(clientResponse);
 
-    // When
-    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
-        clientResponse);
+		// Then
+		StepVerifier.create(result).expectError(DataCiteApiException.class).verify();
+	}
 
-    // Then
-    StepVerifier.create(result)
-        .expectError(DataCiteApiException.class)
-        .verify();
-  }
+	@Test
+	void testExchangeFilterDataCiteUnprocessable() {
+		// Given
+		var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
+		given(clientResponse.statusCode()).willReturn(HttpStatus.UNPROCESSABLE_CONTENT);
+		given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
-  @Test
-  void testExchangeFilterDataCiteUnprocessable() {
-    // Given
-    var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
-    given(clientResponse.statusCode()).willReturn(HttpStatus.UNPROCESSABLE_CONTENT);
-    given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
+		// When
+		Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(clientResponse);
 
-    // When
-    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
-        clientResponse);
+		// Then
+		StepVerifier.create(result).expectError(DataCiteApiException.class).verify();
+	}
 
-    // Then
-    StepVerifier.create(result)
-        .expectError(DataCiteApiException.class)
-        .verify();
-  }
+	@Test
+	void testExchangeFilterDataCiteConflict() {
+		// Given
+		var body = MAPPER.readTree("""
+				{
+				  "errors" : [
+				    {
+				      "title": "error 1"
+				    },
+				    {
+				      "title": "This ID has already been taken"
+				    }
+				  ]
+				}
+				""");
+		given(clientResponse.statusCode()).willReturn(HttpStatus.UNPROCESSABLE_CONTENT);
+		given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
-  @Test
-  void testExchangeFilterDataCiteConflict() {
-    // Given
-    var body = MAPPER.readTree("""
-        {
-          "errors" : [
-            {
-              "title": "error 1"
-            },
-            {
-              "title": "This ID has already been taken"
-            }
-          ]
-        }
-        """);
-    given(clientResponse.statusCode()).willReturn(HttpStatus.UNPROCESSABLE_CONTENT);
-    given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
+		// When
+		Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(clientResponse);
 
-    // When
-    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDataCite(
-        clientResponse);
+		// Then
+		StepVerifier.create(result).expectError(DataCiteConflictException.class).verify();
+	}
 
-    // Then
-    StepVerifier.create(result)
-        .expectError(DataCiteConflictException.class)
-        .verify();
-  }
+	@Test
+	void testExchangeFilterDoi4xxError() {
+		// Given
+		var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
+		given(clientResponse.statusCode()).willReturn(HttpStatus.NOT_FOUND);
+		given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
-  @Test
-  void testExchangeFilterDoi4xxError() {
-    // Given
-    var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
-    given(clientResponse.statusCode()).willReturn(HttpStatus.NOT_FOUND);
-    given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
+		// When
+		Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(clientResponse);
 
-    // When
-    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(
-        clientResponse);
+		// Then
+		StepVerifier.create(result).expectError(DoiResolutionException.class).verify();
+	}
 
-    // Then
-    StepVerifier.create(result)
-        .expectError(DoiResolutionException.class)
-        .verify();
-  }
+	@Test
+	void testExchangeFilterDoi5xxError() {
+		// Given
+		var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
+		given(clientResponse.statusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR);
+		given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
 
-  @Test
-  void testExchangeFilterDoi5xxError() {
-    // Given
-    var body = MAPPER.readTree("{\"message\":\"Some Unprocessable Error\"}");
-    given(clientResponse.statusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR);
-    given(clientResponse.bodyToMono(JsonNode.class)).willReturn(Mono.just(body));
+		// When
+		Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(clientResponse);
 
-    // When
-    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(
-        clientResponse);
+		// Then
+		StepVerifier.create(result).expectError(DoiResolutionException.class).verify();
+	}
 
-    // Then
-    StepVerifier.create(result)
-        .expectError(DoiResolutionException.class)
-        .verify();
-  }
+	@Test
+	void testExchangeFilterDoiOk() {
+		// Given
+		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 
-  @Test
-  void testExchangeFilterDoiOk() {
-    // Given
-    given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
+		// When
+		Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(clientResponse);
 
-    // When
-    Mono<ClientResponse> result = WebClientErrorHandling.exchangeFilterResponseProcessorDoi(
-        clientResponse);
-
-    // Then
-    StepVerifier.create(result)
-        .expectNext(clientResponse)
-        .verifyComplete();
-  }
+		// Then
+		StepVerifier.create(result).expectNext(clientResponse).verifyComplete();
+	}
 
 }

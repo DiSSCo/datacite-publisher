@@ -58,208 +58,202 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DataCitePublisherServiceTest {
 
-  @Mock
-  DoiProperties properties;
-  @Mock
-  private XmlLocReader xmlLocReader;
-  @Mock
-  private DataCiteComponent dataCiteClient;
-  @Mock
-  private DataCitePublisherService service;
-  private MockedStatic<Instant> mockedInstant;
-  private MockedStatic<Clock> mockedClock;
+	@Mock
+	DoiProperties properties;
 
-  @BeforeEach
-  void setup() {
-    service = new DataCitePublisherService(xmlLocReader, MAPPER, properties, dataCiteClient);
-    lenient().when(properties.getPrefix()).thenReturn(PREFIX);
-    lenient().when(properties.getDefaultPublisher()).thenReturn(DEFAULT_PUBLISHER);
-    lenient().when(properties.getLandingPageSpecimen()).thenReturn(SPECIMEN_PAGE);
-    lenient().when(properties.getLandingPageMedia()).thenReturn(MEDIA_PAGE);
-  }
+	@Mock
+	private XmlLocReader xmlLocReader;
 
-  @Test
-  void testHandleDigitalSpecimenMessage() throws Exception {
-    // Given
-    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    var expected = givenDcRequest(givenSpecimenDataCiteAttributes());
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+	@Mock
+	private DataCiteComponent dataCiteClient;
 
-    // When
-    service.handleMessages(event);
+	@Mock
+	private DataCitePublisherService service;
 
-    // Then
-    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
-  }
+	private MockedStatic<Instant> mockedInstant;
 
-  @Test
-  void testHandleDigitalSpecimenMessageUpdate() throws Exception {
-    // Given
-    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.UPDATE);
-    var expected = givenDcRequest(givenSpecimenDataCiteAttributes());
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+	private MockedStatic<Clock> mockedClock;
 
-    // When
-    service.handleMessages(event);
+	@BeforeEach
+	void setup() {
+		service = new DataCitePublisherService(xmlLocReader, MAPPER, properties, dataCiteClient);
+		lenient().when(properties.getPrefix()).thenReturn(PREFIX);
+		lenient().when(properties.getDefaultPublisher()).thenReturn(DEFAULT_PUBLISHER);
+		lenient().when(properties.getLandingPageSpecimen()).thenReturn(SPECIMEN_PAGE);
+		lenient().when(properties.getLandingPageMedia()).thenReturn(MEDIA_PAGE);
+	}
 
-    // Then
-    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
-  }
+	@Test
+	void testHandleDigitalSpecimenMessage() throws Exception {
+		// Given
+		var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+		var expected = givenDcRequest(givenSpecimenDataCiteAttributes());
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
-  @Test
-  void testHandleDigitalSpecimenApiException() throws Exception {
-    // Given
-    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    var requestBody = givenDcRequest(givenSpecimenDataCiteAttributes());
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
-    doThrow(DataCiteApiException.class).when(dataCiteClient)
-        .createNewDataCiteRecord(requestBody, DOI);
+		// When
+		service.handleMessages(event);
 
-    // When / Then
-    assertThrows(DataCiteApiException.class, () -> service.handleMessages(event));
-  }
+		// Then
+		then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
+	}
 
-  @Test
-  void testHandleDigitalSpecimenMessageFull() throws Exception {
-    // Given
-    var event = new DigitalSpecimenEvent(givenDigitalSpecimenFull(), EventType.CREATE);
-    var expected = givenDcRequest(givenSpecimenDataCiteAttributesFull());
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+	@Test
+	void testHandleDigitalSpecimenMessageUpdate() throws Exception {
+		// Given
+		var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.UPDATE);
+		var expected = givenDcRequest(givenSpecimenDataCiteAttributes());
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
-    // When
-    service.handleMessages(event);
+		// When
+		service.handleMessages(event);
 
-    // Then
-    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
-  }
+		// Then
+		then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
+	}
 
-  @Test
-  void testHandleDigitalMediaMessage() throws Exception {
-    // Given
-    var event = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
-    var expected = givenDcRequest(givenMediaAttributes());
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+	@Test
+	void testHandleDigitalSpecimenApiException() throws Exception {
+		// Given
+		var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+		var requestBody = givenDcRequest(givenSpecimenDataCiteAttributes());
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+		doThrow(DataCiteApiException.class).when(dataCiteClient).createNewDataCiteRecord(requestBody, DOI);
 
-    // When
-    service.handleMessages(event);
+		// When / Then
+		assertThrows(DataCiteApiException.class, () -> service.handleMessages(event));
+	}
 
-    // Then
-    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
-  }
+	@Test
+	void testHandleDigitalSpecimenMessageFull() throws Exception {
+		// Given
+		var event = new DigitalSpecimenEvent(givenDigitalSpecimenFull(), EventType.CREATE);
+		var expected = givenDcRequest(givenSpecimenDataCiteAttributesFull());
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
-  @Test
-  void testHandleDigitalMediaMessageFull() throws Exception {
-    // Given
-    var event = new DigitalMediaEvent(givenDigitalMediaFull(), EventType.CREATE);
-    var expected = givenDcRequest(givenMediaAttributesFull());
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+		// When
+		service.handleMessages(event);
 
-    // When
-    service.handleMessages(event);
+		// Then
+		then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
+	}
 
-    // Then
-    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
-  }
+	@Test
+	void testHandleDigitalMediaMessage() throws Exception {
+		// Given
+		var event = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
+		var expected = givenDcRequest(givenMediaAttributes());
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
-  @Test
-  void testHandleMessageBadDate() throws Exception {
-    // Given
-    var event = new DigitalSpecimenEvent(
-        givenDigitalSpecimen().withPidRecordIssueDate("bad format"), EventType.CREATE);
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+		// When
+		service.handleMessages(event);
 
-    // When
-    assertThrows(DataCiteMappingException.class, () -> service.handleMessages(event));
-  }
+		// Then
+		then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
+	}
 
-  @Test
-  void testHandleDigitalSpecimenMessageTestEnv() throws Exception {
-    // Given
-    var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    var expected = givenDcRequest(givenSpecimenDataCiteAttributes(PREFIX + "/" + SUFFIX));
-    given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
+	@Test
+	void testHandleDigitalMediaMessageFull() throws Exception {
+		// Given
+		var event = new DigitalMediaEvent(givenDigitalMediaFull(), EventType.CREATE);
+		var expected = givenDcRequest(givenMediaAttributesFull());
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
-    // When
-    service.handleMessages(event);
+		// When
+		service.handleMessages(event);
 
-    // Then
-    then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
-  }
+		// Then
+		then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
+	}
 
-  @Test
-  void testHandleDigitalSpecimenMessageNulls() throws DataCiteApiException {
-    // Given
-    var event = new DigitalSpecimenEvent(
-        new DigitalSpecimen()
-            .withPid(PID),
-        EventType.UPDATE
-    );
-    var expected = givenDcRequest(
-        DcAttributes.builder()
-            .doi(DOI)
-            .suffix(SUFFIX)
-            .rightsList(getRights())
-            .types(givenType(SPECIMEN_TYPE))
-            .publisher(DEFAULT_PUBLISHER)
-            .build()
-    );
+	@Test
+	void testHandleMessageBadDate() throws Exception {
+		// Given
+		var event = new DigitalSpecimenEvent(givenDigitalSpecimen().withPidRecordIssueDate("bad format"),
+				EventType.CREATE);
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
-    // When
-    service.handleMessages(event);
+		// When
+		assertThrows(DataCiteMappingException.class, () -> service.handleMessages(event));
+	}
 
-    // Then
-    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
-  }
+	@Test
+	void testHandleDigitalSpecimenMessageTestEnv() throws Exception {
+		// Given
+		var event = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+		var expected = givenDcRequest(givenSpecimenDataCiteAttributes(PREFIX + "/" + SUFFIX));
+		given(xmlLocReader.getLocationsFromXml(LOCS)).willReturn(LOCS_ARR);
 
-  @Test
-  void testHandleDigitalMediaMessageNulls() throws Exception {
-    // Given
-    var event = new DigitalMediaEvent(
-        new DigitalMedia()
-            .withPid(PID),
-        EventType.UPDATE
-    );
-    var attributes = DcAttributes.builder()
-        .doi(DOI)
-        .suffix(SUFFIX)
-        .rightsList(getRights())
-        .types(givenType(MEDIA_TYPE))
-        .publisher(DEFAULT_PUBLISHER)
-        .build();
-    var expected = givenDcRequest(attributes);
+		// When
+		service.handleMessages(event);
 
-    // When
-    service.handleMessages(event);
+		// Then
+		then(dataCiteClient).should().createNewDataCiteRecord(expected, DOI);
+	}
 
-    // Then
-    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
-  }
+	@Test
+	void testHandleDigitalSpecimenMessageNulls() throws DataCiteApiException {
+		// Given
+		var event = new DigitalSpecimenEvent(new DigitalSpecimen().withPid(PID), EventType.UPDATE);
+		var expected = givenDcRequest(DcAttributes.builder()
+			.doi(DOI)
+			.suffix(SUFFIX)
+			.rightsList(getRights())
+			.types(givenType(SPECIMEN_TYPE))
+			.publisher(DEFAULT_PUBLISHER)
+			.build());
 
-  @Test
-  void testTombstoneRecord() throws Exception {
-    // Given
-    given(dataCiteClient.getDataCiteRecord(DOI)).willReturn(givenSpecimenDataCiteAttributes());
-    var expected = MAPPER.valueToTree(givenDcRequestTombstone());
-    initTime();
+		// When
+		service.handleMessages(event);
 
-    // When
-    service.tombstoneRecord(givenTombstoneEvent());
+		// Then
+		then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
+	}
 
-    // Then
-    then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
-    mockedInstant.close();
-    mockedClock.close();
-  }
+	@Test
+	void testHandleDigitalMediaMessageNulls() throws Exception {
+		// Given
+		var event = new DigitalMediaEvent(new DigitalMedia().withPid(PID), EventType.UPDATE);
+		var attributes = DcAttributes.builder()
+			.doi(DOI)
+			.suffix(SUFFIX)
+			.rightsList(getRights())
+			.types(givenType(MEDIA_TYPE))
+			.publisher(DEFAULT_PUBLISHER)
+			.build();
+		var expected = givenDcRequest(attributes);
 
-  private void initTime() {
-    Clock clock = Clock.fixed(TOMBSTONED, ZoneOffset.UTC);
-    Instant instant = Instant.now(clock);
-    mockedInstant = mockStatic(Instant.class);
-    mockedInstant.when(Instant::now).thenReturn(instant);
-    mockedInstant.when(() -> Instant.from(any())).thenReturn(instant);
-    mockedInstant.when(() -> Instant.parse(any())).thenReturn(instant);
-    mockedClock = mockStatic(Clock.class);
-    mockedClock.when(Clock::systemUTC).thenReturn(clock);
-  }
+		// When
+		service.handleMessages(event);
+
+		// Then
+		then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
+	}
+
+	@Test
+	void testTombstoneRecord() throws Exception {
+		// Given
+		given(dataCiteClient.getDataCiteRecord(DOI)).willReturn(givenSpecimenDataCiteAttributes());
+		var expected = MAPPER.valueToTree(givenDcRequestTombstone());
+		initTime();
+
+		// When
+		service.tombstoneRecord(givenTombstoneEvent());
+
+		// Then
+		then(dataCiteClient).should().updateDataCiteRecord(expected, DOI);
+		mockedInstant.close();
+		mockedClock.close();
+	}
+
+	private void initTime() {
+		Clock clock = Clock.fixed(TOMBSTONED, ZoneOffset.UTC);
+		Instant instant = Instant.now(clock);
+		mockedInstant = mockStatic(Instant.class);
+		mockedInstant.when(Instant::now).thenReturn(instant);
+		mockedInstant.when(() -> Instant.from(any())).thenReturn(instant);
+		mockedInstant.when(() -> Instant.parse(any())).thenReturn(instant);
+		mockedClock = mockStatic(Clock.class);
+		mockedClock.when(Clock::systemUTC).thenReturn(clock);
+	}
 
 }

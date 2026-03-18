@@ -16,37 +16,36 @@ import tools.jackson.databind.json.JsonMapper;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Profile({Profiles.PUBLISH, Profiles.TEST})
+@Profile({ Profiles.PUBLISH, Profiles.TEST })
 public class RabbitMqConsumerService {
 
-  private final JsonMapper mapper;
-  private final DataCiteService service;
+	private final JsonMapper mapper;
 
-  @RabbitListener(queues = "${rabbitmq.specimen-doi-queue-name:specimen-doi-queue}",
-      containerFactory = "consumerBatchContainerFactory")
-  public void getSpecimenMessages(@Payload String message)
-      throws DataCiteApiException {
-    var event = mapper.readValue(message, DigitalSpecimenEvent.class);
-    log.info("Received {} specimen message", event.eventType());
-    service.handleMessages(event);
-    log.info("Successfully processed event for specimen {}", event.pidRecord().getPid());
-  }
+	private final DataCiteService service;
 
-  @RabbitListener(queues = "${rabbitmq.media-doi-queue-name:media-doi-queue}",
-      containerFactory = "consumerBatchContainerFactory")
-  public void getMediaMessages(@Payload String message)
-      throws DataCiteApiException {
-    var event = mapper.readValue(message, DigitalMediaEvent.class);
-    log.info("Received {} media message", event.eventType());
-    service.handleMessages(event);
-    log.info("Successfully processed event for media {}", event.pidRecord().getPid());
-  }
+	@RabbitListener(queues = "${rabbitmq.specimen-doi-queue-name:specimen-doi-queue}",
+			containerFactory = "consumerBatchContainerFactory")
+	public void getSpecimenMessages(@Payload String message) throws DataCiteApiException {
+		var event = mapper.readValue(message, DigitalSpecimenEvent.class);
+		log.info("Received {} specimen message", event.eventType());
+		service.handleMessages(event);
+		log.info("Successfully processed event for specimen {}", event.pidRecord().getPid());
+	}
 
-  @RabbitListener(queues = "${rabbitmq.tombstone-doi-queue-name:tombstone-doi-queue}",
-      containerFactory = "consumerBatchContainerFactory")
-  public void tombstoneDois(@Payload String message)
-      throws DataCiteApiException {
-    var event = mapper.readValue(message, TombstoneEvent.class);
-    service.tombstoneRecord(event);
-  }
+	@RabbitListener(queues = "${rabbitmq.media-doi-queue-name:media-doi-queue}",
+			containerFactory = "consumerBatchContainerFactory")
+	public void getMediaMessages(@Payload String message) throws DataCiteApiException {
+		var event = mapper.readValue(message, DigitalMediaEvent.class);
+		log.info("Received {} media message", event.eventType());
+		service.handleMessages(event);
+		log.info("Successfully processed event for media {}", event.pidRecord().getPid());
+	}
+
+	@RabbitListener(queues = "${rabbitmq.tombstone-doi-queue-name:tombstone-doi-queue}",
+			containerFactory = "consumerBatchContainerFactory")
+	public void tombstoneDois(@Payload String message) throws DataCiteApiException {
+		var event = mapper.readValue(message, TombstoneEvent.class);
+		service.tombstoneRecord(event);
+	}
+
 }

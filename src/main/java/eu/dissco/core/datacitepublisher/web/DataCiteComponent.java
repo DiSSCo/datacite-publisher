@@ -14,28 +14,26 @@ import tools.jackson.databind.json.JsonMapper;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-@Profile({Profiles.PUBLISH, Profiles.WEB})
+@Profile({ Profiles.PUBLISH, Profiles.WEB })
 public class DataCiteComponent {
 
-  private final DataCiteClient dataCiteClient;
-  private final JsonMapper mapper;
+	private final DataCiteClient dataCiteClient;
 
-  public void createNewDataCiteRecord(JsonNode requestBody, String doi)
-      throws DataCiteApiException {
-    log.debug("Sending post request to DataCite with method: with doi: {} and  body: {}", doi,
-        requestBody);
-    dataCiteClient.postDoi(requestBody);
-  }
+	private final JsonMapper mapper;
 
-  public void updateDataCiteRecord(JsonNode requestBody, String doi) throws DataCiteApiException {
-    log.debug("Sending update request to DataCite with method: with doi: {} and  body: {}", doi,
-        requestBody);
-    dataCiteClient.updateDoi(doi, requestBody);
-  }
+	public void createNewDataCiteRecord(JsonNode requestBody, String doi) throws DataCiteApiException {
+		log.debug("Sending post request to DataCite with method: with doi: {} and  body: {}", doi, requestBody);
+		dataCiteClient.postDoi(requestBody);
+	}
 
-  public DcAttributes getDataCiteRecord(String doi) {
-    var response = dataCiteClient.getDataCiteRecord(doi);
-    return mapper.treeToValue(response.get("data").get("attributes"), DcAttributes.class);
-  }
+	public void updateDataCiteRecord(JsonNode requestBody, String doi) throws DataCiteApiException {
+		log.debug("Sending update request to DataCite with method: with doi: {} and  body: {}", doi, requestBody);
+		dataCiteClient.updateDoi(doi, requestBody);
+	}
+
+	public DcAttributes getDataCiteRecord(String doi) {
+		var response = dataCiteClient.getDataCiteRecord(doi);
+		return mapper.treeToValue(response.get("data").get("attributes"), DcAttributes.class);
+	}
 
 }

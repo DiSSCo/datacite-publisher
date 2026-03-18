@@ -18,31 +18,28 @@ import tools.jackson.databind.json.JsonMapper;
 @Slf4j
 public class DataCiteTestService extends DataCiteService {
 
-  public DataCiteTestService(
-      XmlLocReader xmlLocReader,
-      JsonMapper mapper,
-      DoiProperties properties) {
-    super(xmlLocReader, mapper, properties);
-  }
+	public DataCiteTestService(XmlLocReader xmlLocReader, JsonMapper mapper, DoiProperties properties) {
+		super(xmlLocReader, mapper, properties);
+	}
 
-  @Override
-  public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent) {
-    var dcRequest = buildDcRequest(digitalSpecimenEvent.pidRecord());
-    log.debug("Test profile: skipping publication of specimen record, {}", dcRequest);
-  }
+	@Override
+	public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent) {
+		var dcRequest = buildDcRequest(digitalSpecimenEvent.pidRecord());
+		log.debug("Test profile: skipping publication of specimen record, {}", dcRequest);
+	}
 
-  @Override
-  public void tombstoneRecord(TombstoneEvent event) {
-    var emptyTombstoneAttributes = new DcAttributes("", "", List.of(), List.of(), 0, List.of(),
-        List.of(), List.of(), List.of(), List.of(), null, List.of(), List.of(), "", null);
-    var dcRequest = buildDataCiteTombstoneRequest(emptyTombstoneAttributes, event);
-    log.debug("Test profile: skipping tombstoning of record, {}", dcRequest);
-  }
+	@Override
+	public void tombstoneRecord(TombstoneEvent event) {
+		var emptyTombstoneAttributes = new DcAttributes("", "", List.of(), List.of(), 0, List.of(), List.of(),
+				List.of(), List.of(), List.of(), null, List.of(), List.of(), "", null);
+		var dcRequest = buildDataCiteTombstoneRequest(emptyTombstoneAttributes, event);
+		log.debug("Test profile: skipping tombstoning of record, {}", dcRequest);
+	}
 
-  @Override
-  public void handleMessages(DigitalMediaEvent digitalMediaEvent) {
-    var dcRequest = buildDcRequest(digitalMediaEvent.pidRecord());
-    log.debug("Test profile: skipping publication of media record, {}", dcRequest);
-  }
+	@Override
+	public void handleMessages(DigitalMediaEvent digitalMediaEvent) {
+		var dcRequest = buildDcRequest(digitalMediaEvent.pidRecord());
+		log.debug("Test profile: skipping publication of media record, {}", dcRequest);
+	}
 
 }

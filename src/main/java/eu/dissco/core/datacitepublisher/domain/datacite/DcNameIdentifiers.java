@@ -12,7 +12,10 @@ import lombok.Setter;
 @Getter
 public class DcNameIdentifiers {
 
-  private String schemeUri;
-  private String nameIdentifier;
-  private String nameIdentifierScheme;
+	private String schemeUri;
+
+	private String nameIdentifier;
+
+	private String nameIdentifierScheme;
+
 }

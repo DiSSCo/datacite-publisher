@@ -11,14 +11,13 @@ import tools.jackson.databind.JsonNode;
 
 public interface DataCiteClient {
 
-  @PostExchange
-  void postDoi(@RequestBody JsonNode requestBody) throws DataCiteApiException;
+	@PostExchange
+	void postDoi(@RequestBody JsonNode requestBody) throws DataCiteApiException;
 
-  @PutExchange("{doi}")
-  void updateDoi(@PathVariable String doi, @RequestBody JsonNode requestBody)
-      throws DataCiteApiException;
+	@PutExchange("{doi}")
+	void updateDoi(@PathVariable String doi, @RequestBody JsonNode requestBody) throws DataCiteApiException;
 
-  @GetExchange("{doi}/?publisher=true")
-  JsonNode getDataCiteRecord(@RequestParam String doi);
+	@GetExchange("{doi}/?publisher=true")
+	JsonNode getDataCiteRecord(@RequestParam String doi);
 
 }
