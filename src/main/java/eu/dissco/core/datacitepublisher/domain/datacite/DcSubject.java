@@ -11,7 +11,9 @@ import lombok.Setter;
 @Setter(value = AccessLevel.PACKAGE)
 @Getter
 public class DcSubject {
-  private String subject;
-  private String subjectScheme;
+
+	private String subject;
+
+	private String subjectScheme;
 
 }

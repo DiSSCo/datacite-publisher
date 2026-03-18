@@ -1,7 +1,5 @@
 package eu.dissco.core.datacitepublisher.domain.datacite;
 
-
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,6 +16,8 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DcType {
 
-  private String resourceType;
-  private String resourceTypeGeneral;
+	private String resourceType;
+
+	private String resourceTypeGeneral;
+
 }

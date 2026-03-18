@@ -19,47 +19,57 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class XmlLocReader {
-  @Qualifier("xmlMapper")
-  private final XmlMapper xmlMapper;
 
-  public List<String> getLocationsFromXml(String xmlDoc) throws InvalidFdoProfileReceivedException {
-    if (xmlDoc == null) {
-      log.warn("No url provided");
-      return Collections.emptyList();
-    }
-    try {
-      var locations = xmlMapper.readValue(xmlDoc, LocationParentXml.class);
-      return locations.getLocation().stream().map(LocationXml::getHref).toList();
-    } catch (JsonProcessingException e){
-      log.error("Unable to parse 10320/loc field for fdo", e);
-      throw new InvalidFdoProfileReceivedException();
-    }
-  }
+	@Qualifier("xmlMapper")
+	private final XmlMapper xmlMapper;
 
-  public static String getLandingPageLocation(List<String> locations, String targetLoc){
-    for (var location : locations){
-      if (location.contains(targetLoc)){
-        return location;
-      }
-    }
-    log.warn(
-        "Unable to find landing page location from 10320/loc in doi record. Using first value in field");
-    return locations.getFirst();
-  }
+	public List<String> getLocationsFromXml(String xmlDoc) throws InvalidFdoProfileReceivedException {
+		if (xmlDoc == null) {
+			log.warn("No url provided");
+			return Collections.emptyList();
+		}
+		try {
+			var locations = xmlMapper.readValue(xmlDoc, LocationParentXml.class);
+			return locations.getLocation().stream().map(LocationXml::getHref).toList();
+		}
+		catch (JsonProcessingException e) {
+			log.error("Unable to parse 10320/loc field for fdo", e);
+			throw new InvalidFdoProfileReceivedException();
+		}
+	}
 
-  @Getter
-  @NoArgsConstructor
-  static class LocationParentXml {
-    @JacksonXmlCData
-    @JacksonXmlElementWrapper(useWrapping = false)
-    List<LocationXml> location;
-  }
-  @Setter
-  static class LocationXml {
-    @Getter
-    String href;
-    String id;
-    String weight;
-    String view;
-  }
+	public static String getLandingPageLocation(List<String> locations, String targetLoc) {
+		for (var location : locations) {
+			if (location.contains(targetLoc)) {
+				return location;
+			}
+		}
+		log.warn("Unable to find landing page location from 10320/loc in doi record. Using first value in field");
+		return locations.getFirst();
+	}
+
+	@Getter
+	@NoArgsConstructor
+	static class LocationParentXml {
+
+		@JacksonXmlCData
+		@JacksonXmlElementWrapper(useWrapping = false)
+		List<LocationXml> location;
+
+	}
+
+	@Setter
+	static class LocationXml {
+
+		@Getter
+		String href;
+
+		String id;
+
+		String weight;
+
+		String view;
+
+	}
+
 }

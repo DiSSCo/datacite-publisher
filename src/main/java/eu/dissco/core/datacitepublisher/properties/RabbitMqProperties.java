@@ -10,17 +10,16 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "rabbitmq")
 public class RabbitMqProperties {
 
-  @NotBlank
-  private String specimenDoiDlq = "specimen-doi-queue-dlq";
+	@NotBlank
+	private String specimenDoiDlq = "specimen-doi-queue-dlq";
 
-  @NotBlank
-  private String mediaDoiDlq = "media-doi-queue-dlq";
+	@NotBlank
+	private String mediaDoiDlq = "media-doi-queue-dlq";
 
-  @NotBlank
-  private String tombstoneDoiDlq = "tombstone-doi-queue-dlq";
+	@NotBlank
+	private String tombstoneDoiDlq = "tombstone-doi-queue-dlq";
 
-  @NotBlank
-  private String dlqExchangeName = "doi-exchange-dlq";
-
+	@NotBlank
+	private String dlqExchangeName = "doi-exchange-dlq";
 
 }

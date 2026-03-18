@@ -11,5 +11,7 @@ import lombok.Setter;
 @Setter(value = AccessLevel.PACKAGE)
 @Getter
 public class DcRequest {
-  private DcData data;
+
+	private DcData data;
+
 }

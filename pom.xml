@@ -20,6 +20,7 @@
     <sonar.organization>dissco</sonar.organization>
     <sonar.coverage.jacoco.xmlReportPaths>../app-it/target/site/jacoco-aggregate/jacoco.xml
 		</sonar.coverage.jacoco.xmlReportPaths>
+    <spring-format.version>0.0.47</spring-format.version>
   </properties>
   <dependencies>
     <dependency>
@@ -195,6 +196,11 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.spring.javaformat</groupId>
+        <artifactId>spring-javaformat-maven-plugin</artifactId>
+        <version>${spring-format.version}</version>
       </plugin>
     </plugins>
   </build>

@@ -17,56 +17,54 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class XmlLocReaderTest {
 
-  private XmlLocReader xmlLocReader;
+	private XmlLocReader xmlLocReader;
 
-  @BeforeEach
-  void init() {
-    xmlLocReader = new XmlLocReader(XML_MAPPER);
-  }
+	@BeforeEach
+	void init() {
+		xmlLocReader = new XmlLocReader(XML_MAPPER);
+	}
 
-  @Test
-  void testGetLocationsFromXml() throws Exception {
-    // When
-    var result = xmlLocReader.getLocationsFromXml(LOCS);
+	@Test
+	void testGetLocationsFromXml() throws Exception {
+		// When
+		var result = xmlLocReader.getLocationsFromXml(LOCS);
 
-    // Then
-    assertThat(result).hasSameElementsAs(LOCS_ARR);
-  }
+		// Then
+		assertThat(result).hasSameElementsAs(LOCS_ARR);
+	}
 
-  @Test
-  void testGetLocationsBadLocs() {
-    // When / Then
-    assertThrows(InvalidFdoProfileReceivedException.class,
-        () -> xmlLocReader.getLocationsFromXml("bad document"));
-  }
+	@Test
+	void testGetLocationsBadLocs() {
+		// When / Then
+		assertThrows(InvalidFdoProfileReceivedException.class, () -> xmlLocReader.getLocationsFromXml("bad document"));
+	}
 
-  @Test
-  void testGetLandingPageLocation() {
-    // Given
-    var targetPage = "https://sandbox.dissco.tech/ds/";
-    var expected = targetPage + PID;
-    var locsArr = List.of("https://sandbox.dissco.tech/specimens/api/v1/" + PID, expected);
+	@Test
+	void testGetLandingPageLocation() {
+		// Given
+		var targetPage = "https://sandbox.dissco.tech/ds/";
+		var expected = targetPage + PID;
+		var locsArr = List.of("https://sandbox.dissco.tech/specimens/api/v1/" + PID, expected);
 
-    // When
-    var result = XmlLocReader.getLandingPageLocation(locsArr, targetPage);
+		// When
+		var result = XmlLocReader.getLandingPageLocation(locsArr, targetPage);
 
-    // Then
-    assertThat(result).isEqualTo(expected);
-  }
+		// Then
+		assertThat(result).isEqualTo(expected);
+	}
 
-  @Test
-  void testGetLandingPageLocationDefaultToFirst() {
-    // Given
+	@Test
+	void testGetLandingPageLocationDefaultToFirst() {
+		// Given
 
-    var locsArr = List.of("https://sandbox.dissco.tech/specimens/api/v1/" + PID,
-        "https://sandbox.dissco.tech/ds/" + PID);
+		var locsArr = List.of("https://sandbox.dissco.tech/specimens/api/v1/" + PID,
+				"https://sandbox.dissco.tech/ds/" + PID);
 
-    // When
-    var result = XmlLocReader.getLandingPageLocation(locsArr, "otherTarget");
+		// When
+		var result = XmlLocReader.getLandingPageLocation(locsArr, "otherTarget");
 
-    // Then
-    assertThat(result).isEqualTo(locsArr.getFirst());
-  }
-
+		// Then
+		assertThat(result).isEqualTo(locsArr.getFirst());
+	}
 
 }

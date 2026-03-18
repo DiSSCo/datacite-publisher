@@ -10,15 +10,16 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 @ConfigurationProperties("datacite")
-@Profile({Profiles.PUBLISH, Profiles.WEB})
+@Profile({ Profiles.PUBLISH, Profiles.WEB })
 public class DataCiteConnectionProperties {
 
-  @NotBlank
-  private String repositoryId;
+	@NotBlank
+	private String repositoryId;
 
-  @NotBlank
-  private String password;
+	@NotBlank
+	private String password;
 
-  @NotBlank
-  private String endpoint;
+	@NotBlank
+	private String endpoint;
+
 }

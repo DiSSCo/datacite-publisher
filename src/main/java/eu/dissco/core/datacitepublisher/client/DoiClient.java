@@ -8,7 +8,7 @@ import tools.jackson.databind.JsonNode;
 
 public interface DoiClient {
 
-  @GetExchange("records")
-  JsonNode resolveDois(@RequestParam List<String> dois) throws DoiResolutionException;
+	@GetExchange("records")
+	JsonNode resolveDois(@RequestParam List<String> dois) throws DoiResolutionException;
 
 }

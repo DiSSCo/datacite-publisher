@@ -14,7 +14,8 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DcData {
 
-  private final String type = "dois";
-  private DcAttributes attributes;
+	private final String type = "dois";
+
+	private DcAttributes attributes;
 
 }

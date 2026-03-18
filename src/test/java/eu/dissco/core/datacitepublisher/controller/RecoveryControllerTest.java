@@ -14,25 +14,25 @@ import org.springframework.http.HttpStatus;
 @ExtendWith(MockitoExtension.class)
 class RecoveryControllerTest {
 
-  @Mock
-  private RecoveryService recoveryService;
+	@Mock
+	private RecoveryService recoveryService;
 
-  private RecoveryController recoveryController;
+	private RecoveryController recoveryController;
 
-  @BeforeEach
-  void init(){
-    recoveryController = new RecoveryController(recoveryService);
-  }
+	@BeforeEach
+	void init() {
+		recoveryController = new RecoveryController(recoveryService);
+	}
 
-  @Test
-  void testRecoverPids() throws Exception {
-    // Given
+	@Test
+	void testRecoverPids() throws Exception {
+		// Given
 
-    // When
-    var result = recoveryController.recoverPids(givenRecoveryEvent());
+		// When
+		var result = recoveryController.recoverPids(givenRecoveryEvent());
 
-    // Then
-    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
+		// Then
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
 
 }

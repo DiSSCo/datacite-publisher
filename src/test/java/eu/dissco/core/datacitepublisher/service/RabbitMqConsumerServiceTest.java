@@ -17,52 +17,53 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RabbitMqConsumerServiceTest {
 
-  @Mock
-  private DataCitePublisherService dataCiteService;
-  private RabbitMqConsumerService rabbitMqConsumerService;
+	@Mock
+	private DataCitePublisherService dataCiteService;
 
-  @BeforeEach
-  void setup() {
-    rabbitMqConsumerService = new RabbitMqConsumerService(MAPPER, dataCiteService);
-  }
+	private RabbitMqConsumerService rabbitMqConsumerService;
 
-  @Test
-  void testHandleSpecimenMessages() throws Exception {
-    // Given
-    var event = givenDigitalSpecimenEvent();
-    var message = MAPPER.writeValueAsString(event);
+	@BeforeEach
+	void setup() {
+		rabbitMqConsumerService = new RabbitMqConsumerService(MAPPER, dataCiteService);
+	}
 
-    // When
-    rabbitMqConsumerService.getSpecimenMessages(message);
+	@Test
+	void testHandleSpecimenMessages() throws Exception {
+		// Given
+		var event = givenDigitalSpecimenEvent();
+		var message = MAPPER.writeValueAsString(event);
 
-    // Then
-    then(dataCiteService).should().handleMessages(event);
-  }
+		// When
+		rabbitMqConsumerService.getSpecimenMessages(message);
 
-  @Test
-  void testHandleMediaMessages() throws Exception {
-    // Given
-    var event = givenDigitalMediaEvent();
-    var message = MAPPER.writeValueAsString(event);
+		// Then
+		then(dataCiteService).should().handleMessages(event);
+	}
 
-    // When
-    rabbitMqConsumerService.getMediaMessages(message);
+	@Test
+	void testHandleMediaMessages() throws Exception {
+		// Given
+		var event = givenDigitalMediaEvent();
+		var message = MAPPER.writeValueAsString(event);
 
-    // Then
-    then(dataCiteService).should().handleMessages(event);
-  }
+		// When
+		rabbitMqConsumerService.getMediaMessages(message);
 
-  @Test
-  void testHandleTombstoneMessages() throws Exception {
-    // Given
-    var event = givenTombstoneEvent();
-    var message = MAPPER.writeValueAsString(event);
+		// Then
+		then(dataCiteService).should().handleMessages(event);
+	}
 
-    // When
-    rabbitMqConsumerService.tombstoneDois(message);
+	@Test
+	void testHandleTombstoneMessages() throws Exception {
+		// Given
+		var event = givenTombstoneEvent();
+		var message = MAPPER.writeValueAsString(event);
 
-    // Then
-    then(dataCiteService).should().tombstoneRecord(any(TombstoneEvent.class));
-  }
+		// When
+		rabbitMqConsumerService.tombstoneDois(message);
+
+		// Then
+		then(dataCiteService).should().tombstoneRecord(any(TombstoneEvent.class));
+	}
 
 }

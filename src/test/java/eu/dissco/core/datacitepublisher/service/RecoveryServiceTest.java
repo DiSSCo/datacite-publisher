@@ -34,140 +34,131 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RecoveryServiceTest {
 
-  @Mock
-  private DoiResolutionComponent doiClient;
-  @Mock
-  private DataCitePublisherService dataCitePublisherService;
-  @Mock
-  private DoiConnectionProperties doiConnectionProperties;
+	@Mock
+	private DoiResolutionComponent doiClient;
 
-  private RecoveryService recoveryService;
+	@Mock
+	private DataCitePublisherService dataCitePublisherService;
 
-  @BeforeEach
-  void init() {
-    recoveryService = new RecoveryService(doiClient, dataCitePublisherService, MAPPER,
-        doiConnectionProperties);
-  }
+	@Mock
+	private DoiConnectionProperties doiConnectionProperties;
 
-  @Test
-  void testRecoverDoisSpecimen() throws Exception {
-    // Given
-    given(doiClient.resolveDois(List.of(DOI, DOI_ALT)))
-        .willReturn(givenDigitalSpecimenPidRecord());
-    given(doiConnectionProperties.getMaxDois()).willReturn(10);
+	private RecoveryService recoveryService;
 
-    // When
-    recoveryService.recoverDataciteDois(givenRecoveryEvent());
+	@BeforeEach
+	void init() {
+		recoveryService = new RecoveryService(doiClient, dataCitePublisherService, MAPPER, doiConnectionProperties);
+	}
 
-    // Then
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE));
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(PID_ALT), EventType.CREATE));
-  }
+	@Test
+	void testRecoverDoisSpecimen() throws Exception {
+		// Given
+		given(doiClient.resolveDois(List.of(DOI, DOI_ALT))).willReturn(givenDigitalSpecimenPidRecord());
+		given(doiConnectionProperties.getMaxDois()).willReturn(10);
 
-  @Test
-  void testRecoverDoisSpecimenUnknownEventType() throws Exception {
-    // Given
-    given(doiClient.resolveDois(List.of(DOI, DOI_ALT)))
-        .willReturn(givenDigitalSpecimenPidRecord());
-    given(doiConnectionProperties.getMaxDois()).willReturn(10);
-    var event = new RecoveryEvent(List.of(DOI, DOI_ALT), null);
-    var createEvent = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
-    doThrow(DataCiteConflictException.class).when(dataCitePublisherService)
-        .handleMessages(createEvent);
+		// When
+		recoveryService.recoverDataciteDois(givenRecoveryEvent());
 
-    // When
-    recoveryService.recoverDataciteDois(event);
+		// Then
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE));
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(PID_ALT), EventType.CREATE));
+	}
 
-    // Then
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.UPDATE));
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(PID_ALT), EventType.CREATE));
-  }
+	@Test
+	void testRecoverDoisSpecimenUnknownEventType() throws Exception {
+		// Given
+		given(doiClient.resolveDois(List.of(DOI, DOI_ALT))).willReturn(givenDigitalSpecimenPidRecord());
+		given(doiConnectionProperties.getMaxDois()).willReturn(10);
+		var event = new RecoveryEvent(List.of(DOI, DOI_ALT), null);
+		var createEvent = new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.CREATE);
+		doThrow(DataCiteConflictException.class).when(dataCitePublisherService).handleMessages(createEvent);
 
-  @Test
-  void testRecoverDoisMedia() throws Exception {
-    // Given
-    given(doiClient.resolveDois(List.of(DOI, DOI_ALT)))
-        .willReturn(givenDigitalMediaJson());
-    given(doiConnectionProperties.getMaxDois()).willReturn(10);
+		// When
+		recoveryService.recoverDataciteDois(event);
 
-    // When
-    recoveryService.recoverDataciteDois(givenRecoveryEvent());
+		// Then
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(), EventType.UPDATE));
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalSpecimenEvent(givenDigitalSpecimen(PID_ALT), EventType.CREATE));
+	}
 
-    // Then
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE));
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalMediaEvent(givenDigitalMedia(PID_ALT), EventType.CREATE));
-  }
+	@Test
+	void testRecoverDoisMedia() throws Exception {
+		// Given
+		given(doiClient.resolveDois(List.of(DOI, DOI_ALT))).willReturn(givenDigitalMediaJson());
+		given(doiConnectionProperties.getMaxDois()).willReturn(10);
 
-  @Test
-  void testRecoverDoisMediaUnknownEventType() throws Exception {
-    // Given
-    given(doiClient.resolveDois(List.of(DOI, DOI_ALT)))
-        .willReturn(givenDigitalMediaJson());
-    given(doiConnectionProperties.getMaxDois()).willReturn(10);
-    var event = new RecoveryEvent(List.of(DOI, DOI_ALT), null);
-    var createEvent = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
-    doThrow(DataCiteConflictException.class).when(dataCitePublisherService)
-        .handleMessages(createEvent);
+		// When
+		recoveryService.recoverDataciteDois(givenRecoveryEvent());
 
-    // When
-    recoveryService.recoverDataciteDois(event);
+		// Then
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE));
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalMediaEvent(givenDigitalMedia(PID_ALT), EventType.CREATE));
+	}
 
-    // Then
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalMediaEvent(givenDigitalMedia(), EventType.UPDATE));
-    then(dataCitePublisherService).should()
-        .handleMessages(new DigitalMediaEvent(givenDigitalMedia(PID_ALT), EventType.CREATE));
-  }
+	@Test
+	void testRecoverDoisMediaUnknownEventType() throws Exception {
+		// Given
+		given(doiClient.resolveDois(List.of(DOI, DOI_ALT))).willReturn(givenDigitalMediaJson());
+		given(doiConnectionProperties.getMaxDois()).willReturn(10);
+		var event = new RecoveryEvent(List.of(DOI, DOI_ALT), null);
+		var createEvent = new DigitalMediaEvent(givenDigitalMedia(), EventType.CREATE);
+		doThrow(DataCiteConflictException.class).when(dataCitePublisherService).handleMessages(createEvent);
 
-  @Test
-  void testRecoverDoisSpecimenTwoPages() {
-    // Given
-    given(doiConnectionProperties.getMaxDois()).willReturn(1);
-    var event = new RecoveryEvent(
-        List.of(DOI, DOI_ALT), EventType.CREATE
-    );
+		// When
+		recoveryService.recoverDataciteDois(event);
 
-    // When / then
-    assertThrows(InvalidRequestException.class, () -> recoveryService.recoverDataciteDois(event));
-  }
+		// Then
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalMediaEvent(givenDigitalMedia(), EventType.UPDATE));
+		then(dataCitePublisherService).should()
+			.handleMessages(new DigitalMediaEvent(givenDigitalMedia(PID_ALT), EventType.CREATE));
+	}
 
-  @Test
-  void testRecoverDoisMissingData() throws Exception {
-    // Given
-    var doiMessage = MAPPER.readTree("""
-        {
-          "links":"https://dev.dissco.tech/api/v1/pids/records"
-        }
-        """);
-    given(doiClient.resolveDois(anyList())).willReturn(doiMessage);
-    given(doiConnectionProperties.getMaxDois()).willReturn(10);
+	@Test
+	void testRecoverDoisSpecimenTwoPages() {
+		// Given
+		given(doiConnectionProperties.getMaxDois()).willReturn(1);
+		var event = new RecoveryEvent(List.of(DOI, DOI_ALT), EventType.CREATE);
 
-    // Then
-    assertThrows(DoiResolutionException.class,
-        () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
-  }
+		// When / then
+		assertThrows(InvalidRequestException.class, () -> recoveryService.recoverDataciteDois(event));
+	}
 
-  @Test
-  void testRecoverDoisDataNotArray() throws Exception {
-    // Given
-    var doiMessage = MAPPER.readTree("""
-        {
-          "links":"https://dev.dissco.tech/api/v1/pids/records",
-          "data": "yep"
-        }
-        """);
-    given(doiClient.resolveDois(anyList())).willReturn(doiMessage);
-    given(doiConnectionProperties.getMaxDois()).willReturn(10);
+	@Test
+	void testRecoverDoisMissingData() throws Exception {
+		// Given
+		var doiMessage = MAPPER.readTree("""
+				{
+				  "links":"https://dev.dissco.tech/api/v1/pids/records"
+				}
+				""");
+		given(doiClient.resolveDois(anyList())).willReturn(doiMessage);
+		given(doiConnectionProperties.getMaxDois()).willReturn(10);
 
-    // Then
-    assertThrows(DoiResolutionException.class,
-        () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
-  }
+		// Then
+		assertThrows(DoiResolutionException.class, () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
+	}
+
+	@Test
+	void testRecoverDoisDataNotArray() throws Exception {
+		// Given
+		var doiMessage = MAPPER.readTree("""
+				{
+				  "links":"https://dev.dissco.tech/api/v1/pids/records",
+				  "data": "yep"
+				}
+				""");
+		given(doiClient.resolveDois(anyList())).willReturn(doiMessage);
+		given(doiConnectionProperties.getMaxDois()).willReturn(10);
+
+		// Then
+		assertThrows(DoiResolutionException.class, () -> recoveryService.recoverDataciteDois(givenRecoveryEvent()));
+	}
 
 }

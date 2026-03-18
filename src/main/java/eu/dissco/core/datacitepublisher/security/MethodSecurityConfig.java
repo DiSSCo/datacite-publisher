@@ -10,13 +10,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 @Configuration
 @EnableMethodSecurity
-@Profile({Profiles.PUBLISH, Profiles.WEB})
+@Profile({ Profiles.PUBLISH, Profiles.WEB })
 public class MethodSecurityConfig {
 
-  @Bean
-  protected MethodSecurityExpressionHandler createExpressionHandler() {
-    return new DefaultMethodSecurityExpressionHandler();
-  }
+	@Bean
+	protected MethodSecurityExpressionHandler createExpressionHandler() {
+		return new DefaultMethodSecurityExpressionHandler();
+	}
 
 }
-

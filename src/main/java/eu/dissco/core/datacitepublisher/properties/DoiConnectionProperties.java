@@ -11,13 +11,13 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 @ConfigurationProperties("pid")
-@Profile({Profiles.PUBLISH, Profiles.WEB})
+@Profile({ Profiles.PUBLISH, Profiles.WEB })
 public class DoiConnectionProperties {
 
-  @NotBlank
-  private String endpoint;
+	@NotBlank
+	private String endpoint;
 
-  @NotNull
-  private int maxDois = 100;
+	@NotNull
+	private int maxDois = 100;
 
 }

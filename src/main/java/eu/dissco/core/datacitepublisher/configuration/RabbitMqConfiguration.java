@@ -12,22 +12,22 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 public class RabbitMqConfiguration {
 
-  private final MessageCompressionComponent compressedMessageConverter;
+	private final MessageCompressionComponent compressedMessageConverter;
 
-  @Bean
-  public SimpleRabbitListenerContainerFactory consumerBatchContainerFactory(
-      ConnectionFactory connectionFactory) {
-    SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-    factory.setConnectionFactory(connectionFactory);
-    factory.setMessageConverter(compressedMessageConverter);
-    return factory;
-  }
+	@Bean
+	public SimpleRabbitListenerContainerFactory consumerBatchContainerFactory(ConnectionFactory connectionFactory) {
+		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+		factory.setConnectionFactory(connectionFactory);
+		factory.setMessageConverter(compressedMessageConverter);
+		return factory;
+	}
 
-  @Bean
-  public RabbitTemplate compressedTemplate(ConnectionFactory connectionFactory,
-      MessageCompressionComponent compressedMessageConverter) {
-    var rabbitTemplate = new RabbitTemplate(connectionFactory);
-    rabbitTemplate.setMessageConverter(compressedMessageConverter);
-    return rabbitTemplate;
-  }
+	@Bean
+	public RabbitTemplate compressedTemplate(ConnectionFactory connectionFactory,
+			MessageCompressionComponent compressedMessageConverter) {
+		var rabbitTemplate = new RabbitTemplate(connectionFactory);
+		rabbitTemplate.setMessageConverter(compressedMessageConverter);
+		return rabbitTemplate;
+	}
+
 }

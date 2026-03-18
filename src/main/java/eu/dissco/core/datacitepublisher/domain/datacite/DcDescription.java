@@ -13,6 +13,9 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class DcDescription {
-  private String description;
-  private final String descriptionType = "TechnicalInfo";
+
+	private String description;
+
+	private final String descriptionType = "TechnicalInfo";
+
 }

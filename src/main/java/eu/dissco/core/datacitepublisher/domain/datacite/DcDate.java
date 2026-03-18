@@ -13,7 +13,9 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class DcDate {
-  private String date;
-  private String dateType;
+
+	private String date;
+
+	private String dateType;
 
 }

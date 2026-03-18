@@ -23,14 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Profile(Profiles.WEB)
 public class RecoveryController {
 
-  private final RecoveryService recoveryService;
+	private final RecoveryService recoveryService;
 
-  @PostMapping("")
-  public ResponseEntity<Void> recoverPids(@RequestBody RecoveryEvent event)
-      throws DoiResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
-    recoveryService.recoverDataciteDois(event);
-    return ResponseEntity.ok(null);
-  }
-
+	@PostMapping("")
+	public ResponseEntity<Void> recoverPids(@RequestBody RecoveryEvent event)
+			throws DoiResolutionException, DataCiteApiException, JsonProcessingException, InvalidRequestException {
+		recoveryService.recoverDataciteDois(event);
+		return ResponseEntity.ok(null);
+	}
 
 }

@@ -18,50 +18,48 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @Slf4j
-@Profile({Profiles.PUBLISH, Profiles.WEB})
+@Profile({ Profiles.PUBLISH, Profiles.WEB })
 public class DataCitePublisherService extends DataCiteService {
 
-  @Qualifier("datacite")
-  private final DataCiteComponent dataCiteClient;
+	@Qualifier("datacite")
+	private final DataCiteComponent dataCiteClient;
 
-  public DataCitePublisherService(XmlLocReader xmlLocReader,
-      JsonMapper mapper,
-      DoiProperties properties, DataCiteComponent dataCiteClient) {
-    super(xmlLocReader, mapper, properties);
-    this.dataCiteClient = dataCiteClient;
-  }
+	public DataCitePublisherService(XmlLocReader xmlLocReader, JsonMapper mapper, DoiProperties properties,
+			DataCiteComponent dataCiteClient) {
+		super(xmlLocReader, mapper, properties);
+		this.dataCiteClient = dataCiteClient;
+	}
 
-  @Override
-  public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent)
-      throws DataCiteApiException {
-    var dcRequest = buildDcRequest(digitalSpecimenEvent.pidRecord());
-    publishToDataCite(dcRequest, digitalSpecimenEvent.eventType());
-  }
+	@Override
+	public void handleMessages(DigitalSpecimenEvent digitalSpecimenEvent) throws DataCiteApiException {
+		var dcRequest = buildDcRequest(digitalSpecimenEvent.pidRecord());
+		publishToDataCite(dcRequest, digitalSpecimenEvent.eventType());
+	}
 
-  @Override
-  public void handleMessages(DigitalMediaEvent digitalMediaEvent) throws DataCiteApiException {
-    var dcRequest = buildDcRequest(digitalMediaEvent.pidRecord());
-    publishToDataCite(dcRequest, digitalMediaEvent.eventType());
-  }
+	@Override
+	public void handleMessages(DigitalMediaEvent digitalMediaEvent) throws DataCiteApiException {
+		var dcRequest = buildDcRequest(digitalMediaEvent.pidRecord());
+		publishToDataCite(dcRequest, digitalMediaEvent.eventType());
+	}
 
-  @Override
-  public void tombstoneRecord(TombstoneEvent event) throws DataCiteApiException {
-    var dcRecord = dataCiteClient.getDataCiteRecord(event.doi());
-    var dcRequest = buildDataCiteTombstoneRequest(dcRecord, event);
-    publishToDataCite(dcRequest, EventType.TOMBSTONE);
-  }
+	@Override
+	public void tombstoneRecord(TombstoneEvent event) throws DataCiteApiException {
+		var dcRecord = dataCiteClient.getDataCiteRecord(event.doi());
+		var dcRequest = buildDataCiteTombstoneRequest(dcRecord, event);
+		publishToDataCite(dcRequest, EventType.TOMBSTONE);
+	}
 
-  protected void publishToDataCite(DcRequest request, EventType eventType)
-      throws DataCiteApiException {
-    var body = mapper.valueToTree(request);
-    log.info("Sending {} request to datacite with DOI {}", eventType.name(),
-        request.getData().getAttributes().getDoi());
-    if (eventType.equals(EventType.CREATE)) {
-      dataCiteClient.createNewDataCiteRecord(body, request.getData().getAttributes().getDoi());
-    } else {
-      dataCiteClient.updateDataCiteRecord(body, request.getData().getAttributes().getDoi());
-    }
-    log.info("Successfully {}D DOI {} to datacite", eventType.name(),
-        request.getData().getAttributes().getDoi());
-  }
+	protected void publishToDataCite(DcRequest request, EventType eventType) throws DataCiteApiException {
+		var body = mapper.valueToTree(request);
+		log.info("Sending {} request to datacite with DOI {}", eventType.name(),
+				request.getData().getAttributes().getDoi());
+		if (eventType.equals(EventType.CREATE)) {
+			dataCiteClient.createNewDataCiteRecord(body, request.getData().getAttributes().getDoi());
+		}
+		else {
+			dataCiteClient.updateDataCiteRecord(body, request.getData().getAttributes().getDoi());
+		}
+		log.info("Successfully {}D DOI {} to datacite", eventType.name(), request.getData().getAttributes().getDoi());
+	}
+
 }
