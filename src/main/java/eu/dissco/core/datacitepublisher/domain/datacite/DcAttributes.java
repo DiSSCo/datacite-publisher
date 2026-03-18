@@ -47,8 +47,8 @@ public class DcAttributes {
 	private DcType types; // "Digital Specimen" or "Media Object". Resource Type General =
 							// Other (TBD)
 
-	private List<DcRelatedIdentifiers> relatedIdentifiers; // tombstone pids; primary
-															// specimenObjectId;
+	private List<DcRelatedIdentifiers> relatedIdentifiers; // tombstone pids,
+															// primarySpecimenObjectId,
 															// primaryMediaId
 
 	private List<DcDescription> descriptions; // Specimen: Host + materialSampleType,
